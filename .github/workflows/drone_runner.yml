@@ -1,0 +1,22 @@
+name: droneRunner
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  dronerunner:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: run drone runner
+      run: |
+        export DRONE_RUNNER_NAME=docker-worker-gh-`uuidgen |sed 's/-//g'`
+        echo $DRONE_RUNNER_NAME
+        docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock -e DRONE_RPC_HOST=${{ secrets.DRONE_SERVER }} -e DRONE_RPC_SECRET=c64bab058885900124d31250b6780307 \
+        -e DRONE_RUNNER_NAME=$DRONE_RUNNER_NAME -e DRONE_RUNNER_CAPACITY=2 -e TZ=Asia/Shanghai  --name drone drone/drone-runner-docker:1.8.2
+        sleep 20m
