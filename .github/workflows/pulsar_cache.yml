@@ -19,6 +19,8 @@
 
 name: pulsar_cache
 on:
+  push:
+    branches: [ pulsar ]
   schedule:
     - cron: '30 */12 * * *'
 
