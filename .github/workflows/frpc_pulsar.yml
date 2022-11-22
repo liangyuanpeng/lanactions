@@ -30,6 +30,13 @@ jobs:
     name: start_frpc
     runs-on: ubuntu-20.04
     steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: mv frpc.tar
+        run: mv frpc.tar /tmp/frpc.tar
+
       - name: checkout
         uses: actions/checkout@v3
         with:
@@ -68,6 +75,7 @@ jobs:
       - name: run frpc
         run: |
           env
+          mv /frpc.tar .
           tar -xvf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
           sed -i 's/FRPC_NAME/github_${{ inputs.port }}/g' frpc.ini
