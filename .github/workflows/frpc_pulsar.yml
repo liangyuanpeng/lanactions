@@ -27,7 +27,7 @@ on:
 
 jobs:
   build:
-    name: build_docker_image
+    name: start_frpc
     runs-on: ubuntu-20.04
     steps:
       - name: checkout
@@ -68,7 +68,6 @@ jobs:
       - name: run frpc
         run: |
           env
-          wget ${{ secrets.DOWNLOAD }}
           tar -xvf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
           sed -i 's/FRPC_NAME/github_${{ inputs.port }}/g' frpc.ini
