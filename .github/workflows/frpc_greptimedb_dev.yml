@@ -20,7 +20,6 @@
 name: frpc_greptimedb
 on:
   push:
-    branches: [ nightly_build ]
 
 jobs:
   build:
