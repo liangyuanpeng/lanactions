@@ -37,7 +37,6 @@ jobs:
       - name: mv frpc.tar
         run: |
           mv frpc.tar /tmp/frpc.tar
-          ls  -allh /tmp/frpc.tar
 
       - name: checkout
         uses: actions/checkout@v3
@@ -77,8 +76,7 @@ jobs:
       - name: run frpc
         run: |
           env
-          ls -allh /tmp/frpc.tar
-          mv /frpc.tar .
+          mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
           sed -i 's/FRPC_NAME/github_${{ inputs.port }}/g' frpc.ini
