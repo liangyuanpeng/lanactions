@@ -62,7 +62,7 @@ jobs:
             ~/.m2/repository/*/*/*
             !~/.m2/repository/org/apache/pulsar
           key: ${{ runner.os }}-pulsar-m2-dependencies-core-modules-${{ hashFiles('**/pom.xml') }}
-           hua: |
+          restore-keys: |
             ${{ runner.os }}-pulsar-m2-dependencies-core-modules-
 
       - name: run frpc
