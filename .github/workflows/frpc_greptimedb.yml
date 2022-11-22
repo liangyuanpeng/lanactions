@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: frpc_keda
+name: frpc_greptimedb
 on:
   workflow_dispatch:
     inputs:
@@ -41,7 +41,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
         with:
-          repository: "kedacore/keda"
+          repository: "GreptimeTeam/greptimedb"
           fetch-depth: 1
 
       - name: set env
@@ -59,7 +59,6 @@ jobs:
 
       - name: run frpc
         run: |
-          nohup docker pull kindest/node:v1.25.0 &
           env
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc

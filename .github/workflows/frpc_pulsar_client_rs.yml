@@ -62,6 +62,7 @@ jobs:
 
       - name: run frpc
         run: |
+          nohup docker pull apachepulsar/pulsar:2.10.2 &
           env
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
@@ -72,12 +73,3 @@ jobs:
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           
           ./frpc -c frpc.ini
-          
-          
-       #   sed -i 's/FRPC_NAME/github_${{ secrets.SSH_PORT }}/g' frpc.ini
-       #   sed -i 's/FRPC_PORT/${{ secrets.SSH_PORT }}/g' frpc.ini
-          
-          
-        #  ./frpc -c frpc.ini
-
-# export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
