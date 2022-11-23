@@ -71,7 +71,7 @@ jobs:
           ./install.sh
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
-          export KUBECONFIG=/mnt/config/admin.conf
+          export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
           docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
           cat /tmp/fprc/frpc.log
