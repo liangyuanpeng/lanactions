@@ -74,6 +74,7 @@ jobs:
           export KUBECONFIG=/mnt/config/admin.conf
           ./setup.sh
           docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
+          cat /tmp/fprc/frpc.log
           docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
 
   active:
