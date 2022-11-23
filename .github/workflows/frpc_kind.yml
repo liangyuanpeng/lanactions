@@ -77,6 +77,7 @@ jobs:
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           nohup  ./frpc -c frpc.ini  &
+          ls
           docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
           ./install.sh
           export CLUSTER_HOST=0.0.0.0
