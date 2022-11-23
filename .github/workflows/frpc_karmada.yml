@@ -24,6 +24,7 @@ on:
       port:
         description: 'port'
         required: true
+  pull_request:
 
 jobs:
 
