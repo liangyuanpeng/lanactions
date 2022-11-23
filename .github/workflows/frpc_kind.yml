@@ -17,11 +17,13 @@
 # under the License.
 #
 
-name: frpc_greptimedb_dev
+name: frpc_kind
 on:
-  push:
-    branches:
-      - test
+  workflow_dispatch:
+    inputs:
+      port:
+        description: 'port'
+        required: true
 
 jobs:
   build:
@@ -35,12 +37,6 @@ jobs:
       - name: mv frpc.tar
         run: |
           mv frpc.tar /tmp/frpc.tar
-
-      - name: checkout
-        uses: actions/checkout@v3
-        with:
-          repository: "GreptimeTeam/greptimedb"
-          fetch-depth: 1
 
       - name: set env
         run: |
@@ -57,13 +53,15 @@ jobs:
 
       - name: run frpc
         run: |
+          nohup docker pull kindest/node:v1.25.0 &
           env
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
-          sed -i 's/FRPC_PORT/8227/g' frpc.ini
-          sed -i 's/FRPC_NAME/github_8227/g' frpc.ini
+          sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
+          sed -i 's/FRPC_NAME/github_${{ inputs.port }}/g' frpc.ini
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
-          
-          ./frpc -c frpc.ini
+          nohup  ./frpc -c frpc.ini  &
+          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
+          docker run -v $PWD:/tmp -e FILE_PATH=/tmp/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
