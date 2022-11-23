@@ -14,7 +14,8 @@ docker ps -a
 cat ${KUBECONFIG}
 #replace localhost or 0.0.0.0 in the kubeconfig file with "docker", in order to be able to reach the cluster through the docker service
 #sed -i -E -e 's/localhost|0\.0\.0\.0/'"$CLUSTER_HOST"'/g' ${KUBECONFIG}
-kind export kubeconfig --name $CLUSTER_NAME --internal
+
+#kind export kubeconfig --name $CLUSTER_NAME --internal
 
 
 # docker logs $CLUSTER_HOST
