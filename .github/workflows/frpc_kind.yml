@@ -28,16 +28,6 @@ on:
 
 jobs:
 
-  active:
-    name: print
-    runs-on: ubuntu-20.04
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - run: |
-          env
 
   frpc:
     name: start_frpc
@@ -84,3 +74,14 @@ jobs:
           ./setup.sh
           docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
           docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
+          
+  active:
+    name: print
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - run: |
+          env
