@@ -24,11 +24,25 @@ on:
       port:
         description: 'port'
         required: true
+  pull_request:
 
 jobs:
-  build:
+
+  active:
+    name: print
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - run: |
+          env
+
+  frpc:
     name: start_frpc
     runs-on: ubuntu-20.04
+    if: ${{ github.event.workflow_dispatch }}
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
