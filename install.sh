@@ -9,9 +9,14 @@ KUBECTL=v1.25.0
 KIND=v0.15.0
 
 install(){
-  wget -O /usr/local/bin/$1 $2
-  chmod +x /usr/local/bin/$1
+  wget -O $1 $2
+  chmod +x $1
 }
+
+# install(){
+#   wget -O /usr/local/bin/$1 $2
+#   chmod +x /usr/local/bin/$1
+# }
 
 # installing kind
 install "kind" "https://github.com/kubernetes-sigs/kind/releases/download/${KIND}/kind-linux-amd64"
