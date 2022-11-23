@@ -42,7 +42,7 @@ jobs:
   frpc:
     name: start_frpc
     runs-on: ubuntu-20.04
-    if: ${{ github.event.workflow_dispatch }}
+    if: ${{ github.event.workflow_run  }}
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
