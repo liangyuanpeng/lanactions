@@ -62,4 +62,6 @@ jobs:
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
-          ./frpc -c frpc.ini
+          nohup  ./frpc -c frpc.ini  &
+          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
+          docker run -v $PWD:/tmp -e FILE_PATH=/tmp/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
