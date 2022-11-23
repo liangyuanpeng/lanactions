@@ -5,10 +5,10 @@ set -o nounset;
 # debug commands
 set -x;
 
-sed -i -E -e 's/docker/'"$CLUSTER_HOST"'/g' drone/kind-config
+sed -i -E -e 's/docker/'"$CLUSTER_HOST"'/g' kind-config
 
 
-kind create cluster --name "$CLUSTER_NAME" --config drone/kind-config --wait 1m
+kind create cluster --name "$CLUSTER_NAME" --config kind-config --wait 1m
 
 docker ps -a
 cat ${KUBECONFIG}
