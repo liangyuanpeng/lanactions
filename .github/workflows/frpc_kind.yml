@@ -72,7 +72,7 @@ jobs:
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
-          frpc/frpc -c frpc.ini
+          frpc/frpc -c frpc/frpc.ini
           ./setup.sh
           docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
           cat /tmp/fprc/frpc.log
