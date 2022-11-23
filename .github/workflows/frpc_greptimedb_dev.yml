@@ -17,9 +17,11 @@
 # under the License.
 #
 
-name: frpc_greptimedb
+name: frpc_greptimedb_dev
 on:
   push:
+    branches:
+      - test
 
 jobs:
   build:
