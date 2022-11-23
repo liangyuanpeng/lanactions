@@ -25,16 +25,7 @@ on:
 
 jobs:
 
-  active:
-    name: print
-    runs-on: ubuntu-20.04
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - run: |
-          env
+
 
   build:
     name: start_frpc
@@ -79,3 +70,14 @@ jobs:
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           
           ./frpc -c frpc.ini
+
+  active:
+    name: print
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - run: |
+          env
