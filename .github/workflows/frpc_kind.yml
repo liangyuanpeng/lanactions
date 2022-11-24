@@ -92,6 +92,7 @@ jobs:
 
       - name: start frpc 
         run: |
+          ls && pwd
           frpc/frpc -c frpc/frpc.ini
 
 #          docker run --privileged -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4 -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
