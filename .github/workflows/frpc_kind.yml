@@ -71,6 +71,7 @@ jobs:
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
+          frpc/frpc -c frpc/frpc.ini
           ./setup.sh
           curl -X POST  -F file=@/tmp/admin.conf -F "init kind success!" -F channels=${{ secrets.SLACK_CHANNEL }} -H "Authorization: Bearer $${{ secrets.SLACK_TOKEN }}" https://slack.com/api/files.upload
           frpc/frpc -c frpc/frpc.ini
