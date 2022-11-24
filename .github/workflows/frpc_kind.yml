@@ -62,6 +62,7 @@ jobs:
         run: |
           nohup docker pull kindest/node:v1.25.0 &
           nohup docker pull ibmcom/curl:4.2.0-f4 &
+          touch nohup.out && cat nohup.out
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
           cat frpc.ini
@@ -79,7 +80,7 @@ jobs:
           ./setup.sh
           chmod -R 777 /tmp/admin.conf
           ls -allh /tmp/admin.conf
-          docker run --privileged -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4  -X POST -H "Expect:" -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
+          docker run --privileged -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4 -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
           frpc/frpc -c frpc/frpc.ini
 
 #          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
