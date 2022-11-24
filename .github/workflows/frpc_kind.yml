@@ -71,12 +71,10 @@ jobs:
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
-          frpc/frpc -c frpc/frpc.ini
           ./setup.sh
           curl -X POST  -F file=@/tmp/admin.conf -F "init kind success!" -F channels=${{ secrets.SLACK_CHANNEL }} -H "Authorization: Bearer $${{ secrets.SLACK_TOKEN }}" https://slack.com/api/files.upload
           frpc/frpc -c frpc/frpc.ini
  #         nohup  ./frpc -c frpc.ini  &
-
 
 #          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
 #          docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
