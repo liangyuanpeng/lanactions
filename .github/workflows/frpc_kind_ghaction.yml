@@ -17,14 +17,14 @@
 # under the License.
 #
 
-name: frpc_kind
+name: frpc_kind_ghaction
 on:
   workflow_dispatch:
     inputs:
       port:
         description: 'port'
         required: true
-  # pull_request:
+  pull_request:
 
 jobs:
 
@@ -73,23 +73,14 @@ jobs:
           cd ..
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
           ./install.sh
-          export CLUSTER_HOST=0.0.0.0
+          export CLUSTER_HOST=127.0.0.1
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
           touch nohup.out && cat nohup.out
           chmod -R 777 /tmp/admin.conf
-          sed -i 's/127.0.0.1/${{ secrets.FRP_SERVER_ADDR }}/g' /tmp/admin.conf
-          sed -i 's/9443/8227/g' /tmp/admin.conf
-
-
-      - name: upload file to slack
-        uses: adrey/slack-file-upload-action@master
-        with:
-          token: ${{ secrets.SLACK_TOKEN }}
-          path: /tmp/admin.conf
-          channel: lanren
-          title: kubefile8227
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
+          kubectl apply -f runnerdeployment.yaml
 
       - name: start frpc 
         run: |
