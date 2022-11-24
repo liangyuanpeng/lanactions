@@ -60,8 +60,6 @@ jobs:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
-          nohup docker pull kindest/node:v1.25.0 &
-          nohup docker pull ibmcom/curl:4.2.0-f4 &
           docker run -v /var/run/docker.sock:/var/run/docker.sock -it -d docker:stable docker pull kindest/node:v1.25.0
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
@@ -82,6 +80,8 @@ jobs:
           chmod -R 777 /tmp/admin.conf
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
           sleep 30 
+          kubectl get po -A 
+          kubectl get svc -A
           kubectl create -f https://github.com/actions-runner-controller/actions-runner-controller/releases/download/v0.22.0/actions-runner-controller.yaml
           kubectl create secret generic controller-manager -n actions-runner-system --from-literal=github_token=${{ secrets.TOKEN }}
           kubectl apply -f ghaction/runnerdeployment.yaml
