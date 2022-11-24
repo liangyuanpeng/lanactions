@@ -65,7 +65,7 @@ jobs:
           sed -i 's/FRPC_NAME/github_8227/g' frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
-          nohup  ./frpc -c frpc.ini  &
+          
           ls && pwd
           cd ..
           chmod +x ./install.sh 
@@ -74,8 +74,13 @@ jobs:
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
-          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
-          docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
+          frpc/frpc -c frpc/frpc.ini
+
+ #         nohup  ./frpc -c frpc.ini  &
+
+
+#          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
+#          docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
 
 
  #         frpc/frpc -c frpc/frpc.ini
