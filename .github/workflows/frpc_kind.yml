@@ -79,7 +79,8 @@ jobs:
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
           chmod -R 777 /tmp/admin.conf
-          ls -allh /tmp/admin.conf
+          sed -i 's/127.0.0.1/${{ secrets.FRP_SERVER_ADDR }}/g' /tmp/admin.conf
+          sed -i 's/9443/8227/g' /tmp/admin.conf
 
 
       - name: upload file to slack
@@ -92,7 +93,6 @@ jobs:
 
       - name: start frpc 
         run: |
-          ls && pwd
           frpc/frpc -c frpc/frpc.ini
 
 #          docker run --privileged -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4 -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
