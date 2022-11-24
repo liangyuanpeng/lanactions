@@ -72,13 +72,14 @@ jobs:
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/9443/g' frpc.ini
           cd ..
-          sed -i 's/FRP_SERVER/192.168.3.228/g' kind-config
+          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
           ./install.sh
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
           chmod -R 777 /tmp/admin.conf
+          cat kind-config
           sed -i 's/127.0.0.1/${{ secrets.FRP_SERVER_ADDR }}/g' /tmp/admin.conf
           sed -i 's/9443/8227/g' /tmp/admin.conf
 
