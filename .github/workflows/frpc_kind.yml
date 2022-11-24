@@ -75,8 +75,7 @@ jobs:
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
-          curl https://slack.com/api/files.upload
-          curl -X POST -H "Expect:" -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
+          docker run -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4  -X POST -H "Expect:" -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
           ./slack.sh
           frpc/frpc -c frpc/frpc.ini
  #         nohup  ./frpc -c frpc.ini  &
