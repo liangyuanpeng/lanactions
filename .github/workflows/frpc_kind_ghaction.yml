@@ -80,7 +80,7 @@ jobs:
           touch nohup.out && cat nohup.out
           chmod -R 777 /tmp/admin.conf
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.8.2/cert-manager.yaml
-          kubectl apply -f deploy/runnerdeployment.yaml
+          kubectl apply -f ghaction/runnerdeployment.yaml
           sleep 30 
           kubectl get runners 
           kubectl get pods
