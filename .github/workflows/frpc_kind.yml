@@ -64,9 +64,9 @@ jobs:
           sed -i 's/FRPC_PORT/8227/g' frpc.ini
           sed -i 's/FRPC_NAME/github_8227/g' frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
-          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           cd ..
+          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
           ./install.sh
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
