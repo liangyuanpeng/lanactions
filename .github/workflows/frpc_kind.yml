@@ -70,16 +70,20 @@ jobs:
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           cd ..
-          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
           ./install.sh
           export CLUSTER_HOST=0.0.0.0
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
           ls /tmp/admin.conf
+          cat /tmp/admin.conf
           docker run -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4  -X POST -H "Expect:" -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
           ./slack.sh
           frpc/frpc -c frpc/frpc.ini
+
+#          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
+
+
  #         nohup  ./frpc -c frpc.ini  &
 
 #          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
