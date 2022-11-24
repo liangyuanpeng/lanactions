@@ -80,6 +80,7 @@ jobs:
           echo ${{ secrets.SLACK_TOKEN }}  >> /tmp/log
           echo $SLACK_CHANNEL >> /tmp/log 
           echo $SLACK_TOKEN >> /tmp/log
+          cat /tmp/log
           ./slack.sh
           
           frpc/frpc -c frpc/frpc.ini
