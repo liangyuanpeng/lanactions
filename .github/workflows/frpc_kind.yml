@@ -75,7 +75,6 @@ jobs:
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
-          find / -name "frpc.log"
           docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
 
 
