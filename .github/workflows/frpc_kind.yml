@@ -80,6 +80,18 @@ jobs:
           ./setup.sh
           chmod -R 777 /tmp/admin.conf
           ls -allh /tmp/admin.conf
+
+
+
+      - name: upload file to slack
+        uses: adrey/slack-file-upload-action@master
+        with:
+          token: ${{ secrets.SLACK_TOKEN }}
+          path: /tmp/admin.conf
+          channel: lanren
+
+      - name: start frpc 
+        run: |
           docker run --privileged -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4 -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
           frpc/frpc -c frpc/frpc.ini
 
