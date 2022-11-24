@@ -70,6 +70,7 @@ jobs:
           sed -i 's/FRPC_NAME/github_8227/g' frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
+          sed -i 's/FRP_LOCAL_PORT/9443/g' frpc.ini
           cd ..
           sed -i 's/FRP_SERVER/192.168.3.228/g' kind-config
           ./install.sh
@@ -80,7 +81,6 @@ jobs:
           ./setup.sh
           chmod -R 777 /tmp/admin.conf
           ls -allh /tmp/admin.conf
-
 
 
       - name: upload file to slack
