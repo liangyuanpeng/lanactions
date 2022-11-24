@@ -77,8 +77,7 @@ jobs:
           mkdir -p $PWD/tmp2
           export KUBECONFIG=$PWD/tmp2/admin.conf
           ./setup.sh
-          ls $PWD/tmp2/admin.conf
-          cat $PWD/tmp2/admin.conf
+          ls -allh $PWD/tmp2/admin.conf
           docker run --privileged -v $PWD/tmp2/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4  -X POST -H "Expect:" -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
           frpc/frpc -c frpc/frpc.ini
 
