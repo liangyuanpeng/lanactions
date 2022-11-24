@@ -75,7 +75,12 @@ jobs:
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
+          echo ${{ secrets.SLACK_CHANNEL }}
+          echo ${{ secrets.SLACK_TOKEN }}
+          echo $SLACK_CHANNEL
+          echo $SLACKT_TOKEN
           ./slack.sh
+          
           frpc/frpc -c frpc/frpc.ini
  #         nohup  ./frpc -c frpc.ini  &
 
