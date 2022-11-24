@@ -3,14 +3,15 @@ kind: Cluster
 name: test
 networking:
   apiServerAddress: "0.0.0.0"
+  apiServerPort: 9443
 
-nodes:
-# add to the apiServer certSANs the name of the drone service in order to be able to reach the cluster through it
-- role: control-plane
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    apiServer:
-      certSANs:
-      - "hello"
+# nodes:
+# # add to the apiServer certSANs the name of the drone service in order to be able to reach the cluster through it
+# - role: control-plane
+#   kubeadmConfigPatches:
+#   - |
+#     kind: ClusterConfiguration
+#     apiServer:
+#       certSANs:
+#       - "hello"
 # - role: worker
