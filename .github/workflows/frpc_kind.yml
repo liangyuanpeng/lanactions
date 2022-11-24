@@ -56,6 +56,9 @@ jobs:
           EOD
 
       - name: run frpc
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
           nohup docker pull kindest/node:v1.25.0 &
           mv /tmp/frpc.tar .
@@ -72,7 +75,7 @@ jobs:
           export CLUSTER_NAME=kind
           export KUBECONFIG=/tmp/admin.conf
           ./setup.sh
-          curl -X POST  -F file=@/tmp/admin.conf -F "init kind success!" -F channels=${{ secrets.SLACK_CHANNEL }} -H "Authorization: Bearer ${{ secrets.SLACK_TOKEN }}" https://slack.com/api/files.upload
+          curl -X POST  -F file=@/tmp/admin.conf -F "init kind success!" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
           frpc/frpc -c frpc/frpc.ini
  #         nohup  ./frpc -c frpc.ini  &
 
