@@ -24,12 +24,11 @@ on:
       port:
         description: 'port'
         required: true
-  pull_request:
+  # pull_request:
 
 jobs:
 
   build:
-    if: ${{ github.event.workflow_run  }}
     name: start_frpc
     runs-on: ubuntu-20.04
     steps:
