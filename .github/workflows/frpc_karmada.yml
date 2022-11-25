@@ -79,6 +79,7 @@ jobs:
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/22/g' frpc.ini
+          cd ..
           ls -allh hack/local-up-karmada.sh
           hack/local-up-karmada.sh
           go version 
