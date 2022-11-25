@@ -46,6 +46,12 @@ jobs:
           repository: "karmada-io/karmada"
           fetch-depth: 1
 
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+          cache: true
+
       - name: set env
         run: |
           sudo apt update
