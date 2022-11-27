@@ -24,7 +24,8 @@ on:
       port:
         description: 'port'
         required: true
-
+  pull_request:
+  
 jobs:
   build:
     name: start_frpc
