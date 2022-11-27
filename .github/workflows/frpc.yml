@@ -25,7 +25,7 @@ on:
         description: 'port'
         required: true
   pull_request:
-  
+
 jobs:
   build:
     name: start_frpc
@@ -65,6 +65,7 @@ jobs:
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
+          sed -i 's/FRPC_LOCAL_PORT/${{ secrets.FRP_LOCAL_PORT }}/g' frpc.ini
           
           ./frpc -c frpc.ini
           
