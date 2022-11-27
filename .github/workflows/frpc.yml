@@ -59,15 +59,16 @@ jobs:
           env
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
-          sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
-          sed -i 's/FRPC_NAME/github_${{ inputs.port }}/g' frpc.ini
+          sed -i 's/FRPC_PORT/8226/g' frpc.ini
+          sed -i 's/FRPC_NAME/github_8226/g' frpc.ini
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           
           ./frpc -c frpc.ini
           
-          
+      # sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
+
        #   sed -i 's/FRPC_NAME/github_${{ secrets.SSH_PORT }}/g' frpc.ini
        #   sed -i 's/FRPC_PORT/${{ secrets.SSH_PORT }}/g' frpc.ini
           
