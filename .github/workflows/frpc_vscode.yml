@@ -58,7 +58,7 @@ jobs:
         run: |
           wget https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v1.73.1/openvscode-server-v1.73.1-linux-x64.tar.gz
           tar -xvf openvscode-server-v1.73.1-linux-x64.tar.gz
-          ls openvscode-server-v1.73.1-linux-x64/
+          ls openvscode-server-v1.73.1-linux-x64/bin
           mv /tmp/frpc.tar .
           tar -xvf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
