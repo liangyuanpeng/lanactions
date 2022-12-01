@@ -56,22 +56,15 @@ jobs:
 
       - name: run frpc
         run: |
-          wget https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v1.73.1/openvscode-server-v1.73.1-linux-x64.tar.gz
-          tar -xf openvscode-server-v1.73.1-linux-x64.tar.gz
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
-          sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
-          sed -i 's/FRPC_NAME/github_${{ inputs.port }}/g' frpc.ini
+          sed -i 's/FRPC_PORT/8221/g' frpc.ini
+          sed -i 's/FRPC_NAME/github_8221/g' frpc.ini
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
-          sed -i 's/FRPC_LOCAL_PORT/9443/g' frpc.ini
-          cd ..
-          nohup openvscode-server-v1.73.1-linux-x64/bin/openvscode-server --without-connection-token & 
-          sleep 2
-          cat nohup.out
-          
-#          ./frpc -c frpc.ini
+          sed -i 's/FRPC_LOCAL_PORT/3000/g' frpc.ini
+          ./frpc -c frpc.ini
 
 
   active:
@@ -84,3 +77,6 @@ jobs:
           fetch-depth: 1
       - run: |
           env
+          wget https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v1.73.1/openvscode-server-v1.73.1-linux-x64.tar.gz
+          tar -xf openvscode-server-v1.73.1-linux-x64.tar.gz
+          openvscode-server-v1.73.1-linux-x64/bin/openvscode-server --host 0.0.0.0 --without-connection-token
