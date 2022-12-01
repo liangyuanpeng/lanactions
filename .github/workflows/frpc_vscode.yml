@@ -67,7 +67,7 @@ jobs:
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/9443/g' frpc.ini
           cd ..
-          openvscode-server-v1.73.1-linux-x64/bin/openvscode-server
+          openvscode-server-v1.73.1-linux-x64/bin/openvscode-server --without-connection-token
           
 #          ./frpc -c frpc.ini
 
