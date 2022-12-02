@@ -67,7 +67,7 @@ jobs:
           wget https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v1.73.1/openvscode-server-v1.73.1-linux-x64.tar.gz
           tar -xf openvscode-server-v1.73.1-linux-x64.tar.gz
           docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull kindest/node:v1.25.0
-          wget wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
+          wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
           wget https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl
           mv kind-linux-amd64 kind && chmod +x kind && mv kind /usr/local/bin
           chmod +x kubectl && mv kubectl /usr/local/bin
