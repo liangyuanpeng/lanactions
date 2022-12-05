@@ -8,7 +8,7 @@ then
     IMAGE_EXIST=`oras manifest fetch $2 -uliangyuanpeng -p$GITHUB_TOKEN_PACKAGE | grep mediaType | wc -l `
     if [ $IMAGE_EXIST -eq 0 ]; then exit 0;fi
 
-    oras pull -uliangyuanpeng -p$GITHUB_TOKEN_PACKAGE $IMAGE --output $3
+    oras pull -uliangyuanpeng -p$GITHUB_TOKEN_PACKAGE $2 --output $3
 
     dir=$(ls *.tar.gz)
     for d in ${dir}
