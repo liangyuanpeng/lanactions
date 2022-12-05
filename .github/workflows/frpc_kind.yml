@@ -32,6 +32,7 @@ jobs:
   frpc:
     name: start_frpc
     runs-on: ubuntu-20.04
+    timeout-minutes: 120
     # if: ${{ github.event.workflow_run  }}
     steps:
       - name: checkoutactions
