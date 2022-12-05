@@ -79,7 +79,7 @@ jobs:
           export GITHUB_TOKEN_PACKAGE=${{ secrets.TOKEN }}
           export IMAGE=ghcr.io/liangyuanpeng/workspace:latest
           scripts/init.sh .
-          frpc/frpc -c frpc.ini & openvscode-server-v1.73.1-linux-x64/bin/openvscode-server --host 0.0.0.0 --without-connection-token
+          frpc/frpc -c frpc/frpc.ini & openvscode-server-v1.73.1-linux-x64/bin/openvscode-server --host 0.0.0.0 --without-connection-token
 
 
   active:
