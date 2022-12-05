@@ -81,7 +81,7 @@ jobs:
           mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
           chmod +x /usr/local/bin/oras
           wget https://github.com/tektoncd/cli/releases/download/v0.27.0/tkn_0.27.0_Linux_x86_64.tar.gz
-          tar xvzf tkn_0.26.0_0_Linux_x86_64.tar.gz -C /usr/local/bin tkn
+          tar xvzf tkn_0.27.0_0_Linux_x86_64.tar.gz -C /usr/local/bin tkn
           chmod +x /usr/local/bin/tkn
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
