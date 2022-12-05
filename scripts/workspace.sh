@@ -24,4 +24,5 @@ if [ $1 = "restore" ]
 then
     tar -czf tekton.tar.gz tekton
     oras push -uliangyuanpeng -p$GITHUB_TOKEN_PACKAGE $2 tekton.tar.gz 
+    rm -f tekton.tar.gz 
 fi 
