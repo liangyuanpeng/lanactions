@@ -81,14 +81,14 @@ jobs:
           mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
           chmod +x /usr/local/bin/oras
           wget https://github.com/tektoncd/cli/releases/download/v0.27.0/tkn_0.27.0_Linux_x86_64.tar.gz
+          tar xvzf tkn_0.27.0_0_Linux_x86_64.tar.gz -C /usr/local/bin tkn && chmod +x /usr/local/bin/tkn && rm -f tkn_0.27.0_0_Linux_x86_64.tar.gz
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
           kind create cluster
           kubectl apply -f tekton/crds
           frpc/frpc -c frpc/frpc.ini & openvscode-server-v1.73.1-linux-x64/bin/openvscode-server --host 0.0.0.0 --without-connection-token
 
- #         tar xvzf tkn_0.27.0_0_Linux_x86_64.tar.gz -C /usr/local/bin tkn
- #         chmod +x /usr/local/bin/tkn
+
 
 
   active:
