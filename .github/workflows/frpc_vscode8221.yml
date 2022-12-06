@@ -87,7 +87,7 @@ jobs:
           chmod +x /usr/local/bin/oras
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
-          frpc/frpc -c frpc/frpc.ini & sh runinit.sh &  scripts/runopenvscode.sh
+          frpc/frpc -c frpc/frpc.ini & scripts/runopenvscode.sh &  sh runinit.sh
 
 
   active:
