@@ -43,6 +43,7 @@ function gethash(){
     do
         md5sum $line >> cachehash
     done
+    rm -f pomfilesmd5
 
     cat cachehash
 }
