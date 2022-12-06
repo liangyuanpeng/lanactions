@@ -61,7 +61,10 @@ jobs:
           docker run -it -d -v $PWD/karmada:/karmada --rm bitnami/git:latest git clone https://github.com/karmada-io/karmada.git karmada
           docker run -it -d -v $PWD/pulsar-client-go:/pulsar-client-go --rm bitnami/git:latest git clone https://github.com/apache/pulsar-client-go.git pulsar-client-go
           docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull kindest/node:v1.25.0
+          docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull apachepulsar/pulsar:2.10.2
+          docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull quay.io/coreos/etcd:v3.5.4
           docker run -it -d -v $PWD/tekton-pipeline:/pipeline --rm bitnami/git:latest git clone https://github.com/tektoncd/pipeline.git pipeline
+          docker run -it -d -v $PWD/tekton-pipeline:/pipeline --rm bitnami/git:latest git clone https://github.com/kubernetes/kube-state-metrics.git kube-state-metrics
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/8221/g' frpc.ini
