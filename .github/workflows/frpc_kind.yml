@@ -83,7 +83,6 @@ jobs:
           sed -i 's/127.0.0.1/${{ secrets.FRP_SERVER_ADDR }}/g' /tmp/admin.conf
           sed -i 's/9443/8227/g' /tmp/admin.conf
 
-
       - name: upload file to slack
         uses: adrey/slack-file-upload-action@master
         with:
