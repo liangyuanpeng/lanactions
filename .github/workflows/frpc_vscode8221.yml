@@ -86,6 +86,7 @@ jobs:
           mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
           chmod +x /usr/local/bin/oras
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
+          TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
           frpc/frpc -c frpc/frpc.ini & sh runinit.sh & scripts/runopenvscode.sh
 
