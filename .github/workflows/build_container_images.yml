@@ -35,7 +35,7 @@ jobs:
         run: |
           cd dockerfiles
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          make ubuntu-rustdesk
+          make ubuntu_rustdesk
 
   build_ubuntu_vnc_cache:
     name: build_ubuntu_rustdesk_cache
@@ -48,4 +48,4 @@ jobs:
         run: |
           cd dockerfiles
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          make ubuntu-vnc
+          make ubuntu_vnc
