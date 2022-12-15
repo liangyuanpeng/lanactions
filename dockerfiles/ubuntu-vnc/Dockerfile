@@ -40,7 +40,6 @@ RUN apt-get -y update && \
     # xrdp
     apt-get install -y xrdp && \
     echo "xfce4-session" > ~/.xsession && \
-    
     # Rust desktop
     apt install -y libxcb-randr0 libxdo3 python3-pip && \
     wget https://github.com/rustdesk/rustdesk/releases/download/1.1.9/rustdesk-1.1.9.deb && \
