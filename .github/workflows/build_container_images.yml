@@ -25,7 +25,7 @@ on:
 jobs:
 
   build_ubuntu_rustdesk:
-    name: build_ubuntu_rustdesk_cache
+    name: build_ubuntu_rustdesk
     runs-on: ubuntu-20.04
     steps:
       - name: checkout
@@ -38,7 +38,7 @@ jobs:
           make ubuntu_rustdesk
 
   build_ubuntu_vnc:
-    name: build_ubuntu_rustdesk_cache
+    name: build_ubuntu_vnc
     runs-on: ubuntu-20.04
     steps:
       - name: checkout
