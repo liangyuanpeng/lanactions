@@ -1,7 +1,7 @@
 # 基础镜像
 FROM ubuntu:18.04
 # 维护者信息
-MAINTAINER liangyuanpeng <liangyuanpengem@163.com>
+MAINTAINER gotoeasy <gotoeasy@163.com>
 
 # 环境变量
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -46,7 +46,8 @@ RUN apt-get -y update && \
     sed -e '/chrome/ s/^#*/#/' -i /opt/google/chrome/google-chrome && \
     echo 'exec -a "$0" "$HERE/chrome" "$@" --user-data-dir="$HOME/.config/chrome" --no-sandbox --disable-dev-shm-usage' >> /opt/google/chrome/google-chrome && \
     rm -f google-chrome-stable_current_amd64.deb && \
-    apt install -y ubuntu-desktop && \
+    # mysql客户端
+    apt-get install -y mysql-workbench && \
     # clean
     apt-get -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -76,8 +77,10 @@ RUN echo "#!/bin/bash\n" > /root/startup.sh && \
 # 用户目录不使用中文
 RUN LANG=C xdg-user-dirs-update --force
 
+
 # 导出特定端口
 EXPOSE 22 5900 3389 6001 6002 6003 6004 6005 6006 6007 6008 6009
 
 # 启动脚本
 CMD ["/root/startup.sh"]
+
