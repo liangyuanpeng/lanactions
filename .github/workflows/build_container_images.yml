@@ -49,3 +49,16 @@ jobs:
           cd dockerfiles
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           make ubuntu_vnc
+
+  ubuntu_gnome:
+    name: build_ubuntu_gnome
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: build
+        run: |
+          cd dockerfiles
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          make ubuntu_gnome

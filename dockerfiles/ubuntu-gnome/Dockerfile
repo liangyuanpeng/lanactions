@@ -1,7 +1,7 @@
 # 基础镜像
 FROM ubuntu:18.04
 # 维护者信息
-MAINTAINER gotoeasy <gotoeasy@163.com>
+MAINTAINER liangyuanpeng <liangyuanpengem@163.com>
 
 # 环境变量
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -22,7 +22,7 @@ RUN echo "root:$PASSWD" | chpasswd
 RUN apt-get -y update && \
     # tools
     apt-get install -y vim git subversion wget curl net-tools locales bzip2 unzip iputils-ping traceroute firefox firefox-locale-zh-hans ttf-wqy-microhei gedit ibus-pinyin && \
-    locale-gen zh_CN.UTF-8 && \
+    # locale-gen zh_CN.UTF-8 && \
     # ssh
     apt-get install -y openssh-server && \
     mkdir -p /var/run/sshd && \
@@ -35,8 +35,7 @@ RUN apt-get -y update && \
     echo $PASSWD | vncpasswd -f > /root/.vnc/passwd && \
     chmod 600 /root/.vnc/passwd && \
     # xfce
-    apt-get install -y xfce4 xfce4-terminal && \
-    apt-get purge -y pm-utils xscreensaver* && \
+    apt install gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal ubuntu-desktop && \
     # xrdp
     apt-get install -y xrdp && \
     echo "xfce4-session" > ~/.xsession && \
@@ -46,14 +45,10 @@ RUN apt-get -y update && \
     sed -e '/chrome/ s/^#*/#/' -i /opt/google/chrome/google-chrome && \
     echo 'exec -a "$0" "$HERE/chrome" "$@" --user-data-dir="$HOME/.config/chrome" --no-sandbox --disable-dev-shm-usage' >> /opt/google/chrome/google-chrome && \
     rm -f google-chrome-stable_current_amd64.deb && \
-    # mysql客户端
-    apt-get install -y mysql-workbench && \
+    apt install gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal ubuntu-desktop && \
     # clean
     apt-get -y clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# 配置xfce图形界面
-ADD ./xfce/ /root/
 
 # 创建脚本文件
 RUN echo "#!/bin/bash\n" > /root/startup.sh && \
@@ -74,8 +69,8 @@ RUN echo "#!/bin/bash\n" > /root/startup.sh && \
     # 可执行脚本
     chmod +x /root/startup.sh
 
-# 用户目录不使用中文
-RUN LANG=C xdg-user-dirs-update --force
+# # 用户目录不使用中文
+# RUN LANG=C xdg-user-dirs-update --force
 
 
 # 导出特定端口
