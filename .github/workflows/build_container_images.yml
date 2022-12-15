@@ -24,7 +24,7 @@ on:
 
 jobs:
 
-  build_ubuntu_rustdesk_cache:
+  build_ubuntu_rustdesk:
     name: build_ubuntu_rustdesk_cache
     runs-on: ubuntu-20.04
     steps:
@@ -37,7 +37,7 @@ jobs:
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           make ubuntu_rustdesk
 
-  build_ubuntu_vnc_cache:
+  build_ubuntu_vnc:
     name: build_ubuntu_rustdesk_cache
     runs-on: ubuntu-20.04
     steps:

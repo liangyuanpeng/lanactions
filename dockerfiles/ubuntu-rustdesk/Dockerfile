@@ -35,7 +35,7 @@ RUN apt-get -y update && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 配置xfce图形界面
-ADD ./xfce/ /root/
+# ADD ./xfce/ /root/
 
 # 用户目录不使用中文
 RUN LANG=C xdg-user-dirs-update --force
