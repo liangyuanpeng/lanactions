@@ -84,6 +84,20 @@ then
     rm -rf $3
 fi
 
+if [ $1 = "push-maven-latest" ]
+then
+    gethash $4 "pom.xml"
+    imagetag="latest"
+    rm -f cachehash
+    echo "get the imagetag is:" $imagetag
+    echo "MAVEN_PACKAGE_HOME is " $MAVEN_PACKAGE_HOME
+    tar_dir czf $MAVEN_PACKAGE_HOME  &&  mkdir -p $3 && mv $MAVEN_PACKAGE_HOME/*.tar.gz $3
+    cd $3 
+    oras push $IMAGE:$imagetag `ls` -u$OCI_USERNAME -p$GITHUB_TOKEN_PACKAGE
+    cd $workspace
+    rm -rf $3
+fi
+
 #GITHUB_TOKEN_PACKAGE= scripts/oras.sh push-jdk ghcr.io/liangyuanpeng/jdk orastmp ~/.jdks/temurin-17.0.3.7 temurin-17.0.3.7
 
 if [ $1 = "push-jdk" ]

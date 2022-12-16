@@ -56,4 +56,6 @@ jobs:
         if: steps.check-pulsar-cache.outputs.cache-hit != 'true'
         run: |
           mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true
-#          GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }} scripts/oras.sh push-maven ghcr.io/liangyuanpeng/maven-depend-pulsar orastmp pulsar
+          GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
+          scripts/oras.sh push-maven ghcr.io/liangyuanpeng/maven-depend-pulsar orastmp .
+          scripts/oras.sh push-maven-latest ghcr.io/liangyuanpeng/maven-depend-pulsar orastmp .
