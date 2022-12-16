@@ -89,7 +89,7 @@ jobs:
           TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
           docker run --network host -d --name=webtop -e PUID=1000 -e PGID=1000 -e TZ=Asia/Shanghai -p 8083:3000 -v /usr/local/webtop:/config --shm-size="1gb" --restart unless-stopped docker pull linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
-          frpc/frpc -c frpc/frpc.ini & sh runinit.sh & scripts/runopenvscode.sh
+          frpc/frpc -c frpc/frpc.ini & sh scripts/runinit.sh & scripts/runopenvscode.sh
 
 
   active:

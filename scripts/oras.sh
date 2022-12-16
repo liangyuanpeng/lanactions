@@ -77,7 +77,7 @@ then
     echo "MAVEN_PACKAGE_HOME is " $MAVEN_PACKAGE_HOME
     tar_dir czf $MAVEN_PACKAGE_HOME  &&  mkdir -p $3 && mv $MAVEN_PACKAGE_HOME/*.tar.gz $3
     cd $3 
-    oras push $IMAGE:$imagetag `ls` -uyunhorn-bot -p$GITHUB_TOKEN_PACKAGE
+    oras push $IMAGE:$imagetag `ls` -u$OCI_USERNAME -p$GITHUB_TOKEN_PACKAGE
     cd $workspace
     rm -rf $3
 fi
