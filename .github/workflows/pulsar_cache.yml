@@ -54,4 +54,6 @@ jobs:
 
       - name: build cache 📦️
         if: steps.check-pulsar-cache.outputs.cache-hit != 'true'
-        run: mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true
+        run: |
+          mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true
+#          GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }} scripts/oras.sh push-maven ghcr.io/liangyuanpeng/maven-depend-pulsar orastmp pulsar

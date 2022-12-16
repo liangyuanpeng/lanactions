@@ -36,7 +36,8 @@ function gethash(){
         hashdir=.
     fi  
     echo "get hash for:" $hashdir
-    find $hashdir -name "pom.xml" > pomfilesmd5
+#    find $hashdir -name "pom.xml" > pomfilesmd5
+    find $hashdir -name $2 > pomfilesmd5
     touch cachehash && echo "" > cachehash
     # echo "begin write md5 for" `cat pomfilesmd5`
     cat pomfilesmd5 | while read line
@@ -52,6 +53,7 @@ function gethash(){
 workspace=$PWD
 IMAGE=$2
 MAVEN_PACKAGE_HOME=${MAVEN_PACKAGE_HOME-~/.m2/repository}
+JDKS_HOME=${JDKS_HOME-~/.jdks}
 
 # 1. command
 # 2. image
@@ -69,13 +71,42 @@ fi
 
 if [ $1 = "push-maven" ]
 then
-    gethash $4
+    gethash $4 "pom.xml"
     imagetag=`md5sum cachehash |cut -d ' ' -f1`
     rm -f cachehash
     echo "get the imagetag is:" $imagetag
     #/home/lan/.m2/repository/ca
     echo "MAVEN_PACKAGE_HOME is " $MAVEN_PACKAGE_HOME
     tar_dir czf $MAVEN_PACKAGE_HOME  &&  mkdir -p $3 && mv $MAVEN_PACKAGE_HOME/*.tar.gz $3
+    cd $3 
+    oras push $IMAGE:$imagetag `ls` -u$OCI_USERNAME -p$GITHUB_TOKEN_PACKAGE
+    cd $workspace
+    rm -rf $3
+fi
+
+#GITHUB_TOKEN_PACKAGE= scripts/oras.sh push-jdk ghcr.io/liangyuanpeng/jdk orastmp ~/.jdks/temurin-17.0.3.7 temurin-17.0.3.7
+
+if [ $1 = "push-jdk" ]
+then
+    gethash $4 "release"
+    imagetag=$5
+    rm -f cachehash
+    echo "get the imagetag is:" $imagetag
+    tar_dir czf $4  &&  mkdir -p $3 && mv $4/*.tar.gz $3
+    cd $3 
+    oras push $IMAGE:$imagetag `ls` -u$OCI_USERNAME -p$GITHUB_TOKEN_PACKAGE
+    cd $workspace
+    rm -rf $3
+fi
+
+#GITHUB_TOKEN_PACKAGE= scripts/oras.sh push-jdk ghcr.io/liangyuanpeng/jdk orastmp ~/soft/idea-IC-221.5787.30 idea-IC-221.5787.30
+if [ $1 = "push-idea" ]
+then
+    gethash $4 "build.txt"
+    imagetag=$5
+    rm -f cachehash
+    echo "get the imagetag is:" $imagetag
+    tar_dir czf $4  &&  mkdir -p $3 && mv $4/*.tar.gz $3
     cd $3 
     oras push $IMAGE:$imagetag `ls` -u$OCI_USERNAME -p$GITHUB_TOKEN_PACKAGE
     cd $workspace
