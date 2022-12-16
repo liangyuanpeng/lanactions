@@ -88,7 +88,7 @@ jobs:
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
-          frpc/frpc -c frpc/frpc.ini & scripts/runopenvscode.sh & sh scripts/runinit.sh
+          frpc/frpc -c frpc/frpc.ini & sh scripts/runinit.sh & scripts/runopenvscode.sh
 
   active:
     name: print
