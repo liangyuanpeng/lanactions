@@ -20,7 +20,7 @@
 name: build_container_images
 on:
   push:
-    branches: [ pulsar ]
+    branches: [ pulsar-test ]
 
 jobs:
 
