@@ -57,5 +57,7 @@ jobs:
         run: |
           mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true
           GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
+          git clone https://github.com/liangyuanpeng/lanactions.git
+          git checkout -b pulsar origin/pulsar
           scripts/oras.sh push-maven ghcr.io/liangyuanpeng/maven-depend-pulsar orastmp .
           scripts/oras.sh push-maven-latest ghcr.io/liangyuanpeng/maven-depend-pulsar orastmp .
