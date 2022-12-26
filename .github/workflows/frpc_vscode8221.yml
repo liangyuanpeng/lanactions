@@ -78,16 +78,6 @@ jobs:
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           cd ..
-          wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
-          wget https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl
-          mv kind-linux-amd64 kind && chmod +x kind && mv kind /usr/local/bin
-          chmod +x kubectl && mv kubectl /usr/local/bin
-          curl -LO https://github.com/oras-project/oras/releases/download/v0.16.0/oras_0.16.0_linux_amd64.tar.gz
-          mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
-          chmod +x /usr/local/bin/oras
-          export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
-          TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
-          scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
           frpc/frpc -c frpc/frpc.ini & sh scripts/runinit.sh & scripts/runopenvscode.sh
 
   active:
