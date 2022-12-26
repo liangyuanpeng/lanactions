@@ -44,19 +44,6 @@ jobs:
           mkdir -p /tmp
           mv frpc.tar /tmp/frpc.tar
 
-      - name: set env
-        run: |
-          sudo apt update
-          sudo apt -y install sshpass
-          sudo passwd root << EOD
-          root
-          root
-          EOD
-          sudo passwd runner << EOD
-          root
-          root
-          EOD
-
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -70,6 +57,7 @@ jobs:
 
       - name: run frpc
         run: |
+          mkdir -p /usr/local/bin
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/8223/g' frpc.ini
