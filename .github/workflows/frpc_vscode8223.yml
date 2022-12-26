@@ -41,6 +41,7 @@ jobs:
 
       - name: mv frpc.tar
         run: |
+          mkdir -p /tmp
           mv frpc.tar /tmp/frpc.tar
 
       - name: set env
