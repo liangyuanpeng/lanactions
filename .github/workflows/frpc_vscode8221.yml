@@ -43,18 +43,18 @@ jobs:
         run: |
           mv frpc.tar /tmp/frpc.tar
 
-      - name: set env
-        run: |
-          sudo apt update
-          sudo apt -y install sshpass
-          sudo passwd root << EOD
-          root
-          root
-          EOD
-          sudo passwd runner << EOD
-          root
-          root
-          EOD
+      # - name: set env
+      #   run: |
+      #     sudo apt update
+      #     sudo apt -y install sshpass
+      #     sudo passwd root << EOD
+      #     root
+      #     root
+      #     EOD
+      #     sudo passwd runner << EOD
+      #     root
+      #     root
+      #     EOD
 
       - name: Set up Go
         uses: actions/setup-go@v3
