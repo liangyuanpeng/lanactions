@@ -19,4 +19,6 @@ jobs:
         echo $DRONE_RUNNER_NAME
         docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock -e DRONE_RPC_HOST=${{ secrets.DRONE_SERVER }} -e DRONE_RPC_SECRET=c64bab058885900124d31250b6780307 \
         -e DRONE_RUNNER_NAME=$DRONE_RUNNER_NAME -e DRONE_RUNNER_CAPACITY=2 -e TZ=Asia/Shanghai  --name drone drone/drone-runner-docker:1.8.2
-        sleep 20m
+        docker-compose -f docker-compose/docker-compose.yml up -d 
+        docker network ls
+        sleep 45m
