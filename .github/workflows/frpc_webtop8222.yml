@@ -78,6 +78,8 @@ jobs:
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           cd ..
+          docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull bitnami/git:latest
+          docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
           wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
           wget https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl
           mv kind-linux-amd64 kind && chmod +x kind && mv kind /usr/local/bin
@@ -103,7 +105,7 @@ jobs:
           mv maven-depend /usr/local/webtop/
           oras pull ghcr.io/liangyuanpeng/soft:maven
           oras pull ghcr.io/liangyuanpeng/soft:idea
-          tar -xzf *.gz 
+          tar -zxf *.gz 
           mv idea-* /usr/local/webtop/
           mv apache-maven* /usr/local/webtop/
           rm -f *.gz
