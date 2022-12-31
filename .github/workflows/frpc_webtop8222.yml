@@ -93,11 +93,20 @@ jobs:
           cp -rf scripts /usr/local/webtop/scripts
           mkdir -p /usr/local/webtop/bin
           mkdir -p /usr/local/webtop/repo
+          mkdir -p /usr/local/webtop/jdks
           cp /usr/local/bin/oras /usr/local/webtop/bin/oras
           git clone https://github.com/apache/pulsar.git --depth=1
           git clone https://github.com/apache/bookkeeper.git --depth=1
           mv pulsar /usr/local/webtop/repo
           mv bookkeeper /usr/local/webtop/repo
+          oras pull ghcr.io/liangyuanpeng/maven-depend:latest /usr/local/webtop/
+          oras pull ghcr.io/liangyuanpeng/jdk:temurin-17.0.3.7 /usr/local/webtop/jdks
+          oras pull ghcr.io/liangyuanpeng/soft:maven .
+          oras pull ghcr.io/liangyuanpeng/soft:idea .
+          tar -xvf *.gz 
+          mv idea-* /usr/local/webtop/
+          mv apache-maven* /usr/local/webtop/
+          rm -f *.gz
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
 
   active:
