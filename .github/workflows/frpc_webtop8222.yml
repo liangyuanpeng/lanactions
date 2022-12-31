@@ -96,6 +96,7 @@ jobs:
           mkdir -p /usr/local/webtop/bin
           mkdir -p /usr/local/webtop/repo
           mkdir -p /usr/local/webtop/jdks
+          sudo chmod -R 777 /usr/local/webtop
           cp /usr/local/bin/oras /usr/local/webtop/bin/oras
           docker run -it -d -v $PWD/pulsar:/pulsar --rm bitnami/git:latest git clone --depth 1 https://github.com/apache/pulsar.git pulsar
           docker run -it -d -v $PWD/bookkeeper:/bookkeeper --rm bitnami/git:latest git clone --depth 1 https://github.com/apache/bookkeeper.git bookkeeper
