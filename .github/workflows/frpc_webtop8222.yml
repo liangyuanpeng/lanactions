@@ -88,7 +88,7 @@ jobs:
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
           docker run --network host -d --name=webtop -e PUID=1000 -e PGID=1000 -e TZ=Asia/Shanghai  -v /usr/local/webtop:/config -v /var/run/docker.sock:/var/run/docker.sock --shm-size="8gb" --restart unless-stopped  linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
-          chmod -R 777 /usr/local/webtop
+          sudo chmod -R 777 /usr/local/webtop
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest /usr/local/webtop/
           cp -rf scripts /usr/local/webtop/scripts
           cp /usr/local/bin/oras /usr/local/webtop/bin/oras
