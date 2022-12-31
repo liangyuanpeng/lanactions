@@ -70,7 +70,7 @@ jobs:
       - name: run frpc
         run: |
           mv /tmp/frpc.tar .
-          tar -xf frpc.tar && cd frpc
+          tar -xf frpc.tar && rm -f frpc.tar &&  cd frpc
           sed -i 's/FRPC_PORT/8222/g' frpc.ini
           sed -i 's/FRPC_NAME/github_vscode_8222/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/3000/g' frpc.ini
@@ -105,13 +105,14 @@ jobs:
           ls
           tar -xzf idea*.gz 
           tar -xzf apache*.gz
+          rm -f *.gz
           mv idea-* /usr/local/webtop/
           mv apache-maven* /usr/local/webtop/
-          rm -f *.gz
           mkdir maven-depend && cd maven-depend && oras pull ghcr.io/liangyuanpeng/maven-depend:latest  && cd ..
           mkdir jdk && cd jdk && oras pull ghcr.io/liangyuanpeng/jdk:temurin-17.0.3.7 && cd ..
           mv jdk /usr/local/webtop/jdks
           mv maven-depend /usr/local/webtop/
+          docker rmi `docker images -aq`
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
 
   active:
