@@ -72,7 +72,7 @@ jobs:
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/8222/g' frpc.ini
-          sed -i 's/FRPC_NAME/github_vscode_8221/g' frpc.ini
+          sed -i 's/FRPC_NAME/github_vscode_8222/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/3000/g' frpc.ini
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
@@ -88,7 +88,7 @@ jobs:
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest .
-          docker run --network host -d --name=webtop -e PUID=1000 -e PGID=1000 -e TZ=Asia/Shanghai -p 8083:3000 -v /usr/local/webtop:/config --shm-size="1gb" --restart unless-stopped docker pull linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
+          docker run --network host -d --name=webtop -e PUID=1000 -e PGID=1000 -e TZ=Asia/Shanghai  -v /usr/local/webtop:/config --shm-size="1gb" --restart unless-stopped docker pull linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
           frpc/frpc -c frpc/frpc.ini & sh scripts/runinit.sh & scripts/runopenvscode.sh
 
 
