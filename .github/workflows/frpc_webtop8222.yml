@@ -91,6 +91,8 @@ jobs:
           sudo chmod -R 777 /usr/local/webtop
           scripts/workspace.sh rebuild ghcr.io/liangyuanpeng/workspace:latest /usr/local/webtop/
           cp -rf scripts /usr/local/webtop/scripts
+          mkdir -p /usr/local/webtop/bin
+          mkdir -p /usr/local/webtop/repo
           cp /usr/local/bin/oras /usr/local/webtop/bin/oras
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
 
