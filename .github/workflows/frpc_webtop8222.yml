@@ -102,7 +102,8 @@ jobs:
           oras pull ghcr.io/liangyuanpeng/soft:maven
           oras pull ghcr.io/liangyuanpeng/soft:idea
           ls
-          tar -xzf *.gz 
+          tar -xzf idea*.gz 
+          tar -xzf apache*.gz
           mv idea-* /usr/local/webtop/
           mv apache-maven* /usr/local/webtop/
           rm -f *.gz
