@@ -99,16 +99,17 @@ jobs:
           cp /usr/local/bin/oras /usr/local/webtop/bin/oras
           docker run -it -d -v $PWD/pulsar:/pulsar --rm bitnami/git:latest git clone --depth 1 https://github.com/apache/pulsar.git pulsar
           docker run -it -d -v $PWD/bookkeeper:/bookkeeper --rm bitnami/git:latest git clone --depth 1 https://github.com/apache/bookkeeper.git bookkeeper
+          oras pull ghcr.io/liangyuanpeng/soft:maven
+          oras pull ghcr.io/liangyuanpeng/soft:idea
+          ls
+          tar -xzf *.gz 
+          mv idea-* /usr/local/webtop/
+          mv apache-maven* /usr/local/webtop/
+          rm -f *.gz
           mkdir maven-depend && cd maven-depend && oras pull ghcr.io/liangyuanpeng/maven-depend:latest  && cd ..
           mkdir jdk && cd jdk && oras pull ghcr.io/liangyuanpeng/jdk:temurin-17.0.3.7 && cd ..
           mv jdk /usr/local/webtop/jdks
           mv maven-depend /usr/local/webtop/
-          oras pull ghcr.io/liangyuanpeng/soft:maven
-          oras pull ghcr.io/liangyuanpeng/soft:idea
-          tar -zxf *.gz 
-          mv idea-* /usr/local/webtop/
-          mv apache-maven* /usr/local/webtop/
-          rm -f *.gz
           mv pulsar /usr/local/webtop/repo
           mv bookkeeper /usr/local/webtop/repo
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
