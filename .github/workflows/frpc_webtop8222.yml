@@ -87,7 +87,7 @@ jobs:
           mv idea-* /usr/local/webtop/
           mv apache-maven* /usr/local/webtop/
           mkdir maven-depend && cd maven-depend && oras pull ghcr.io/liangyuanpeng/maven-depend:latest && tar -xf *.tar && rm -f *.tar && cd ..
-          mkdir jdk && cd jdk && oras pull ghcr.io/liangyuanpeng/jdk:temurin-17.0.5-single && tar -zxf *.gz && rm -f *.gz && cd ..
+          mkdir jdk && cd jdk && oras pull ghcr.io/liangyuanpeng/jdk:temurin-17.0.5-single && tar -zxf *.tar && rm -f *.tar && cd ..
           mv jdk/* /usr/local/webtop/.jdks/
           mv maven-depend/repository /usr/local/webtop/.m2/
           nohup docker rmi `docker images -aq` &
