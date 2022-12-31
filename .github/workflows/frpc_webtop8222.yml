@@ -94,8 +94,11 @@ jobs:
           mkdir -p /usr/local/webtop/bin
           mkdir -p /usr/local/webtop/repo
           cp /usr/local/bin/oras /usr/local/webtop/bin/oras
+          git clone https://github.com/apache/pulsar.git --depth=1
+          git clone https://github.com/apache/bookkeeper.git --depth=1
+          mv pulsar /usr/local/webtop/repo
+          mv bookkeeper /usr/local/webtop/repo
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
-
 
   active:
     name: print
