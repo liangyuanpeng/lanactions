@@ -49,24 +49,21 @@ jobs:
         with:
           go-version: 1.19
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
       - name: run frpc
         run: |
           mkdir -p /usr/local/bin
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
           sed -i 's/FRPC_PORT/8223/g' frpc.ini
-          sed -i 's/FRPC_NAME/github_vscode_8221/g' frpc.ini
+          sed -i 's/FRPC_NAME/github_vscode_8223/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/3001/g' frpc.ini
           cat frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           cd ..
+          docker pull docker.io/envoyproxy/envoy-windows:v1.25.0
+          docker save -o envoy.tar docker.io/envoyproxy/envoy-windows:v1.25.0
+          ls -allh
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
 
   active:
