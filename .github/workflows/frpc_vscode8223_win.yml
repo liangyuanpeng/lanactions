@@ -63,7 +63,7 @@ jobs:
           cd ..
           docker pull docker.io/envoyproxy/envoy-windows:v1.25.0
           docker save -o envoy.tar docker.io/envoyproxy/envoy-windows:v1.25.0
-          ls -allh
+          ls 
           docker run -it -d --name envoy docker.io/envoyproxy/envoy-windows:v1.25.0
           docker exec envoy which envoy
           frpc/frpc -c frpc/frpc.ini  & scripts/runopenvscode.sh
