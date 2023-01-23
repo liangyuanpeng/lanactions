@@ -62,7 +62,6 @@ jobs:
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           cd ..
           docker pull docker.io/envoyproxy/envoy-windows:v1.25.0
-          docker save -o envoy.tar docker.io/envoyproxy/envoy-windows:v1.25.0
           ls 
           docker run -it -d --name envoy docker.io/envoyproxy/envoy-windows:v1.25.0
           docker exec envoy which envoy
