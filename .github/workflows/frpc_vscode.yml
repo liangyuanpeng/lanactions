@@ -55,6 +55,8 @@ jobs:
           EOD
 
       - name: run frpc
+        env:
+          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
           docker run -it -d -v $PWD/sample-apiserver:/sample-apiserver --rm bitnami/git:latest git clone https://github.com/kubernetes/sample-apiserver.git sample-apiserver
           docker run -it -d -v $PWD/karmada:/karmada --rm bitnami/git:latest git clone https://github.com/karmada-io/karmada.git karmada
