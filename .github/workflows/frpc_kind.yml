@@ -85,7 +85,7 @@ jobs:
           sed -i 's/9443/8227/g' /tmp/admin.conf
           mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
           chmod +x /usr/local/bin/oras
-          oras push ghcr.io/liangyuanpeng/lanfiles:admin.config -uliangyuanpeng -p$GH_TOKEN /tmp/admin.config 
+          oras push ghcr.io/liangyuanpeng/lanfiles:admin.conf -uliangyuanpeng -p$GH_TOKEN /tmp/admin.conf
 
       - name: upload file to slack
         uses: adrey/slack-file-upload-action@master
