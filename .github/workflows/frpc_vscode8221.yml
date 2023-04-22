@@ -33,6 +33,12 @@ jobs:
     name: start_frpc
     runs-on: ubuntu-20.04
     timeout-minutes: 120
+    permissions:
+      id-token: write # To be able to get OIDC ID token to sign images.
+      packages: write
+      actions: write
+      issues: write
+      discussions: write
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
