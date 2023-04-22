@@ -24,6 +24,12 @@ on:
       port:
         description: 'port'
         required: true
+      dev:  # carvel|shipwright|tekton|karmada
+        description: "what's dev worksapce"
+        required: false
+      query:
+        description: "custom query param"
+        required: false
   # pull_request:
 
 jobs:
