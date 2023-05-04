@@ -27,7 +27,7 @@ jobs:
           # fetch-depth:
           # 0 indicates all history for all branches and tags.
           # for `git describe --tags` in Makefile.
-          repository: "apache/pulsar"
+          repository: "karmada-io/karmada"
           fetch-depth: 0
       - name: install Go
         uses: actions/setup-go@v3
