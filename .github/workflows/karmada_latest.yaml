@@ -45,5 +45,5 @@ jobs:
       - name: build and publish images
         env:
           REGISTRY: lypgcs
-          VERSION: ${{ github.ref_name }}
+          VERSION: latest
         run: make mp-image-${{ matrix.target }}
