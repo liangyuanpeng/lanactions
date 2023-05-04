@@ -1,8 +1,8 @@
 name: released image to DockerHub
 on:
-  release:
-    types:
-      - published
+  push:
+    branches: [ karmada ]
+
 jobs:
   publish-image-to-dockerhub:
     name: publish to DockerHub
