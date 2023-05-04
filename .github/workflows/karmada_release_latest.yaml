@@ -1,10 +1,10 @@
-name: released image to DockerHub
+name: released latest image to DockerHub
 on:
   push:
     branches: [ karmada ]
 
 jobs:
-  publish-image-to-dockerhub:
+  publish-latest-image-to-dockerhub:
     name: publish to DockerHub
     strategy:
       matrix:
