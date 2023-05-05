@@ -17,7 +17,7 @@ jobs:
           echo "today=`date "+%Y%m%d"`" >> "$GITHUB_OUTPUT"
 
   print_date:
-    name: publish to DockerHub
+    name: print output
     runs-on: ubuntu-20.04
     needs: get_date
     steps:
