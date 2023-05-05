@@ -11,11 +11,13 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       today: ${{ steps.outputdate.outputs.today }}
+      hello: ${{ steps.outputdate.outputs.hello }}
     steps:
       - name: outputdate
         run: |
           DATE_TODAY=`date "+%Y%m%d"`
           echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
+          echo "hello=world" >> "$GITHUB_OUTPUT"
 
   print_date:
     name: print output
@@ -26,6 +28,7 @@ jobs:
       - name: print output
         run: |
           echo ${{needs.get_date.outputs.today}}
+          echo ${{needs.get_date.outputs.hello}}
 
   call_karmada_release:
     uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
