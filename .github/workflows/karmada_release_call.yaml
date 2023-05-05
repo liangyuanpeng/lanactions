@@ -16,28 +16,21 @@ jobs:
         run: |
           echo "today=`date "+%Y%m%d"`" >> "$GITHUB_OUTPUT"
 
-  call_karmada_release:
+  print_date:
     name: publish to DockerHub
     runs-on: ubuntu-20.04
     needs: get_date
     steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-        with:
-          repository: "karmada-io/karmada"
-          fetch-depth: 0
-      - name: install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.19.5
       # TODO call github action to run
-
       - name: print output
         run: |
           echo ${{needs.get_date.outputs.today}}
-    
-      - name: run karmada release
-        uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
-        with:
-          tag: ${{needs.get_date.outputs.today}}
+
+  call_karmada_release:
+    uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
+    needs: get_date
+    with:
+      tag: ${{needs.get_date.outputs.today}}
+        
+        
 
