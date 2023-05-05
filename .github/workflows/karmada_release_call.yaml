@@ -31,6 +31,9 @@ jobs:
     needs: get_date
     with:
       tag: ${{needs.get_date.outputs.today}}
+    secrets:
+      DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         
         
 

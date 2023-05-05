@@ -7,6 +7,13 @@ on:
         description: 'image tag'
         required: true
         type: string
+    secrets:
+      DOCKERHUB_USER_NAME:
+        description: 'DOCKERHUB_USER_NAME'
+        required: true
+      DOCKERHUB_TOKEN:
+        description: 'DOCKERHUB_TOKEN'
+        required: true
 
 jobs:
   publish-image-to-dockerhub:
