@@ -14,6 +14,7 @@ jobs:
       hello: ${{ steps.outputdate.outputs.hello }}
     steps:
       - name: outputdate
+        id: outputdate
         run: |
           DATE_TODAY=`date "+%Y%m%d"`
           echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
