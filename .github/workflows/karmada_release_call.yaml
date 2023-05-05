@@ -1,17 +1,25 @@
 name: call karmada release
 
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'image tag'
-        required: true
+  push:
+    branches: [ karmada ]
 
 jobs:
+
+  get_date:
+    name: get date
+    runs-on: ubuntu-20.04
+    outputs:
+      today: ${{ steps.outputdate.outputs.today }}
+    steps:
+      - name: outputdate
+        run: |
+          echo "today=`date "+%Y%m%d"`" >> "$GITHUB_OUTPUT"
 
   call_karmada_release:
     name: publish to DockerHub
     runs-on: ubuntu-20.04
+    needs: get_date
     steps:
       - name: checkout code
         uses: actions/checkout@v3
@@ -23,3 +31,13 @@ jobs:
         with:
           go-version: 1.19.5
       # TODO call github action to run
+
+      - name: print output
+        run: |
+          echo ${{needs.get_date.outputs.today}}
+    
+      - name: run karmada release
+        uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
+        with:
+          tag: ${{needs.get_date.outputs.today}}
+
