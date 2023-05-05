@@ -14,7 +14,8 @@ jobs:
     steps:
       - name: outputdate
         run: |
-          echo "today=`date "+%Y%m%d"`" >> "$GITHUB_OUTPUT"
+          DATE_TODAY=`date "+%Y%m%d"`
+          echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
 
   print_date:
     name: print output
