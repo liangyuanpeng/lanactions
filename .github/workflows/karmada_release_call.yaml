@@ -34,6 +34,14 @@ jobs:
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  call_karmada_release_latest:
+      uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
+      with:
+        tag: latest
+      secrets:
+        DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         
         
 

@@ -1,7 +1,7 @@
 name: released latest image to DockerHub
 on:
   push:
-    branches: [ karmada ]
+    branches: [ karmada_disable ]
 
 jobs:
   publish-latest-image-to-dockerhub:
