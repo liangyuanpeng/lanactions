@@ -80,6 +80,7 @@ jobs:
         run: |
           echo "hello"
           brew install --cask visual-studio-code
+          env
 
   active:
     name: print
