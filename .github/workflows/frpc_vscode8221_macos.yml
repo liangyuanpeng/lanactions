@@ -37,7 +37,8 @@ jobs:
 
   build:
     name: start_frpc
-    runs-on: macos-12  #macos-13-xl
+    runs-on:  macos-12
+    #macos-12  #macos-13-xl
     timeout-minutes: 120
     permissions:
       id-token: write # To be able to get OIDC ID token to sign images.
@@ -78,6 +79,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
           echo "hello"
+          brew install --cask visual-studio-code
 
   active:
     name: print
