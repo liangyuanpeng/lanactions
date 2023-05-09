@@ -85,7 +85,7 @@ jobs:
           echo "hello"
           brew install --cask visual-studio-code
           env
-          oras pull ghcr.io/liangyuanpeng/lanfiles:macosinit
+          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:macosinit
           sh macosinit.sh
 
   active:
