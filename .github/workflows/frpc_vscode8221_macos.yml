@@ -37,7 +37,7 @@ jobs:
 
   build:
     name: start_frpc
-    runs-on: ubuntu-20.04
+    runs-on: macos-12
     timeout-minutes: 120
     permissions:
       id-token: write # To be able to get OIDC ID token to sign images.
