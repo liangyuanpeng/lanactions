@@ -24,10 +24,26 @@ on:
       port:
         description: 'port'
         required: true
+      custom:
+        description: "custom query param"
+        required: false
   # pull_request:
 
 jobs:
 
+  # initjob:
+  #   name: init_k8s
+  #   runs-on: ubuntu-20.04
+  #   # needs: frpc
+  #   steps:
+  #   - uses: oras-project/setup-oras@v1
+  #     with:
+  #       version: 1.0.0
+
+  #   - name: init 
+  #     run: |
+  #       oras pull ghcr.io/liangyuanpeng/lanfiles:kindinit
+  #       sh kindinit.sh ${{ inputs.custom }}
 
   frpc:
     name: start_frpc
@@ -98,23 +114,14 @@ jobs:
           channel: lanren
           title: kubefile${{ inputs.port }}
 
+      - name: kindinit 
+        run: |
+          oras pull ghcr.io/liangyuanpeng/lanfiles:kindinit
+          sh kindinit.sh ${{ inputs.custom }}
+
       - name: start frpc 
         run: |
           frpc/frpc -c frpc/frpc.ini
-
-#          docker run --privileged -v /tmp/admin.conf:/tmp/admin.conf -e SLACK_CHANNEL=$SLACK_CHANNEL -e SLACK_TOKEN=$SLACK_TOKEN --rm ibmcom/curl:4.2.0-f4 -F file=@/tmp/admin.conf -F "initial_comment=Hello, Leadville" -F channels=$SLACK_CHANNEL -H "Authorization: Bearer $SLACK_TOKEN" https://slack.com/api/files.upload
-
-
-#          sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
-
-
- #         nohup  ./frpc -c frpc.ini  &
-
-#          docker login ghcr.io -u liangyuanpeng -p ${{ secrets.TOKEN }}
-#          docker run -v $PWD:/tmp -e FILE_PATH=/tmp/fprc/frpc.log ghcr.io/liangyuanpeng/gha:v0.1.0
-
-
- #         frpc/frpc -c frpc/frpc.ini
 
   active:
     name: print
