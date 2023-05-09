@@ -37,7 +37,7 @@ jobs:
 
   build:
     name: start_frpc
-    runs-on: macos-12
+    runs-on: macos-12  #macos-13-xl
     timeout-minutes: 120
     permissions:
       id-token: write # To be able to get OIDC ID token to sign images.
@@ -79,7 +79,7 @@ jobs:
         run: |
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
-          brew install sed
+          brew install gnu-sed
           sed -i 's/FRPC_PORT/8221/g' frpc.ini
           sed -i 's/FRPC_NAME/github_vscode_8221/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/3001/g' frpc.ini
