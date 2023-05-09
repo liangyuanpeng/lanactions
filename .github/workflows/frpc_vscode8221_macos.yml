@@ -79,6 +79,7 @@ jobs:
         run: |
           mv /tmp/frpc.tar .
           tar -xf frpc.tar && cd frpc
+          brew install sed
           sed -i 's/FRPC_PORT/8221/g' frpc.ini
           sed -i 's/FRPC_NAME/github_vscode_8221/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/3001/g' frpc.ini
