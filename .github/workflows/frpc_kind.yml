@@ -49,6 +49,8 @@ jobs:
     name: start_frpc
     runs-on: ubuntu-20.04
     timeout-minutes: 120
+    permissions:
+      packages: write
     # if: ${{ github.event.workflow_run  }}
     steps:
       - name: checkoutactions
@@ -115,8 +117,10 @@ jobs:
           title: kubefile${{ inputs.port }}
 
       - name: kindinit 
+        env:
+          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
-          oras pull ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           sh kindinit.sh ${{ inputs.custom }}
 
       - name: start frpc 
