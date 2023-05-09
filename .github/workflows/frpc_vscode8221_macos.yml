@@ -52,6 +52,10 @@ jobs:
         with:
           fetch-depth: 1
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
       - name: mv frpc.tar
         run: |
           mv frpc.tar /tmp/frpc.tar
@@ -81,6 +85,8 @@ jobs:
           echo "hello"
           brew install --cask visual-studio-code
           env
+          oras pull ghcr.io/liangyuanpeng/lanfiles:macosinit
+          sh macosinit.sh
 
   active:
     name: print
