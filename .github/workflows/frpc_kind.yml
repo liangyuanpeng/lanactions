@@ -98,6 +98,7 @@ jobs:
           ./setup.sh
           touch nohup.out && cat nohup.out
           chmod -R 777 /tmp/admin.conf
+          cp /tmp/admin.conf /tmp/adminorg.conf
           sed -i 's/127.0.0.1/${{ secrets.FRP_SERVER_ADDR }}/g' /tmp/admin.conf
           sed -i 's/9443/${{ inputs.port }}/g' /tmp/admin.conf
           mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
