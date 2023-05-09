@@ -77,8 +77,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
-          brew install cloudflare/cloudflare/cloudflared
-          sudo cloudflared service install eyJhIjoiMWE1YWIzMmQ4ZjkyNDU4NjMzZTgxN2JjMThkM2I5YzQiLCJ0IjoiNDQyNWZkNDktOThmZS00YmQyLWJlNzUtOTRmZmQxMzA0NjFiIiwicyI6IllUVmpPV1JrWW1ZdE16WmlPQzAwTVRNd0xXRXhaR0l0WkRReE9USXpNV0UxTkdZMyJ9
+          echo "hello"
 
   active:
     name: print
