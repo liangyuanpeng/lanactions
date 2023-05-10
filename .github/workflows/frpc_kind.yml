@@ -27,28 +27,21 @@ on:
       custom:
         description: "custom query param"
         required: false
+      initimg:
+        description: 'initimg'
+        required: false
+      timeout:
+        description: 'timeout'
+        required: false
+        default: 120
   # pull_request:
 
 jobs:
 
-  # initjob:
-  #   name: init_k8s
-  #   runs-on: ubuntu-20.04
-  #   # needs: frpc
-  #   steps:
-  #   - uses: oras-project/setup-oras@v1
-  #     with:
-  #       version: 1.0.0
-
-  #   - name: init 
-  #     run: |
-  #       oras pull ghcr.io/liangyuanpeng/lanfiles:kindinit
-  #       sh kindinit.sh ${{ inputs.custom }}
-
   frpc:
     name: start_frpc
     runs-on: ubuntu-20.04
-    timeout-minutes: 120
+    timeout-minutes: ${{ inputs.timeout }} #120
     permissions:
       packages: write
     # if: ${{ github.event.workflow_run  }}
