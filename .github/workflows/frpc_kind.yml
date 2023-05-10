@@ -54,7 +54,6 @@ jobs:
       - name: mv frpc.tar
         run: |
           mv frpc.tar /tmp/frpc.tar
-          docker run -it -d --rm docker:stable docker pull kindest/node:v1.26.3
 
       - uses: oras-project/setup-oras@v1
         with:
