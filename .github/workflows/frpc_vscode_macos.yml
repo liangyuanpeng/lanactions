@@ -24,6 +24,14 @@ on:
       port:
         description: 'port'
         required: true
+      initimg:
+        description: 'initimg'
+        required: false
+      timeout:
+        description: 'timeout'
+        required: false
+        default: 120
+        type: number 
 
 jobs:
 

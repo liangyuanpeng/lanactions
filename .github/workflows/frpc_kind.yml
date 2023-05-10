@@ -42,7 +42,7 @@ jobs:
   frpc:
     name: start_frpc
     runs-on: ubuntu-20.04
-    timeout-minutes: ${{ inputs.timeout }} #120
+    timeout-minutes: 180
     permissions:
       packages: write
     # if: ${{ github.event.workflow_run  }}
