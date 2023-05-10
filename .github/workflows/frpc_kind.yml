@@ -59,19 +59,6 @@ jobs:
         with:
           version: 1.0.0
 
-      # - name: set env
-      #   run: |
-      #     sudo apt update
-      #     sudo apt -y install sshpass
-      #     sudo passwd root << EOD
-      #     root
-      #     root
-      #     EOD
-      #     sudo passwd runner << EOD
-      #     root
-      #     root
-      #     EOD
-
       - name: run frpc
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
