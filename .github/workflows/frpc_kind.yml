@@ -97,6 +97,7 @@ jobs:
           cd ..
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' kind-config
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
+          chmod +x init.sh
           ./init.sh
           ./install.sh
           export CLUSTER_HOST=0.0.0.0
