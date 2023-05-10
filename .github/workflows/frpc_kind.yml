@@ -112,9 +112,8 @@ jobs:
           cp /tmp/admin.conf /tmp/adminorg.conf
           sed -i 's/127.0.0.1/${{ secrets.FRP_SERVER_ADDR }}/g' /tmp/admin.conf
           sed -i 's/9443/${{ inputs.port }}/g' /tmp/admin.conf
-          mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
-          chmod +x /usr/local/bin/oras
           cp /tmp/admin.conf ./
+          cat /tmp/admin.conf
           mv admin.conf ghkf${{ inputs.port }}.conf
           rm -f admin.conf
           oras push ghcr.io/liangyuanpeng/lanfiles:ghkf${{ inputs.port }} -uliangyuanpeng -p$GH_TOKEN ghkf${{ inputs.port }}.conf
