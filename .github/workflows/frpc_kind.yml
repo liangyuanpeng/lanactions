@@ -83,6 +83,9 @@ jobs:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          FRPC_PORT: ${{ inputs.port }}
+          WORKSPACE: kind
+          SYSTEM: debian
         run: |
           docker run -it -d --rm docker:stable docker pull kindest/node:v1.26.3
           oras login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
