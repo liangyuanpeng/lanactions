@@ -52,6 +52,16 @@ jobs:
         with:
           version: 1.0.0
 
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.26.3
+
+      - name: Install Ko
+        uses: ko-build/setup-ko@v0.6
+        with:
+          version: v0.13.0
+
       - name: run frpc
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}

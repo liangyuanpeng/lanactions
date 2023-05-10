@@ -51,6 +51,11 @@ jobs:
         with:
           version: 1.0.0
 
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.26.3
+
       - name: set env
         run: |
           sudo apt update
