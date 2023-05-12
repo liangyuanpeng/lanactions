@@ -94,6 +94,7 @@ jobs:
       - name: start frpc 
         run: |
           frpc/frpc -c frpc/frpc.ini
+          
   active:
     name: print
     runs-on: ubuntu-20.04
