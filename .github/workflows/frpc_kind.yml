@@ -129,7 +129,7 @@ jobs:
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x kindinit.sh
-          frpc/frpc -c frpc/frpc.ini & ./kindinit.sh ${{ inputs.custom }}
+          frpc/frpc -c frpc/frpc.ini & ./kindinit.sh ${{ inputs.custom }} & sleep 10h
 
       # - name: start frpc 
       #   run: |
