@@ -15,4 +15,7 @@ nodes:
       certSANs:
       - "FRP_SERVER"
       - "127.0.0.1"
+      - "more1.local"
+      - "more2.local"
+      - "more3.local"
 - role: worker
