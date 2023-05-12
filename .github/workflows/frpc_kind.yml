@@ -128,11 +128,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
-          echo "begin kindinit" & sh kindinit.sh ${{ inputs.custom }}
+          frpc/frpc -c frpc/frpc.ini & sh kindinit.sh ${{ inputs.custom }}
 
-      - name: start frpc 
-        run: |
-          frpc/frpc -c frpc/frpc.ini
+      # - name: start frpc 
+      #   run: |
+      #     frpc/frpc -c frpc/frpc.ini
 
   active:
     name: print
