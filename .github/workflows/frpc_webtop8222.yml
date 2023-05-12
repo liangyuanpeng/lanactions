@@ -51,6 +51,20 @@ jobs:
         run: |
           mv frpc.tar /tmp/frpc.tar
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.26.3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
       - name: run frpc
         run: |
           mv /tmp/frpc.tar .
@@ -65,12 +79,7 @@ jobs:
           docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull bitnami/git:latest
           docker run -it -d -v /var/run/docker.sock:/var/run/docker.sock --rm docker:stable docker pull linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
           wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
-          wget https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl
           mv kind-linux-amd64 kind && chmod +x kind && mv kind /usr/local/bin
-          chmod +x kubectl && mv kubectl /usr/local/bin
-          curl -LO https://github.com/oras-project/oras/releases/download/v0.16.0/oras_0.16.0_linux_amd64.tar.gz
-          mkdir -p oras-install/ && tar -zxf oras_0.16.0_*.tar.gz -C oras-install/ &&  mv oras-install/oras /usr/local/bin/ && rm -rf oras_0.16.0_*.tar.gz oras-install/
-          chmod +x /usr/local/bin/oras
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           TZ=UTC-8 date -d '2hour' +%Y-%m-%d" "%H:%M:%S > shutdowntime
           docker run --network host -d --name=webtop -e PUID=1000 -e PGID=1000 -e TZ=Asia/Shanghai  -v /usr/local/webtop:/config -v /var/run/docker.sock:/var/run/docker.sock --shm-size="8gb" --restart unless-stopped  linuxserver/webtop:amd64-ubuntu-kde-781d8753-ls91
