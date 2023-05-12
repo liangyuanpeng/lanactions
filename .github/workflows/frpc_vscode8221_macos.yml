@@ -30,6 +30,14 @@ on:
       query:
         description: "custom query param"
         required: false
+      initimg:
+        description: 'initimg'
+        required: false
+      timeout:
+        description: 'timeout'
+        required: false
+        default: 120
+        type: number 
   # pull_request:
 
 jobs:
