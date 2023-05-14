@@ -62,6 +62,9 @@ jobs:
         with:
           version: v0.13.0
 
+          # wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
+          # mv kind-linux-amd64 kind && chmod +x kind && mv kind /usr/local/bin
+
       - name: run frpc
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
@@ -82,9 +85,6 @@ jobs:
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
           chmod +x init.sh
           ./init.sh
-          wget https://github.com/kubernetes-sigs/kind/releases/download/v0.15.0/kind-linux-amd64
-          mv kind-linux-amd64 kind && chmod +x kind && mv kind /usr/local/bin
-          chmod +x kubectl && mv kubectl /usr/local/bin
           export GITHUB_TOKEN_PACKAGE=${{ secrets.GH_PACKAGE_TOKEN }}
           frpc/frpc -c frpc/frpc.ini & scripts/runopenvscode.sh
 
