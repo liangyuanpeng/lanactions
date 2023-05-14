@@ -91,4 +91,4 @@ jobs:
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
           chmod +x init.sh
           ./init.sh
-          ./frpc -c frpc.ini
+          frpc/frpc -c frpc/frpc.ini
