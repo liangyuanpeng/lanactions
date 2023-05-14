@@ -74,7 +74,7 @@ jobs:
           tar -xvf frpc.tar && cd frpc
           cat frpc.ini
           sed -i 's/FRPC_PORT/${{ inputs.port }}/g' frpc.ini
-          sed -i 's/FRPC_NAME/gh_kind_${{ inputs.port }}/g' frpc.ini
+          sed -i 's/FRPC_NAME/gh_vscode_${{ inputs.port }}/g' frpc.ini
           sed -i 's/FRP_SERVER/${{ secrets.FRP_SERVER_ADDR }}/g' frpc.ini
           sed -i 's/FRP_PORT/${{ secrets.FRP_SERVER_PORT }}/g' frpc.ini
           sed -i 's/FRPC_LOCAL_PORT/3001/g' frpc.ini
