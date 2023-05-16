@@ -8,6 +8,16 @@ networking:
 nodes:
 # add to the apiServer certSANs the name of the drone service in order to be able to reach the cluster through it
 - role: control-plane
+  extraPortMappings:
+    - containerPort: 31000
+      hostPort: 31000
+      listenAddress: "0.0.0.0"
+    - containerPort: 31001
+      hostPort: 31001
+      listenAddress: "0.0.0.0"
+    - containerPort: 31002
+      hostPort: 31002
+      listenAddress: "0.0.0.0"
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
