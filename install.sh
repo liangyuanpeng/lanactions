@@ -5,8 +5,8 @@ set -o nounset;
 # debug commands
 set -x;
 
-KUBECTL=v1.25.0
-KIND=v0.15.0
+KUBECTL=v1.27.0
+KIND=v0.18.0
 
 install(){
   wget -O $1 $2
@@ -22,4 +22,4 @@ install(){
 install "kind" "https://github.com/kubernetes-sigs/kind/releases/download/${KIND}/kind-linux-amd64"
 
 #installing kubectl
-install "kubectl" "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl"
+#install "kubectl" "https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl"
