@@ -95,8 +95,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
-          
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:macosinit
+          chmod +x macosinit.sh
           sh macosinit.sh
 
   active:
