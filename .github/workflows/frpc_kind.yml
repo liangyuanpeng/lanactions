@@ -51,11 +51,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: mv frpc.tar
-        run: |
-          mv frpc.tar /tmp/frpc.tar
           
-
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
@@ -86,6 +82,7 @@ jobs:
           SYSTEM: debian
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x kindinit.sh
           ./kindinit.sh
 
@@ -106,7 +103,6 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
         run: |
-          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
           frpc/frpc -c frpc/frpc.ini & ./envinit.sh ${{ inputs.custom }} & sleep 10h
 
