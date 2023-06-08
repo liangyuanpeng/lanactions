@@ -43,25 +43,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-      - name: mv frpc.tar
-        run: |
-          mv frpc.tar /tmp/frpc.tar
 
-      - name: set env
-        run: |
-          sudo apt update
-          sudo apt -y install sshpass
-          sudo passwd root << EOD
-          root
-          root
-          EOD
-          sudo passwd runner << EOD
-          root
-          root
-          EOD
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.26.3
 
-# TODO install bins:  kubectl/kind/ko...
-
+# TODO install bins:  kind/ko...
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
@@ -76,4 +64,4 @@ jobs:
           oras login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           oras pull  ghcr.io/liangyuanpeng/lanfiles:ghdev
           chmod +x init.sh
-          ./init.sh
+          ./init.sh & sleep 10h
