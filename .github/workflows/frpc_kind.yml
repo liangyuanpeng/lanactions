@@ -41,7 +41,7 @@ jobs:
 
   frpc:
     name: start_frpc
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 180
     permissions:
       packages: write
