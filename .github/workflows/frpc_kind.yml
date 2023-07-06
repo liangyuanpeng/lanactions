@@ -51,7 +51,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-          
+
+      - uses: FedericoCarboni/setup-ffmpeg@v2
+        id: setup-ffmpeg
+        
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
