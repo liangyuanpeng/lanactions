@@ -59,6 +59,11 @@ jobs:
         with:
           version: 1.0.0
 
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '17.0.7'
+          distribution: 'graalvm' # See 'Options' for all available distributions
+
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
