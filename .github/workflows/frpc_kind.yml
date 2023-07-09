@@ -61,7 +61,7 @@ jobs:
 
       - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '17.0.7'
+          java-version: '17.0.5'
           distribution: 'graalvm' # See 'Options' for all available distributions
 
       - name: Install kubectl
