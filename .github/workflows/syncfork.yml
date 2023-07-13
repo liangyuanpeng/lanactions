@@ -21,7 +21,7 @@ name: syncfork
 on:
   workflow_dispatch:
   #TODO schedule
-#  pull_request:
+  pull_request:
 
 jobs:
 
@@ -39,6 +39,6 @@ jobs:
 
       - name: sync
         run: |
-          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:syncfork
+          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:syncfork
           chmod +x syncfork.sh
           ./syncfork.sh
