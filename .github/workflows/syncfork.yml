@@ -21,7 +21,7 @@ name: syncfork
 on:
   workflow_dispatch:
   #TODO schedule
-#  pull_request:
+  pull_request:
 
 jobs:
 
