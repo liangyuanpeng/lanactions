@@ -31,8 +31,8 @@ jobs:
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
-        #TODO argo workflow
         with:
+          repository: argoproj/argo-workflows
           fetch-depth: 1
       - name: runmake
         run: |
