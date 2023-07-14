@@ -70,7 +70,7 @@ jobs:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
       - uses: FedericoCarboni/setup-ffmpeg@v2
-        if: ${{ steps.genoutputs.outputs.ffmpeg }}
+        if: ${{ steps.genoutputs.outputs.ffmpeg == 'true' }}
         id: setup-ffmpeg
         
       - uses: oras-project/setup-oras@v1
@@ -78,7 +78,7 @@ jobs:
           version: 1.0.0
 
       - uses: graalvm/setup-graalvm@v1
-        if: ${{ steps.genoutputs.outputs.graalvm }}
+        if: ${{ steps.genoutputs.outputs.graalvm == 'true' }}
         with:
           java-version: '17'
           version: '22.3.2' # Old 'version' option for the GraalVM version
