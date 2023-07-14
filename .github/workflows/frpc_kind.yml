@@ -63,6 +63,10 @@ jobs:
         run: |
           echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
 
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ steps.genoutputs.outputs.goversion }}
+
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
         
@@ -71,6 +75,7 @@ jobs:
           version: 1.0.0
 
       - uses: graalvm/setup-graalvm@v1
+        if: ${{ steps.genoutputs.outputs.graalvm }}
         with:
           java-version: '17'
           version: '22.3.2' # Old 'version' option for the GraalVM version
