@@ -52,6 +52,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: genoutputs
+        id: genoutputs
+        run: |
+          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          chmod +x actionops.sh
+          ./actionops.sh
+
+      - name: print outputs
+        run: |
+          echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
+
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
         
