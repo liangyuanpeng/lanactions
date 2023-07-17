@@ -64,6 +64,8 @@ jobs:
           echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
           echo "ffmpeg is" ${{ steps.genoutputs.outputs.ffmpeg }}
           echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
+          echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
+          echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
 
       - uses: actions/setup-go@v2
         with:
@@ -89,6 +91,13 @@ jobs:
         uses: azure/setup-kubectl@v3
         with:
           version: v1.26.3
+
+      - uses: actions-rs/toolchain@v1
+        if: steps.genoutputs.outputs.rsdev == 'true'
+        with:
+          profile: default
+          toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+          override: true
 
       # - name: Create kind cluster
       #   uses: helm/kind-action@v1
