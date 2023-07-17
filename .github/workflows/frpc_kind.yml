@@ -122,6 +122,7 @@ jobs:
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x kindinit.sh
+          chmod +x setup.sh
           ./kindinit.sh
 
       - name: upload file to slack
