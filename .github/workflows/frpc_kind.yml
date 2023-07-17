@@ -47,10 +47,10 @@ jobs:
       packages: write
     # if: ${{ github.event.workflow_run  }}
     steps:
-#      - name: checkoutactions
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 1
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
 
       - name: genoutputs
         id: genoutputs
