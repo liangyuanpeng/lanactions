@@ -42,4 +42,11 @@ jobs:
           make quick-release-images
           docker images
           ls _output
+          echo "======================="
+          ls _output/release-images
+          echo "======================="
+          ls _output/images
+          echo "======================="
+          tree _output
+          
 
