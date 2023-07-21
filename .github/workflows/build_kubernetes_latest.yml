@@ -37,5 +37,6 @@ jobs:
       - name: make
         run: |
           echo "begin make"
+          docker rmi `docker images -aq`
           make quick-release
 
