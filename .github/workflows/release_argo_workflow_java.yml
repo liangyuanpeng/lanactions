@@ -52,4 +52,4 @@ jobs:
         run: |
           sudo mkdir -p /src/sigs.k8s.io/kind
           sudo chmod -R 777 /src/sigs.k8s.io
-          ./.prow.sh
+          sudo sh .prow.sh
