@@ -50,6 +50,6 @@ jobs:
           fetch-depth: 1
       - name: runmake
         run: |
-          mkdir -p /src/sigs.k8s.io/kind
-          chmod -R 777 /src/sigs.k8s.io
+          sudo mkdir -p /src/sigs.k8s.io/kind
+          sudo chmod -R 777 /src/sigs.k8s.io
           ./.prow.sh
