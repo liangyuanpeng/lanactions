@@ -48,7 +48,6 @@ jobs:
         with:
           repository: kubernetes-csi/external-provisioner
           fetch-depth: 1
-          path: work/lanactions/lanactions
       - name: runmake
         run: |
           sudo mkdir -p /src/sigs.k8s.io/kind
@@ -56,6 +55,6 @@ jobs:
           sudo chmod -R 777 /src/sigs.k8s.io
           sudo chmod -R 777 /artifacts/
           sudo chmod -R 777 /bin/
-          pwd
-          ls
+          chmod +x .prow.sh
+          chmod +x release-tools/prow.sh
           ./.prow.sh
