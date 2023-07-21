@@ -57,4 +57,5 @@ jobs:
           sudo chmod -R 777 /bin/
           chmod +x .prow.sh
           chmod +x release-tools/prow.sh
+          export CSI_PROW_WORK=/tmp
           ./.prow.sh
