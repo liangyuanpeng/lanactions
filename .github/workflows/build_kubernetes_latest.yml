@@ -36,5 +36,5 @@ jobs:
           fetch-depth: 1
       - name: make
         run: |
-          make
+          make quick-release
 
