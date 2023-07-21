@@ -39,7 +39,7 @@ jobs:
           echo "begin make"
           docker rmi `docker images -aq`
           git tag latest
-          make quick-release
+          make quick-release-images
           docker images
           ls _output
 
