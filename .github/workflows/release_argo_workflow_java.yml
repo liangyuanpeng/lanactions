@@ -53,6 +53,6 @@ jobs:
           sudo mkdir -p /src/sigs.k8s.io/kind
           sudo mkdir -p /artifacts
           sudo chmod -R 777 /src/sigs.k8s.io
-          sudo chmod -R 777 /bin/
           sudo chmod -R 777 /artifacts/
+          sudo chmod -R 777 /bin/
           ./.prow.sh
