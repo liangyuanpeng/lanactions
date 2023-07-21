@@ -55,4 +55,5 @@ jobs:
           sudo chmod -R 777 /src/sigs.k8s.io
           sudo chmod -R 777 /artifacts/
           sudo chmod -R 777 /bin/
-          sh .prow.sh
+          touch /kind-config.yaml && rm -f /kind-config.yaml
+          ./.prow.sh
