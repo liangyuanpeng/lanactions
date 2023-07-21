@@ -54,6 +54,7 @@ jobs:
           sudo mkdir -p /src/k8s.io/kubernetes
           sudo mkdir -p /artifacts
           sudo chmod -R 777 /src
+          mkdir -p /src/github.com/kubernetes-csi/external-provisioner/test/e2e
           sudo chmod -R 777 /artifacts/
           sudo chmod -R 777 /bin/
           chmod +x .prow.sh
