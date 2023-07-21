@@ -36,5 +36,6 @@ jobs:
           fetch-depth: 1
       - name: make
         run: |
+          echo "begin make"
           make quick-release
 
