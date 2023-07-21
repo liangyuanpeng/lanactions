@@ -56,4 +56,5 @@ jobs:
           sudo chmod -R 777 /src/sigs.k8s.io
           sudo chmod -R 777 /artifacts/
           sudo chmod -R 777 /bin/
+          pwd
           ./.prow.sh
