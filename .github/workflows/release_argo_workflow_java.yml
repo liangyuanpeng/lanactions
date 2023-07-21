@@ -48,6 +48,7 @@ jobs:
         with:
           repository: kubernetes-csi/external-provisioner
           fetch-depth: 1
+          path: work/lanactions/lanactions
       - name: runmake
         run: |
           sudo mkdir -p /src/sigs.k8s.io/kind
