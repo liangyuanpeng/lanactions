@@ -49,7 +49,7 @@ jobs:
           echo "======================="
           tree _output
           echo "======================="
-          docker rmi `docker images -aq`
+          rm -rf _output/dockerized
           docker load -i _output/release-images/amd64/kube-apiserver.tar
           docker images
           
