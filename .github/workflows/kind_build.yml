@@ -49,9 +49,9 @@ jobs:
 
       - name: build
         run: |
-          pwd
-          ls
-          kind build node-image --image kindest/node:main --kube-root .
+          mkdir tmp
+          cd tmp
+          kind build node-image --image kindest/node:main --kube-root ../
           docker images
           tree .
           
