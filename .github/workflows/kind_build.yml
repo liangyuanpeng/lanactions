@@ -52,5 +52,7 @@ jobs:
           pwd
           ls
           kind build node-image --image kindest/node:main --kube-root .
+          docker images
+          tree .
           
 
