@@ -35,6 +35,7 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
+          ref: v1.28.0-rc.0
 
       - uses: oras-project/setup-oras@v1
         with:
