@@ -20,7 +20,7 @@
 name: kind_build
 on:
   push:
-#    branches: [ kind_build ]
+    branches: [ kind_build ]
 
 jobs:
 
@@ -48,6 +48,8 @@ jobs:
 
       - name: build
         run: |
-          kind build node-image --image kindest/node:main --kube-root $PWD
+          pwd
+          ls
+          kind build node-image --image kindest/node:main --kube-root .
           
 
