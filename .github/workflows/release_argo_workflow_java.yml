@@ -19,7 +19,9 @@
 
 name: release_argoworkflow_java
 on:
-  pull_request:
+#  pull_request:
+  push:
+    branches: [ release_argo ]
 
 jobs:
 
