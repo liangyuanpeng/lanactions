@@ -50,7 +50,7 @@ jobs:
       - name: build
         run: |
           mkdir tmp
-          kind build node-image --image kindest/node:main --kube-root tmp/
+          kind build node-image --image kindest/node:main --kube-root $PWD/tmp/
           docker images
           cd tmp
           tree .
