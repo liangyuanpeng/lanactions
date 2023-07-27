@@ -56,7 +56,6 @@ jobs:
           cd ../_output
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker rmi `docker images -aq`
           docker push ghcr.io/liangyuanpeng/kindest/node:v0.18.0-v1.28.0-rc.0
           docker logout
           
