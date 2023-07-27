@@ -50,9 +50,9 @@ jobs:
       - name: build
         run: |
           mkdir tmp
-          cd tmp
-          kind build node-image --image kindest/node:main --kube-root ../
+          kind build node-image --image kindest/node:main --kube-root tmp/
           docker images
+          cd tmp
           tree .
           
 
