@@ -51,8 +51,11 @@ jobs:
         run: |
           mkdir tmp
           cd tmp
-          kind build node-image --image kindest/node:main --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:main --kube-root $PWD/../
           docker images
+          cd ../_output
           tree .
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          
           
 
