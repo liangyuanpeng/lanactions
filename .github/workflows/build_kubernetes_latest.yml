@@ -57,10 +57,20 @@ jobs:
           tree _output
           echo "======================="
           rm -rf _output/dockerized
+          rm -rf _output/release-stage
           docker load -i _output/release-images/amd64/kube-apiserver.tar
+          docker load -i _output/release-images/amd64/kube-controller-manager.tar
+          docker load -i _output/release-images/amd64/kube-proxy.tar
+          docker load -i _output/release-images/amd64/kube-scheduler.tar
           docker images
           docker tag registry.k8s.io/kube-apiserver-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-apiserver-amd64:v1.28.0-rc.0
+          docker tag registry.k8s.io/kube-controller-manager-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-controller-manager-amd64:v1.28.0-rc.0
+          docker tag registry.k8s.io/kube-proxy-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-proxy-amd64:v1.28.0-rc.0
+          docker tag registry.k8s.io/kube-scheduler-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-scheduler-amd64:v1.28.0-rc.0
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:v1.28.0-rc.0
+          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:v1.28.0-rc.0
+          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:v1.28.0-rc.0
+          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:v1.28.0-rc.0
           docker logout
 
