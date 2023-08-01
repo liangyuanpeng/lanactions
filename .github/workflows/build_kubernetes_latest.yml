@@ -45,7 +45,7 @@ jobs:
       - name: make
         run: |
           export KUBE_DOCKER_REGISTRY=ghcr.io
-          export $VERSION="v0.0.99"
+          export VERSION="v0.0.99"
           echo "begin make"
           docker rmi `docker images -aq`
           make quick-release-images
