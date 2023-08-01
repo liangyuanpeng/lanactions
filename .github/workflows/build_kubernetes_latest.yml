@@ -35,11 +35,17 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
+          ref: v1.28.0-rc.0
+
+      - name: git tag
+        run: |
+          echo "do git tag"
+          git tag v1.9.9
+
       - name: make
         run: |
           echo "begin make"
           docker rmi `docker images -aq`
-          git tag v1.9.9
           make quick-release-images
           docker images
           ls _output
