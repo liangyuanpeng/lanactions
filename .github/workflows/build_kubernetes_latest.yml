@@ -35,16 +35,17 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
-          ref: v1.28.0-rc.0
+#          ref: $VERSION
 
-#      - name: git tag
-#        run: |
-#          echo "do git tag"
-#          git tag v1.9.9
+      - name: git tag
+        run: |
+          echo "do git tag"
+          git tag v0.0.99
 
       - name: make
         run: |
           export KUBE_DOCKER_REGISTRY=ghcr.io
+          export $VERSION="v0.0.99"
           echo "begin make"
           docker rmi `docker images -aq`
           make quick-release-images
@@ -64,14 +65,14 @@ jobs:
           docker load -i _output/release-images/amd64/kube-proxy.tar
           docker load -i _output/release-images/amd64/kube-scheduler.tar
           docker images
-          docker tag registry.k8s.io/kube-apiserver-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-apiserver-amd64:v1.28.0-rc.0
-          docker tag registry.k8s.io/kube-controller-manager-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-controller-manager-amd64:v1.28.0-rc.0
-          docker tag registry.k8s.io/kube-proxy-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-proxy-amd64:v1.28.0-rc.0
-          docker tag registry.k8s.io/kube-scheduler-amd64:v1.28.0-rc.0 ghcr.io/liangyuanpeng/kube-scheduler-amd64:v1.28.0-rc.0
+          docker tag registry.k8s.io/kube-apiserver-amd64:$VERSION ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
+          docker tag registry.k8s.io/kube-controller-manager-amd64:$VERSION ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
+          docker tag registry.k8s.io/kube-proxy-amd64:$VERSION ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
+          docker tag registry.k8s.io/kube-scheduler-amd64:$VERSION ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:v1.28.0-rc.0
-          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:v1.28.0-rc.0
-          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:v1.28.0-rc.0
-          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:v1.28.0-rc.0
+          docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
+          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
+          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
+          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
           docker logout
 
