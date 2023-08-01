@@ -21,6 +21,8 @@ name: ci_kubernetes
 on:
   push:
     branches: [ ci_k8s ]
+  schedule:
+    - cron: '30 1 * * *' # runs daily at 1:30 am.
 
 jobs:
 
