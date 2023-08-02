@@ -45,7 +45,7 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
-          ref: latest #${{ github.event.inputs.ref }}
+          ref: master #${{ github.event.inputs.ref }}
 
       - uses: oras-project/setup-oras@v1
         with:
