@@ -59,6 +59,7 @@ jobs:
 #          chmod +x kind-linux-amd64-v0.20.0
 #          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
 
+#TODO docker login action
       - name: build
         run: |
           mkdir tmp
