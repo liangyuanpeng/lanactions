@@ -77,9 +77,3 @@ jobs:
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }}
           docker logout
-          
-#  docker load -i release-images/amd64/kube-apiserver.tar
-#  docker load -i release-images/amd64/kube-controller-manager.tar
-#  docker load -i release-images/amd64/kube-proxy.tar
-#  docker load -i release-images/amd64/kube-scheduler.tar
-
