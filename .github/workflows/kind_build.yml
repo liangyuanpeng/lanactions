@@ -43,20 +43,20 @@ jobs:
 
       - name: init kind
         run: |
-          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.18.0
-          chmod +x kind-linux-amd64-v0.18.0
-          mv kind-linux-amd64-v0.18.0 /usr/local/bin/kind
+          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
+          chmod +x kind-linux-amd64-v0.20.0
+          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
 
       - name: build
         run: |
           mkdir tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:v0.18.0-v1.28.0-rc.0 --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:v0.20.0-v1.28.0-rc.0 --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kindest/node:v0.18.0-v1.28.0-rc.0
+          docker push ghcr.io/liangyuanpeng/kindest/node:v0.20.0-v1.28.0-rc.0
           docker logout
           
 #  docker load -i release-images/amd64/kube-apiserver.tar
