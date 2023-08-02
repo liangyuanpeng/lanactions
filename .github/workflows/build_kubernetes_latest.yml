@@ -45,7 +45,7 @@ jobs:
         with:
           repository: liangyuanpeng/kubernetes
           fetch-depth: 1
-#          ref: $VERSION
+          ref: dev_1.28
 
       - name: git tag
         run: |
