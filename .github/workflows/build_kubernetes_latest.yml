@@ -50,7 +50,7 @@ jobs:
       - name: git tag
         run: |
           echo "do git tag"
-          git tag v0.0.99
+#          git tag v0.0.99
 
       - name: make
         run: |
