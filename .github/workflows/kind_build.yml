@@ -19,8 +19,8 @@
 
 name: kind_build
 on:
-#  push:
-#    branches: [ kind_build ]
+  push:
+    branches: [ kind_build ]
   workflow_dispatch:
     inputs:
       ref:
@@ -45,7 +45,7 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
-          ref: ${{ github.event.inputs.ref }}
+          ref: latest #${{ github.event.inputs.ref }}
 
       - uses: oras-project/setup-oras@v1
         with:
