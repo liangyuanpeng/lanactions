@@ -21,6 +21,15 @@ name: kind_build
 on:
   push:
     branches: [ kind_build ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref of kubernetes '
+        required: true
+      kindversion:
+        description: 'version of kind,v0.20.0 by default.'
+        required: false
+        default: "v0.20.0"
 
 jobs:
 
@@ -35,28 +44,31 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
-          ref: v1.28.0-rc.0
+          ref: ${{ github.event.inputs.ref }} #v1.28.0-rc.0
 
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
 
-      - name: init kind
+      - name: download kind
         run: |
-          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
-          chmod +x kind-linux-amd64-v0.20.0
-          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.ref }}/kind-linux-amd64
+          chmod +x kind-linux-amd64
+          mv kind-linux-amd64 /usr/local/bin/kind
+#          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
+#          chmod +x kind-linux-amd64-v0.20.0
+#          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
 
       - name: build
         run: |
           mkdir tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:v0.20.0-v1.28.0-rc.0 --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.ref }}-${{ github.event.inputs.ref }} --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kindest/node:v0.20.0-v1.28.0-rc.0
+          docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.ref }}-${{ github.event.inputs.ref }}
           docker logout
           
 #  docker load -i release-images/amd64/kube-apiserver.tar
