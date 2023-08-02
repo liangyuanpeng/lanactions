@@ -26,7 +26,7 @@ on:
       ref:
         description: 'source ref of kubernetes '
         required: true
-        default: "v1.28.0-rc.0"
+        default: "master"
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
@@ -45,7 +45,7 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
-          ref: master #${{ github.event.inputs.ref }}
+          ref: ${{ github.event.inputs.ref }}
 
       - uses: oras-project/setup-oras@v1
         with:
