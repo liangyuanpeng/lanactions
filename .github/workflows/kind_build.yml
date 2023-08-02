@@ -26,6 +26,7 @@ on:
       ref:
         description: 'source ref of kubernetes '
         required: true
+        default: "v1.28.0-rc.0"
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
@@ -44,7 +45,7 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 1
-          ref: ${{ github.event.inputs.ref }} #v1.28.0-rc.0
+          ref: ${{ github.event.inputs.ref }}
 
       - uses: oras-project/setup-oras@v1
         with:
@@ -52,7 +53,7 @@ jobs:
 
       - name: download kind
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.ref }}/kind-linux-amd64
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.kindversion }}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind
 #          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
