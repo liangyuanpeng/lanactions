@@ -26,7 +26,7 @@ on:
       ref:
         description: 'source ref of kubernetes '
         required: true
-        default: "master"
+        default: "v1.28.0-rc.0"
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
