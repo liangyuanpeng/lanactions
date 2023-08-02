@@ -19,8 +19,8 @@
 
 name: kind_build
 on:
-  push:
-    branches: [ kind_build ]
+#  push:
+#    branches: [ kind_build ]
   workflow_dispatch:
     inputs:
       ref:
