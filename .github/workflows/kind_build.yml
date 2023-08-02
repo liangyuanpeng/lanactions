@@ -60,6 +60,11 @@ jobs:
 #          chmod +x kind-linux-amd64-v0.20.0
 #          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
 
+#  wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
+#  chmod +x kind-linux-amd64
+#  mv kind-linux-amd64 /usr/local/bin/kind
+# git clone https://github.com/kubernetes/kubernetes.git --depth=1
+
 #TODO docker login action
       - name: build
         run: |
@@ -70,7 +75,7 @@ jobs:
           cd ../_output
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.ref }}-${{ github.event.inputs.ref }}
+          docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }}
           docker logout
           
 #  docker load -i release-images/amd64/kube-apiserver.tar
