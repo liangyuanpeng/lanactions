@@ -17,51 +17,28 @@
 # under the License.
 #
 
-name: frpc_ssh_macos
+name: syncfork
 on:
   workflow_dispatch:
-    inputs:
-      port:
-        description: 'port'
-        required: true
-      initimg:
-        description: 'initimg'
-        required: false
-      timeout:
-        description: 'timeout'
-        required: false
-        default: 120
-        type: number 
-  # pull_request:
+  #TODO schedule
+  pull_request:
 
 jobs:
-  build:
-    name: start_frpc
-    runs-on: macos-12
+
+  syncfork:
+    name: syncfork
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    permissions:
+      packages: write
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: v1.26.3
-
-# TODO install bins:  kind/ko...
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-
-      - name: run frpc
-        env:
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-          FRPC_PORT: ${{ inputs.port }}
-          WORKSPACE: ssh
-          SYSTEM: macos
+      - name: sync
         run: |
-          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          oras pull  ghcr.io/liangyuanpeng/lanfiles:ghdev
-          chmod +x init.sh
-          ./init.sh & sleep 10h
+          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:syncfork
+          chmod +x syncfork.sh
+          ./syncfork.sh

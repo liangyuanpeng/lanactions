@@ -1,0 +1,78 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: kind_build
+on:
+#  push:
+#    branches: [ kind_build ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref of kubernetes '
+        required: true
+      kindversion:
+        description: 'version of kind,v0.20.0 by default.'
+        required: false
+        default: "v0.20.0"
+
+jobs:
+
+  release:
+    name: release
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 1
+          ref: ${{ github.event.inputs.ref }} #v1.28.0-rc.0
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
+      - name: download kind
+        run: |
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.ref }}/kind-linux-amd64
+          chmod +x kind-linux-amd64
+          mv kind-linux-amd64 /usr/local/bin/kind
+#          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
+#          chmod +x kind-linux-amd64-v0.20.0
+#          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
+
+      - name: build
+        run: |
+          mkdir tmp
+          cd tmp
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.ref }}-${{ github.event.inputs.ref }} --kube-root $PWD/../
+          docker images
+          cd ../_output
+          tree .
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.ref }}-${{ github.event.inputs.ref }}
+          docker logout
+          
+#  docker load -i release-images/amd64/kube-apiserver.tar
+#  docker load -i release-images/amd64/kube-controller-manager.tar
+#  docker load -i release-images/amd64/kube-proxy.tar
+#  docker load -i release-images/amd64/kube-scheduler.tar
+

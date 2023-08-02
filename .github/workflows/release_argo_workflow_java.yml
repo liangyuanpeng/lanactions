@@ -1,0 +1,65 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: release_argoworkflow_java
+on:
+#  pull_request:
+  push:
+    branches: [ release_argo ]
+
+jobs:
+
+  release:
+    name: release
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          repository: argoproj/argo-workflows
+          fetch-depth: 1
+      - name: runmake
+        run: |
+          cd sdks/java
+          make install
+
+  test:
+    name: test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          repository: kubernetes-csi/external-provisioner
+          fetch-depth: 1
+      - name: runmake
+        run: |
+          sudo mkdir -p /src/sigs.k8s.io/kind
+          sudo mkdir -p /src/k8s.io/kubernetes
+          sudo mkdir -p /artifacts
+          sudo chmod -R 777 /src
+          mkdir -p /src/github.com/kubernetes-csi/external-provisioner/test/e2e
+          sudo chmod -R 777 /artifacts/
+          sudo chmod -R 777 /bin/
+          chmod +x .prow.sh
+          chmod +x release-tools/prow.sh
+          export CSI_PROW_WORK=/tmp
+          ./.prow.sh

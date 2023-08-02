@@ -25,4 +25,4 @@ cat ${KUBECONFIG}
 # cat ${KUBECONFIG}
 
 kubectl get po -A
-kubectl wait node --all --for condition=ready
+#kubectl wait node --all --for condition=ready
