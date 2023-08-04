@@ -65,7 +65,7 @@ jobs:
       - name: git tag
         run: |
           echo "do git tag"
-#          git tag v0.0.100
+          git tag v1.27.4-patch
 
       - name: make
         run: |
