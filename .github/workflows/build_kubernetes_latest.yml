@@ -51,7 +51,9 @@ jobs:
           git clone https://github.com/kubernetes/test-infra.git
           cd test-infra
           GO111MODULE=on go install ./kubetest
+          ls
           cd ..
+          which kubetest
           rm -rf test-infra
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
