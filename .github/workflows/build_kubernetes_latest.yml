@@ -55,7 +55,8 @@ jobs:
           echo "make test-e2e-node"
           git clone https://github.com/kubernetes/test-infra.git
           cd test-infra
-          GO111MODULE=on go install ./kubetest
+          #GO111MODULE=on go install ./kubetest
+          go install k8s.io/test-infra/kubetest
           go version
           ls
           cd ../kubernetes
