@@ -47,6 +47,7 @@ jobs:
 
       - name: e2e
         run: |
+          cd ..
           echo "make test-e2e-node"
           git clone https://github.com/kubernetes/test-infra.git
           cd test-infra
@@ -54,7 +55,7 @@ jobs:
           go version
           ls
           kubetest --help
-          cd ..
+          cd ../kubernetes
           which kubetest
           rm -rf test-infra
           echo "begining kubetest..."
