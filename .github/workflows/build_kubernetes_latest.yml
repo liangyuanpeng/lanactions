@@ -59,9 +59,12 @@ jobs:
           go version
           ls
           cd ..
-          which kubetest
           rm -rf test-infra
           echo "begining kubetest..."
+          cd ..
+          mkdir -p /home/runner/go/src/k8s.io
+          mv kubernetes /home/runner/go/src/k8s.io/
+          cd /home/runner/go/src/k8s.io/kubernetes
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
 
