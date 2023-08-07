@@ -53,6 +53,7 @@ jobs:
           GO111MODULE=on go install ./kubetest
           go version
           ls
+          kubetest --help
           cd ..
           which kubetest
           rm -rf test-infra
