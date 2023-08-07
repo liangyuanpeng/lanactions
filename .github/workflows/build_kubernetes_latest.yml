@@ -45,6 +45,10 @@ jobs:
           fetch-depth: 1
           ref: dev_1.28
 
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
       - name: e2e
         run: |
           cd ..
@@ -54,7 +58,6 @@ jobs:
           GO111MODULE=on go install ./kubetest
           go version
           ls
-          ./kubetest --help
           cd ../kubernetes
           which kubetest
           rm -rf test-infra
