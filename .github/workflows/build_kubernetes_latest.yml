@@ -38,12 +38,12 @@ jobs:
     name: e2e
     runs-on: ubuntu-22.04
     steps:
-      - name: checkoutactions
-        uses: actions/checkout@v3
-        with:
-          repository: liangyuanpeng/kubernetes
-          fetch-depth: 1
-          ref: dev_1.28
+#      - name: checkoutactions
+#        uses: actions/checkout@v3
+#        with:
+#          repository: liangyuanpeng/kubernetes
+#          fetch-depth: 1
+#          ref: dev_1.28
 
       - uses: actions/setup-go@v2
         with:
@@ -66,62 +66,64 @@ jobs:
           pwd
           ls
           mkdir -p /home/runner/go/src/k8s.io
-          pwd
-          ls
+          git clone https://github.com/liangyuanpeng/kubernetes.git
+          cd kubernetes
+          git checkout -b dev_1.28 origin/dev_1.28
+          cd ..
           mv kubernetes /home/runner/go/src/k8s.io/
           cd /home/runner/go/src/k8s.io/kubernetes
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
 
-  release:
-    name: release
-    runs-on: ubuntu-22.04
-    permissions:
-      packages: write
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v3
-        with:
-          repository: liangyuanpeng/kubernetes
-          fetch-depth: 1
-          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
-
-      - name: git tag
-        run: |
-          echo "do git tag"
-          git tag v1.27.4-patch
-
-      - name: make
-        run: |
-          export KUBE_DOCKER_REGISTRY=ghcr.io
-          export VERSION="v1.27.4-patch"
-          echo "begin make"
-          docker rmi `docker images -aq`
-          make quick-release-images
-          docker images
-          ls _output
-          echo "======================="
-          ls _output/release-images
-          echo "======================="
-          ls _output/images
-          echo "======================="
-          tree _output
-          echo "======================="
-          rm -rf _output/dockerized
-          rm -rf _output/release-stage
-          docker load -i _output/release-images/amd64/kube-apiserver.tar
-          docker load -i _output/release-images/amd64/kube-controller-manager.tar
-          docker load -i _output/release-images/amd64/kube-proxy.tar
-          docker load -i _output/release-images/amd64/kube-scheduler.tar
-          docker images
-          docker tag registry.k8s.io/kube-apiserver-amd64:$VERSION ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$VERSION ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
-          docker tag registry.k8s.io/kube-proxy-amd64:$VERSION ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
-          docker tag registry.k8s.io/kube-scheduler-amd64:$VERSION ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
-          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
-          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
-          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
-          docker logout
+#  release:
+#    name: release
+#    runs-on: ubuntu-22.04
+#    permissions:
+#      packages: write
+#    steps:
+#      - name: checkoutactions
+#        uses: actions/checkout@v3
+#        with:
+#          repository: liangyuanpeng/kubernetes
+#          fetch-depth: 1
+#          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
+#
+#      - name: git tag
+#        run: |
+#          echo "do git tag"
+#          git tag v1.27.4-patch
+#
+#      - name: make
+#        run: |
+#          export KUBE_DOCKER_REGISTRY=ghcr.io
+#          export VERSION="v1.27.4-patch"
+#          echo "begin make"
+#          docker rmi `docker images -aq`
+#          make quick-release-images
+#          docker images
+#          ls _output
+#          echo "======================="
+#          ls _output/release-images
+#          echo "======================="
+#          ls _output/images
+#          echo "======================="
+#          tree _output
+#          echo "======================="
+#          rm -rf _output/dockerized
+#          rm -rf _output/release-stage
+#          docker load -i _output/release-images/amd64/kube-apiserver.tar
+#          docker load -i _output/release-images/amd64/kube-controller-manager.tar
+#          docker load -i _output/release-images/amd64/kube-proxy.tar
+#          docker load -i _output/release-images/amd64/kube-scheduler.tar
+#          docker images
+#          docker tag registry.k8s.io/kube-apiserver-amd64:$VERSION ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
+#          docker tag registry.k8s.io/kube-controller-manager-amd64:$VERSION ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
+#          docker tag registry.k8s.io/kube-proxy-amd64:$VERSION ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
+#          docker tag registry.k8s.io/kube-scheduler-amd64:$VERSION ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
+#          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+#          docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
+#          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
+#          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
+#          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
+#          docker logout
 
