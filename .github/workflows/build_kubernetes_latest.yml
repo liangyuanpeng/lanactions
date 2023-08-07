@@ -62,7 +62,6 @@ jobs:
           cd ..
           rm -rf test-infra
           echo "begining kubetest..."
-          cd ..
           pwd
           ls
           mkdir -p /home/runner/go/src/k8s.io
