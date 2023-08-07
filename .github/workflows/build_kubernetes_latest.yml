@@ -51,7 +51,6 @@ jobs:
 
       - name: e2e
         run: |
-          cd ..
           echo "make test-e2e-node"
           git clone https://github.com/kubernetes/test-infra.git
           cd test-infra
@@ -63,7 +62,6 @@ jobs:
           which kubetest
           rm -rf test-infra
           echo "begining kubetest..."
-          cd kubernetes
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
 
