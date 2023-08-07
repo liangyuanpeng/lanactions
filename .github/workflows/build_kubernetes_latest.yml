@@ -59,10 +59,11 @@ jobs:
           go install k8s.io/test-infra/kubetest
           go version
           ls
-          cd ../kubernetes
+          cd ..
           which kubetest
           rm -rf test-infra
           echo "begining kubetest..."
+          cd kubernetes
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
 
