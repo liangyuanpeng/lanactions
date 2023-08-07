@@ -51,6 +51,7 @@ jobs:
 
       - name: e2e
         run: |
+          pwd
           echo "make test-e2e-node"
           git clone https://github.com/kubernetes/test-infra.git
           cd test-infra
