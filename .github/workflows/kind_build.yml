@@ -81,4 +81,6 @@ jobs:
       - name: test
         run: |
           kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }}
+          kubectl get po -A
+          kubectl wait node --all --for condition=ready
           
