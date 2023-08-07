@@ -72,6 +72,7 @@ jobs:
           cd ..
           mv kubernetes /home/runner/go/src/k8s.io/
           cd /home/runner/go/src/k8s.io/kubernetes
+          docker rmi `docker images -aq`
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
 
