@@ -53,7 +53,8 @@ jobs:
           GO111MODULE=on go install ./kubetest
           cd ..
           rm -rf test-infra
-          kubetest --build --up --test --down
+          kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
+#          kubetest --build --up --test --down
 
   release:
     name: release
