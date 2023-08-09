@@ -75,6 +75,8 @@ jobs:
           docker rmi `docker images -aq`
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
 #          kubetest --build --up --test --down
+# [sig-apps]
+# [sig-apps]Job
 
 #  release:
 #    name: release
