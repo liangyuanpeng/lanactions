@@ -56,7 +56,7 @@ jobs:
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.kindversion }}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind
-          kind -- version
+          kind --version
           kind build node-image -h
 #          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
 #          chmod +x kind-linux-amd64-v0.20.0
