@@ -62,19 +62,20 @@ jobs:
           KINDVERSION: ${{ github.event.inputs.kindversion }}
           REF: ${{ github.event.inputs.ref }}
         run: |
-          if [ $KINDVERSION = "" ];then
+          if [ "$KINDVERSION" = "" ];then
               echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
           else
-              echo kindversion=$KINDVERSION >> "$GITHUB_OUTPUT"
+              echo "kindversion=$KINDVERSION" >> "$GITHUB_OUTPUT"
           fi
-          if [ $REF = "" ];then
+          if [ "$REF" = "" ];then
               echo "ref=master" >> "$GITHUB_OUTPUT"
           else
-              echo ref=$REF >> "$GITHUB_OUTPUT"
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
           fi
 
       - name: download kind
         run: |
+          echo ${{ steps.genoutputs.outputs.kindversion }}
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind
