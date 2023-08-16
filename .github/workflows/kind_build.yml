@@ -56,21 +56,30 @@ jobs:
         run: |
           git tag `git describe`
 
+      - name: make default value
+        id: genoutputs
+        env:
+          KINDVERSION: ${{ github.event.inputs.kindversion }}
+          REF: ${{ github.event.inputs.ref }}
+        run: |
+          if [ $KINDVERSION = "" ];then
+              echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
+          else
+              echo kindversion=$KINDVERSION >> "$GITHUB_OUTPUT"
+          fi
+          if [ $REF = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo ref=$REF >> "$GITHUB_OUTPUT"
+          fi
+
       - name: download kind
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.kindversion }}/kind-linux-amd64
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind
           kind --version
           kind build node-image -h
-#          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
-#          chmod +x kind-linux-amd64-v0.20.0
-#          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
-
-#  wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
-#  chmod +x kind-linux-amd64
-#  mv kind-linux-amd64 /usr/local/bin/kind
-# git clone https://github.com/kubernetes/kubernetes.git --depth=1
 
 #TODO docker login action
       - name: build
@@ -79,17 +88,17 @@ jobs:
           cd tmp
           git branch
           git describe
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }} --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }} --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }}
+          docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           docker logout
 
       - name: test
         run: |
-          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }}
+          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           kubectl get po -A
           kubectl wait node --all --for condition=ready
           
