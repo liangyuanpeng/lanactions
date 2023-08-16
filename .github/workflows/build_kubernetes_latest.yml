@@ -95,13 +95,14 @@ jobs:
       - name: git tag
         run: |
           echo "do git tag"
-          git tag v1.27.4-patch
+          #git tag v1.27.4-patch
 
       - name: make
         run: |
           export KUBE_DOCKER_REGISTRY=ghcr.io
           #export VERSION="v1.27.4-patch"
           export VERSION=`git describe`
+          git tag `git describe`
           echo "begin make"
           docker rmi `docker images -aq`
           make quick-release-images
