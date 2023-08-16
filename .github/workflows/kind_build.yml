@@ -85,10 +85,10 @@ jobs:
 #TODO docker login action
       - name: build
         run: |
-          mkdir tmp
-          cd tmp
           git branch
           git describe
+          mkdir tmp
+          cd tmp
           kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }} --kube-root $PWD/../
           docker images
           cd ../_output
