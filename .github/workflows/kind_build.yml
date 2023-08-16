@@ -28,7 +28,7 @@ on:
         required: true
         default: "v1.28.0-rc.0"
       maketag:
-        description: 'source ref of kubernetes '
+        description: 'is it need to make a describe tag'
         required: true
         default: false
       kindversion:
@@ -77,6 +77,8 @@ jobs:
         run: |
           mkdir tmp
           cd tmp
+          git branch
+          git describe
           kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }} --kube-root $PWD/../
           docker images
           cd ../_output
