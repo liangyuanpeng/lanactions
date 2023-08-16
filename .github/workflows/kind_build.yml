@@ -51,7 +51,7 @@ jobs:
           fetch-depth: 1
           ref: ${{ github.event.inputs.ref }}
 
-      - uses: oras-project/setup-oras@v1
+      - name: make tag
         if: ${{ github.event.inputs.maketag }}
         run: |
           git tag `git describe`
