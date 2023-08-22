@@ -102,6 +102,9 @@ jobs:
           if [[ ${{ steps.genoutputs.outputs.maketag }} == true ]];then
             echo "maketag is true2"
           fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            echo "maketag is true3"
+          fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
           mkdir tmp
