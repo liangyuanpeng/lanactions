@@ -87,10 +87,12 @@ jobs:
       - name: checkoutactions
         uses: actions/checkout@v3
         with:
-          repository: liangyuanpeng/kubernetes
+#          repository: liangyuanpeng/kubernetes
+          repository: kubernetes/kubernetes
           fetch-depth: 0
 #          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
-          ref: dev_1.28
+#          ref: dev_1.28
+          ref: master
 
       - name: git tag
         run: |
