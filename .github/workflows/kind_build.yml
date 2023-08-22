@@ -78,7 +78,8 @@ jobs:
       - name: make tag
         if: ${{ steps.genoutputs.outputs.maketag }}
         run: |
-          git tag `git describe`          
+          export TAG=`git describe --tags`
+          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: download kind
         run: |
