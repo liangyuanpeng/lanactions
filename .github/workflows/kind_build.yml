@@ -99,11 +99,14 @@ jobs:
           if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
             IMGTAG=`git describe --tags`
           fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == true ]];then
+            echo "maketag is true2"
+          fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
           mkdir tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG--kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
