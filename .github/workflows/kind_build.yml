@@ -103,6 +103,11 @@ jobs:
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          CHTIMEH=`date +"%Y%m%d%H"`
+          if [ ${{ steps.genoutputs.outputs.ref }} = "" ];then
+            docker tag ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }} ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+          fi
           docker logout
 
       - name: test
