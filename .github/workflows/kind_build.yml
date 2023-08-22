@@ -99,6 +99,7 @@ jobs:
           if [ ${{ steps.genoutputs.outputs.maketag }} == true ];
             IMGTAG=`git describe --tags`
           fi
+          echo "IMGTAG:"$IMGTAG
           mkdir tmp
           cd tmp
           kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG--kube-root $PWD/../
