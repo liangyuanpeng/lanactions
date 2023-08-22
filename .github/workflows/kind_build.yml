@@ -99,6 +99,7 @@ jobs:
           if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
             IMGTAG=`git describe --tags`
           fi
+          echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
           mkdir tmp
           cd tmp
