@@ -125,7 +125,7 @@ jobs:
       - name: test
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
             IMGTAG=`git describe --tags`
           fi
           kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:IMGTAG
