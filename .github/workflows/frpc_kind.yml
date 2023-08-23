@@ -161,7 +161,7 @@ jobs:
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
-          frpc/frpc -c frpc/frpc.ini & ./envinit.sh ${{ inputs.custom }} & sleep 10h
+          ./envinit.sh ${{ inputs.custom }} & sleep 3h
 
       # - name: start frpc 
       #   run: |
