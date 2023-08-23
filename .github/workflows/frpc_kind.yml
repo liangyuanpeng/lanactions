@@ -125,6 +125,7 @@ jobs:
           ./init.sh
 
       - name: kindinit
+        if: steps.genoutputs.outputs.kindcreate == 'true'
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -142,6 +143,7 @@ jobs:
           ./kindinit.sh
 
       - name: upload file to slack
+        if: steps.genoutputs.outputs.kindcreate == 'true'
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_TOKEN }}
