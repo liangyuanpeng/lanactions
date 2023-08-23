@@ -63,7 +63,7 @@ jobs:
               echo "ref=$REF" >> "$GITHUB_OUTPUT"
           fi
           if [ "$MAKETAG" = "" ];then
-              echo "maketag=false" >> "$GITHUB_OUTPUT"
+              echo "maketag=true" >> "$GITHUB_OUTPUT"
           else
               echo "maketag=$REF" >> "$GITHUB_OUTPUT"
           fi
