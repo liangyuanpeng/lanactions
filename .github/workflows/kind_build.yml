@@ -131,7 +131,7 @@ jobs:
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
-          CHTIMEH=`date +"%Y%m%d%H"`
+          CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
             docker tag ghcr.io/liangyuanpeng/kindest/node:$IMGTAG ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
             docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
