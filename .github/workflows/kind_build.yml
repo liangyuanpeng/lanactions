@@ -30,7 +30,7 @@ on:
       maketag:
         description: 'is it need to make a describe tag'
         required: true
-        default: false
+        default: true
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
@@ -89,6 +89,19 @@ jobs:
           mv kind-linux-amd64 /usr/local/bin/kind
           kind --version
           kind build node-image -h
+
+      - name: print
+        run: |
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
+            IMGTAG=`git describe --tags`
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
+            echo "maketag is true2"
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            echo "maketag is true3"
+          fi
 
 #TODO docker login action
       - name: build
