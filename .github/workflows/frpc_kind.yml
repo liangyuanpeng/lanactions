@@ -137,7 +137,6 @@ jobs:
           SYSTEM: debian
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
-          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x kindinit.sh
           chmod +x setup.sh
           ./kindinit.sh
@@ -160,6 +159,7 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
         run: |
+          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
           frpc/frpc -c frpc/frpc.ini & ./envinit.sh ${{ inputs.custom }} & sleep 10h
 
