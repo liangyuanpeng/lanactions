@@ -102,6 +102,8 @@ jobs:
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             echo "maketag is true3"
           fi
+          echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
+          echo "input:"${{ github.event.inputs.maketag }}
 
 #TODO docker login action
       - name: build
