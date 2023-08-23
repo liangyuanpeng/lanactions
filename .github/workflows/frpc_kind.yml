@@ -119,6 +119,7 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
         run: |
+          oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
           chmod +x init.sh
           ./init.sh
