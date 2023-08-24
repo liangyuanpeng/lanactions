@@ -66,17 +66,13 @@ jobs:
           pwd
           ls
           mkdir -p /home/runner/go/src/k8s.io
-          git clone https://github.com/liangyuanpeng/kubernetes.git
+          git clone https://github.com/kubernetes/kubernetes.git
           cd kubernetes
-          git checkout -b dev_1.28 origin/dev_1.28
           cd ..
           mv kubernetes /home/runner/go/src/k8s.io/
           cd /home/runner/go/src/k8s.io/kubernetes
           docker rmi `docker images -aq`
-          kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSet\]" --provider=local
-#          kubetest --build --up --test --down
-# [sig-apps]
-# [sig-apps]Job
+          kubetest --build --up --test 
 
   release:
     name: release
