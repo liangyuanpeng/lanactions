@@ -21,6 +21,16 @@ name: release_kubernetes_latest
 on:
   push:
     branches: [ build_k8s ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref of kubernetes '
+        required: false
+        default: "master"
+      repo:
+        description: 'kubernetes/kubernetes'
+        required: false
+        default: "kubernetes/kubernetes"
 
 jobs:
 
@@ -33,19 +43,24 @@ jobs:
       - name: checkoutactions
         uses: actions/checkout@v3
         with:
+#          repository: liangyuanpeng/kubernetes
           repository: kubernetes/kubernetes
-          fetch-depth: 1
-#          ref: $VERSION
+          fetch-depth: 0
+#          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
+#          ref: dev_1.28
+          ref: master
 
       - name: git tag
         run: |
           echo "do git tag"
-          git tag v0.0.99
+          #git tag v1.27.4-patch
 
       - name: make
         run: |
           export KUBE_DOCKER_REGISTRY=ghcr.io
-          export VERSION="v0.0.99"
+          #export VERSION="v1.27.4-patch"
+          export VERSION=`git describe`
+          git tag `git describe`
           echo "begin make"
           docker rmi `docker images -aq`
           make quick-release-images

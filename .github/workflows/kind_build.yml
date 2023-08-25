@@ -19,14 +19,18 @@
 
 name: kind_build
 on:
-#  push:
-#    branches: [ kind_build ]
+  push:
+    branches: [ kind_build ]
   workflow_dispatch:
     inputs:
       ref:
         description: 'source ref of kubernetes '
         required: true
-        default: "v1.28.0-rc.0"
+        default: "master"
+      maketag:
+        description: 'is it need to make a describe tag'
+        required: true
+        default: true
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
@@ -40,46 +44,108 @@ jobs:
     permissions:
       packages: write
     steps:
+
+      - name: make default value
+        id: genoutputs
+        env:
+          KINDVERSION: ${{ github.event.inputs.kindversion }}
+          REF: ${{ github.event.inputs.ref }}
+          MAKETAG: ${{ github.event.inputs.maketag }}
+        run: |
+          if [ "$KINDVERSION" = "" ];then
+              echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
+          else
+              echo "kindversion=$KINDVERSION" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$MAKETAG" = "" ];then
+              echo "maketag=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "maketag=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: checkoutactions
         uses: actions/checkout@v3
         with:
           repository: kubernetes/kubernetes
-          fetch-depth: 1
-          ref: ${{ github.event.inputs.ref }}
+          fetch-depth: 0
+          ref: ${{ steps.genoutputs.outputs.ref }}
 
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
+      - name: make tag
+        if: ${{ steps.genoutputs.outputs.maketag }}
+        run: |
+          export TAG=`git describe --tags`
+          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: download kind
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ github.event.inputs.kindversion }}/kind-linux-amd64
+          echo ${{ steps.genoutputs.outputs.kindversion }}
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind
-#          oras pull ghcr.io/liangyuanpeng/files:kind-linux-amd64-v0.20.0
-#          chmod +x kind-linux-amd64-v0.20.0
-#          mv kind-linux-amd64-v0.20.0 /usr/local/bin/kind
+          kind --version
+          kind build node-image -h
 
-#  wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
-#  chmod +x kind-linux-amd64
-#  mv kind-linux-amd64 /usr/local/bin/kind
-# git clone https://github.com/kubernetes/kubernetes.git --depth=1
+      - name: print
+        run: |
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
+            IMGTAG=`git describe --tags`
+            echo "maketag is true1"
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
+            echo "maketag is true2"
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            echo "maketag is true3"
+          fi
+          echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
+          echo "input:"${{ github.event.inputs.maketag }}
 
 #TODO docker login action
       - name: build
         run: |
+          git branch
+          git describe
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
+            IMGTAG=`git describe --tags`
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
+            echo "maketag is true2"
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            echo "maketag is true3"
+          fi
+          echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
+          echo "IMGTAG:"$IMGTAG
           mkdir tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }} --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          docker push ghcr.io/liangyuanpeng/kindest/node:${{ github.event.inputs.kindversion }}-${{ github.event.inputs.ref }}
+          docker push ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          CHTIME=`date +"%Y%m%d%H"`
+          if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
+            docker tag ghcr.io/liangyuanpeng/kindest/node:$IMGTAG ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+          fi
           docker logout
-          
-#  docker load -i release-images/amd64/kube-apiserver.tar
-#  docker load -i release-images/amd64/kube-controller-manager.tar
-#  docker load -i release-images/amd64/kube-proxy.tar
-#  docker load -i release-images/amd64/kube-scheduler.tar
 
+      - name: test
+        run: |
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
+            IMGTAG=`git describe --tags`
+          fi
+          echo "IMGTAG:"$IMGTAG
+          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          kubectl get po -A
+          kubectl wait node --all --for condition=ready
+          

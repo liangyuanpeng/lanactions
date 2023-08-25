@@ -108,7 +108,7 @@ jobs:
       #     config: test/kind/config.yaml
       #     wait: 120s
 
-      - name: kindinit
+      - name: runinit
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -119,13 +119,30 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
         run: |
-          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
-          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
+          oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
+          oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
+          chmod +x init.sh
+          ./init.sh
+
+      - name: kindinit
+        if: steps.genoutputs.outputs.kindcreate == 'true'
+        env:
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          FRPC_PORT: ${{ inputs.port }}
+          FRP_SERVER_PORT: ${{ secrets.FRP_SERVER_PORT }}
+          FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
+          WORKSPACE: kind
+          SYSTEM: debian
+        run: |
+          #oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x kindinit.sh
           chmod +x setup.sh
           ./kindinit.sh
 
       - name: upload file to slack
+        if: steps.genoutputs.outputs.kindcreate == 'true'
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_TOKEN }}
@@ -142,12 +159,9 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
         run: |
+          oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
-          frpc/frpc -c frpc/frpc.ini & ./envinit.sh ${{ inputs.custom }} & sleep 10h
-
-      # - name: start frpc 
-      #   run: |
-      #     frpc/frpc -c frpc/frpc.ini
+          ./envinit.sh ${{ inputs.custom }} & sleep 3h
 
   active:
     name: print
