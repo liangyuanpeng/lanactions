@@ -34,46 +34,6 @@ on:
 
 jobs:
 
-  e2e:
-    name: e2e
-    runs-on: ubuntu-22.04
-    steps:
-#      - name: checkoutactions
-#        uses: actions/checkout@v3
-#        with:
-#          repository: liangyuanpeng/kubernetes
-#          fetch-depth: 1
-#          ref: dev_1.28
-
-      - uses: actions/setup-go@v2
-        with:
-          go-version: '1.20'
-
-      - name: e2e
-        run: |
-          pwd
-          ls
-          echo "make test-e2e-node"
-          git clone https://github.com/kubernetes/test-infra.git
-          cd test-infra
-          #GO111MODULE=on go install ./kubetest
-          go install k8s.io/test-infra/kubetest
-          go version
-          ls
-          cd ..
-          rm -rf test-infra
-          echo "begining kubetest..."
-          pwd
-          ls
-          mkdir -p /home/runner/go/src/k8s.io
-          git clone https://github.com/kubernetes/kubernetes.git
-          cd kubernetes
-          cd ..
-          mv kubernetes /home/runner/go/src/k8s.io/
-          cd /home/runner/go/src/k8s.io/kubernetes
-          docker rmi `docker images -aq`
-          kubetest --build --up --test 
-
   release:
     name: release
     runs-on: ubuntu-22.04
