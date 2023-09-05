@@ -43,7 +43,7 @@ jobs:
 
       - name: clean
         run: |
-          docker rmi `docker images -aq`
+          nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
@@ -70,6 +70,6 @@ jobs:
           cd ..
           mv kubernetes /home/runner/go/src/k8s.io/
           cd /home/runner/go/src/k8s.io/kubernetes
-          
-          kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSetBasic\]"
+          kubetest --build
+          kubetest --provider=local --test --test_args="--ginkgo.focus=\[StatefulSetBasic\]"
 
