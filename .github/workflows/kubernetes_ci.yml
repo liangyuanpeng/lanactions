@@ -41,6 +41,13 @@ jobs:
         with:
           go-version: '1.20'
 
+      - name: clean
+        run: |
+          docker rmi `docker images -aq`
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/node
+          rm -rf /opt/hostedtoolcache/Python
+
       - name: e2e
         run: |
           pwd
@@ -63,6 +70,6 @@ jobs:
           cd ..
           mv kubernetes /home/runner/go/src/k8s.io/
           cd /home/runner/go/src/k8s.io/kubernetes
-          docker rmi `docker images -aq`
+          
           kubetest --build --up --test --test_args="--ginkgo.focus=\[StatefulSetBasic\]"
 
