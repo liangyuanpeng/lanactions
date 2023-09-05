@@ -41,6 +41,10 @@ jobs:
         with:
           go-version: '1.20'
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
       - name: clean
         run: |
           nohup docker rmi `docker images -aq` &
@@ -53,14 +57,13 @@ jobs:
           pwd
           ls
           echo "make test-e2e-node"
-          git clone https://github.com/kubernetes/test-infra.git
-          cd test-infra
+          #git clone https://github.com/kubernetes/test-infra.git
+          #cd test-infra
           #GO111MODULE=on go install ./kubetest
-          go install k8s.io/test-infra/kubetest
-          go version
-          ls
-          cd ..
-          rm -rf test-infra
+          #go install k8s.io/test-infra/kubetest
+          #cd ..
+          #rm -rf test-infra
+          nohup oras pull ghcr.io/liangyuanpeng/files:kubetest && chmod +x kubetest && mv kubetest /usr/local/bin/ &
           echo "begining kubetest..."
           pwd
           ls
