@@ -74,5 +74,6 @@ jobs:
           mv kubernetes /home/runner/go/src/k8s.io/
           cd /home/runner/go/src/k8s.io/kubernetes
           kubetest --build
-          kubetest --provider=local --test --test_args="--ginkgo.focus=\[StatefulSetBasic\]"
+          #kubetest --provider=local --test --test_args="--ginkgo.focus=\[StatefulSetBasic\]"
+          ginkgo --focus=\[StatefulSetBasic\]
 
