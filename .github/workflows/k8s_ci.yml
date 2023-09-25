@@ -82,7 +82,3 @@ jobs:
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
           kind create cluster
           kubectl get po -A
-
-
-         
-
