@@ -63,7 +63,13 @@ jobs:
       - name: build cache 📦️
         # if: steps.check-pulsar-cache.outputs.cache-hit != 'true'
         run: |
-          mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true
+          mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true -l ci.log
+          rm -f ci.log
+          mvn clean install -DskipTests -Dcheckstyle.skip -Denforcer.skip=true -Dlicense.skip=true -Dspotbugs.skip=true -l ci.log
+          cat ci.log
+
+      - name: save cache
+        run: |
           cd /home/runner/.m2
           tar -czvf repository.tar.gz repository
           oras push -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/files:maven-depend-pulsar repository.tar.gz
