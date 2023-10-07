@@ -17,12 +17,20 @@
 # under the License.
 #
 
-name: ci_kubernetes
+name: k8s_ci
 on:
   push:
-    branches: [ ci_k8s ]
-#  schedule:
-#    - cron: '30 1 * * *' # runs daily at 1:30 am.
+    branches: [ k8s_ci ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref of kubernetes '
+        required: true
+        default: "master"
+      repo:
+        description: 'repo of kubernetes'
+        required: false
+        default: "kubernetes/kubernetes"
 
 jobs:
 
@@ -30,12 +38,6 @@ jobs:
     name: e2e
     runs-on: ubuntu-22.04
     steps:
-      #      - name: checkoutactions
-      #        uses: actions/checkout@v3
-      #        with:
-      #          repository: liangyuanpeng/kubernetes
-      #          fetch-depth: 1
-      #          ref: dev_1.28
 
       - uses: actions/setup-go@v2
         with:
@@ -52,28 +54,31 @@ jobs:
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
 
-      - name: e2e
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ github.event.inputs.ref }}
+          REPO: ${{ github.event.inputs.repo }}
         run: |
-          pwd
-          ls
-          echo "make test-e2e-node"
-          #git clone https://github.com/kubernetes/test-infra.git
-          #cd test-infra
-          #GO111MODULE=on go install ./kubetest
-          #go install k8s.io/test-infra/kubetest
-          #cd ..
-          #rm -rf test-infra
-          nohup oras pull ghcr.io/liangyuanpeng/files:kubetest && chmod +x kubetest && mv kubetest /usr/local/bin/ &
-          echo "begining kubetest..."
-          pwd
-          ls
-          mkdir -p /home/runner/go/src/k8s.io
-          git clone https://github.com/kubernetes/kubernetes.git
-          cd kubernetes
-          cd ..
-          mv kubernetes /home/runner/go/src/k8s.io/
-          cd /home/runner/go/src/k8s.io/kubernetes
-          kubetest --build
-          #kubetest --provider=local --test --test_args="--ginkgo.focus=\[StatefulSetBasic\]"
-          ginkgo --focus=\[StatefulSetBasic\]
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
 
+          if [ "$REPO" = "" ];then
+              echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
+          else
+              echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          fi
+
+      # - name: checkout code
+      #   run: |
+      #     git clone https://github.com/${{ steps.genoutputs.outputs.repo }}.git
+
+      - name: run ci
+        run: |
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
+          chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+          kind create cluster
+          kubectl get po -A

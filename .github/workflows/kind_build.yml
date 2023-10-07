@@ -35,6 +35,14 @@ on:
         description: 'version of kind,v0.20.0 by default.'
         required: false
         default: "v0.20.0"
+      triggerIssueCommentId:
+        description: 'triggerIssueCommentId'
+        required: false
+        default: 0
+      triggerDiscussionCommentId:
+        description: 'triggerDiscussionCommentId'
+        required: false
+        default: 0
 
 jobs:
 
@@ -102,6 +110,8 @@ jobs:
           fi
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             echo "maketag is true3"
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "input:"${{ github.event.inputs.maketag }}
@@ -120,6 +130,8 @@ jobs:
           fi
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             echo "maketag is true3"
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
