@@ -133,6 +133,7 @@ jobs:
 #TODO docker login action
       - name: build
         run: |
+          docker rmi `docker images -aq`
           git branch
           git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
