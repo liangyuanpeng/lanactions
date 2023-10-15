@@ -163,6 +163,7 @@ jobs:
           echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
           cp /tmp/result.txt .
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
