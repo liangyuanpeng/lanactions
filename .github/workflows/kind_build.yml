@@ -174,6 +174,7 @@ jobs:
           echo "image=$IMAGE" >> /tmp/result.txt
           echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          cat /tmp/result.txt
 
       - name: test
         run: |
