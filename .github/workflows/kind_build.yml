@@ -186,10 +186,10 @@ jobs:
           kubectl get po -A
           kubectl wait node --all --for condition=ready
 
-      - uses: actions/upload-artifact@v3
-        with:
-          name: result
-          path: /tmp/result.txt
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: result
+      #     path: /tmp/result.txt
 
       - uses: oras-project/setup-oras@v1
         with:
