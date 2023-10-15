@@ -43,6 +43,10 @@ on:
         description: 'triggerDiscussionCommentId'
         required: false
         default: 0
+      discussionId:
+        description: 'discussionId'
+        required: false
+        default: 0
 
 jobs:
 
@@ -132,6 +136,7 @@ jobs:
 
 #TODO docker login action
       - name: build
+        id: build
         run: |
           docker rmi `docker images -aq`
           git branch
@@ -158,12 +163,17 @@ jobs:
           tree .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          export IMAGE=ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
             docker tag ghcr.io/liangyuanpeng/kindest/node:$IMGTAG ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
             docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
           fi
-          docker logout
+          
+          touch /tmp/result.txt
+          echo "image=$IMAGE" >> /tmp/result.txt
+          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
 
       - name: test
         run: |
@@ -175,4 +185,18 @@ jobs:
           kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
-          
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: result
+          path: /tmp/result.txt
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
+      - name: save outputs 
+        id: saveoutputs
+        run: |
+          mv /tmp/result.txt .
+          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }}

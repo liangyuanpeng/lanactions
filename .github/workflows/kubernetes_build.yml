@@ -108,5 +108,7 @@ jobs:
           docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
           docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
           docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
-          docker logout
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
