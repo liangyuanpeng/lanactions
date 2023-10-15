@@ -51,7 +51,7 @@ on:
 jobs:
 
   saverunid:
-    name: test
+    name: saverunid
     runs-on: ubuntu-22.04
     permissions:
       packages: write
