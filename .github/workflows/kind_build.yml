@@ -215,4 +215,4 @@ jobs:
         id: saveoutputs
         run: |
           mv /tmp/result.txt .
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }}
+          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
