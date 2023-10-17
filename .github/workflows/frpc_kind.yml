@@ -92,8 +92,9 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
+        if: steps.genoutputs.outputs.kubectl == 'true'
         with:
-          version: v1.26.3
+          version: ${{ steps.genoutputs.outputs.kubectlversion }}
 
       - uses: actions-rs/toolchain@v1
         if: steps.genoutputs.outputs.rsdev == 'true'
