@@ -48,19 +48,7 @@ jobs:
     # if: ${{ github.event.workflow_run  }}
     steps:
 
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
+
 
       - name: checkoutactions
         uses: actions/checkout@v3
@@ -156,6 +144,7 @@ jobs:
           chmod +x setup.sh
           ./kindinit.sh
 
+      #TODO && need to send slack
       - name: upload file to slack
         if: steps.genoutputs.outputs.kindcreate == 'true'
         uses: adrey/slack-file-upload-action@master
@@ -164,6 +153,21 @@ jobs:
           path: /tmp/admin.conf
           channel: lanren
           title: kubefile${{ inputs.port }}
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        if: steps.genoutputs.outputs.freediskspace == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
 
       - name: envinit
         env:
