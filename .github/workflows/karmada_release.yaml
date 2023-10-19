@@ -40,7 +40,7 @@ jobs:
           # fetch-depth:
           # 0 indicates all history for all branches and tags.
           # for `git describe --tags` in Makefile.
-          repository: "karmada-io/karmada"
+          repository: "liangyuanpeng/karmada"
           fetch-depth: 0
           ref: "karmada_apiserver_dev"
       - name: install Go
