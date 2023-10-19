@@ -31,6 +31,7 @@ jobs:
           - karmada-aggregated-apiserver
           - karmada-search
           - karmada-operator
+          - karmada-metrics-adapter
     runs-on: ubuntu-20.04
     steps:
       - name: checkout code
@@ -41,6 +42,7 @@ jobs:
           # for `git describe --tags` in Makefile.
           repository: "karmada-io/karmada"
           fetch-depth: 0
+          ref: "karmada_apiserver_dev"
       - name: install Go
         uses: actions/setup-go@v4
         with:
