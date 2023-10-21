@@ -27,15 +27,18 @@ on:
       custom:
         description: "custom query param"
         required: false
-      paramImage:
+      valueImage:
       #TODO 从oci artifact 容器镜像当中获取参数,主要是用于不同action,动态化参数. 而不是action param,参数多的话太复杂
-      # 镜像内必须提供一个 param.json 和 .env 的文件,后续需要从这个文件来解析内容. .env 则用于提供环境变量
+      # 镜像内必须提供一个 value.json 和 .env 的文件,后续需要从这个文件来解析内容. .env 则用于提供环境变量
       # 目前主要分为以下几个阶段:
       # 1. genoutputs
       # 2. init 用于安装一些基础内容,例如 cloudflare tunnel,tailscale,kind
       # 3. kindinit 基于kind来创建一个kubernetes集群
       # 4. envinit 初始化实验环境
         description: "custom params from oci artifact image"
+        required: false
+      valueTag:
+        description: "custom params from oci artifact image tag"
         required: false
       initimg:
         description: 'initimg'
