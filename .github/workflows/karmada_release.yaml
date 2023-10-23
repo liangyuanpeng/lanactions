@@ -7,6 +7,10 @@ on:
         description: 'image tag'
         required: true
         type: string
+      ref:
+        description: 'code ref'
+        required: true
+        type: string
     secrets:
       DOCKERHUB_USER_NAME:
         description: 'DOCKERHUB_USER_NAME'
@@ -42,7 +46,7 @@ jobs:
           # for `git describe --tags` in Makefile.
           repository: "liangyuanpeng/karmada"
           fetch-depth: 0
-          ref: "dev"
+          ref: ${{ inputs.ref }}
       - name: install Go
         uses: actions/setup-go@v4
         with:

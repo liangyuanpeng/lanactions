@@ -31,11 +31,22 @@ jobs:
           echo ${{needs.get_date.outputs.today}}
           echo ${{needs.get_date.outputs.hello}}
 
+  call_karmada_dirty:
+    uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
+    needs: get_date
+    with:
+      tag: ""
+      ref: "dev"
+    secrets:
+      DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
   call_karmada_release:
     uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
     needs: get_date
     with:
       tag: ${{needs.get_date.outputs.today}}
+      ref: "master"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -47,6 +58,7 @@ jobs:
       secrets:
         DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        ref: "master"
         
         
 
