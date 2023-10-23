@@ -34,7 +34,6 @@ jobs:
   call_karmada_dirty:
     # uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
     uses: ./.github/workflows/karmada_release.yaml
-    needs: get_date
     with:
       tag: ""
       ref: "dev"
