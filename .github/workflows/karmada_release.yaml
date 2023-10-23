@@ -42,7 +42,7 @@ jobs:
           # for `git describe --tags` in Makefile.
           repository: "liangyuanpeng/karmada"
           fetch-depth: 0
-          ref: "karmada_apiserver_dev"
+          # ref: "karmada_apiserver_dev"
       - name: install Go
         uses: actions/setup-go@v4
         with:
