@@ -68,6 +68,6 @@ jobs:
         env:
           REGISTRY: lypgcs
           VERSION: ${{ inputs.tag }}
-          COSIGN_EXPERIMENTAL: 1
-          SIGN_IMAGE: 1
+          # COSIGN_EXPERIMENTAL: 1
+          # SIGN_IMAGE: 1
         run: make mp-image-${{ matrix.target }}
