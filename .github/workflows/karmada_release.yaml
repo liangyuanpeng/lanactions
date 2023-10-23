@@ -32,7 +32,7 @@ jobs:
           - karmada-search
           - karmada-operator
           - karmada-metrics-adapter
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout code
         uses: actions/checkout@v3
@@ -47,6 +47,10 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: 1.20.6
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.0.3
+        with:
+          cosign-release: 'v1.13.1'
       - name: install QEMU
         uses: docker/setup-qemu-action@v2
       - name: install Buildx
@@ -60,4 +64,6 @@ jobs:
         env:
           REGISTRY: lypgcs
           VERSION: ${{ inputs.tag }}
+          COSIGN_EXPERIMENTAL: 1
+          SIGN_IMAGE: 1
         run: make mp-image-${{ matrix.target }}

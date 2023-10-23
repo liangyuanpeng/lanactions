@@ -22,7 +22,7 @@ jobs:
 
   print_date:
     name: print output
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: get_date
     steps:
       # TODO call github action to run
