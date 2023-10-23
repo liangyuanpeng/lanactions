@@ -56,10 +56,7 @@ jobs:
       uses: ./.github/workflows/karmada_release.yaml
       with:
         tag: latest
+        ref: "master"
       secrets:
         DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        ref: "master"
-        
-        
-
