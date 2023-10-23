@@ -35,7 +35,7 @@ jobs:
     # uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
     uses: ./.github/workflows/karmada_release.yaml
     with:
-      tag: ""
+      tag: "dev"
       ref: "dev"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
