@@ -35,10 +35,18 @@ on:
       # 2. init 用于安装一些基础内容,例如 cloudflare tunnel,tailscale,kind
       # 3. kindinit 基于kind来创建一个kubernetes集群
       # 4. envinit 初始化实验环境
+
+      # 基于value.json 的通用流程使用一个新的job来做,只提供一个step来完成自己的内容,减少复杂度,再逐渐迭代成多个操作的step,如果有需要的话
         description: "custom params from oci artifact image"
         required: false
       valueTag:
         description: "custom params from oci artifact image tag"
+        required: false
+      username:
+        description: "username for oci artifact image tag"
+        required: false
+      password:
+        description: "password for oci artifact image tag"
         required: false
       initimg:
         description: 'initimg'
@@ -52,8 +60,43 @@ on:
 
 jobs:
 
+  ghaction:
+    name: ghaction
+    if: ${{ inputs.valueImage }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    permissions:
+      packages: write
+    steps:
+      - name: genoutputs
+        id: genoutputs
+        run: |
+          echo genoutputs
+
+      - uses: actions-rs/toolchain@v1
+        if: steps.genoutputs.outputs.rust == 'true'
+        with:
+          profile: default
+          toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+          override: true
+
+      - uses: actions/setup-go@v2
+        if: steps.genoutputs.outputs.golang == 'true'
+        with:
+          go-version: ${{ steps.genoutputs.outputs.goversion }}
+
+      - name: runinit
+        env:
+          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+        run: |
+          oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
+          oras pull ${{ inputs.valueImage }}:${{ inputs.valueTag }}
+          chmod +x init.sh
+          ./init.sh
+
   frpc:
     name: start_frpc
+    if: ${{ !inputs.valueImage }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     permissions:
@@ -75,7 +118,7 @@ jobs:
       - name: print outputs
         run: |
           echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
-          echo "ffmpeg is" ${{ steps.genoutputs.outputs.ffmpeg }}
+          echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
           echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
           echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
           echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
