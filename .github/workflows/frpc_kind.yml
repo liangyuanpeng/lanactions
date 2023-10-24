@@ -68,9 +68,9 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:actionops
           chmod +x actionops.sh
-          ./actionops.sh                                               
+          ./actionops.sh
 
       - name: print outputs
         run: |

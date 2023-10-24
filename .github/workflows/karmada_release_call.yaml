@@ -8,7 +8,7 @@ jobs:
 
   get_date:
     name: get date
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       today: ${{ steps.outputdate.outputs.today }}
       hello: ${{ steps.outputdate.outputs.hello }}
