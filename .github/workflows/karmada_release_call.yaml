@@ -2,7 +2,7 @@ name: call karmada release
 
 on:
   push:
-    branches: [ karmada,pulsar ]
+    branches: [ karmada ]
 
 jobs:
 
