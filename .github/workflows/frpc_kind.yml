@@ -51,6 +51,9 @@ on:
       initimg:
         description: 'initimg'
         required: false
+      initImageRegistry:
+        description: 'initImageRegistry'
+        required: false
       timeout:
         description: 'timeout'
         required: false
@@ -89,7 +92,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
-          oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
+          oras login ${{ inputs.initImageRegistry }} -u${{ inputs.username }} -p${{ inputs.password }}
           oras pull ${{ inputs.valueImage }}:${{ inputs.valueTag }}
           chmod +x init.sh
           ./init.sh
