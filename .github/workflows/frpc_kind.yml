@@ -93,7 +93,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
           oras login ${{ inputs.initImageRegistry }} -u${{ inputs.username }} -p${{ inputs.password }}
-          oras pull ${{ inputs.valueImage }}:${{ inputs.valueTag }}
+          oras pull ${{ inputs.initImageRegistry }}/${{ inputs.valueImage }}:${{ inputs.valueTag }}
           chmod +x init.sh
           ./init.sh
 
