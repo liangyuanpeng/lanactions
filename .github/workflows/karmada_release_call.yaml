@@ -36,7 +36,7 @@ jobs:
     uses: ./.github/workflows/karmada_release.yaml
     with:
       tag: "dev"
-      ref: "dev"
+      ref: "dev_1.6"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
