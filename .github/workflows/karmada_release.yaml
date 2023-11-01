@@ -25,10 +25,10 @@ jobs:
     strategy:
       matrix:
         target:
-          - karmada-controller-manager
+          # - karmada-controller-manager
           # - karmada-scheduler
           # - karmada-descheduler
-          # - karmada-webhook
+          - karmada-webhook
           # - karmada-agent
           # - karmada-scheduler-estimator
           # - karmada-interpreter-webhook-example
