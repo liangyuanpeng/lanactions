@@ -27,8 +27,32 @@ on:
       custom:
         description: "custom query param"
         required: false
+      valueImage:
+      #TODO 从oci artifact 容器镜像当中获取参数,主要是用于不同action,动态化参数. 而不是action param,参数多的话太复杂
+      # 镜像内必须提供一个 value.json 和 .env 的文件,后续需要从这个文件来解析内容. .env 则用于提供环境变量
+      # 目前主要分为以下几个阶段:
+      # 1. genoutputs
+      # 2. init 用于安装一些基础内容,例如 cloudflare tunnel,tailscale,kind
+      # 3. kindinit 基于kind来创建一个kubernetes集群
+      # 4. envinit 初始化实验环境
+
+      # 基于value.json 的通用流程使用一个新的job来做,只提供一个step来完成自己的内容,减少复杂度,再逐渐迭代成多个操作的step,如果有需要的话
+        description: "custom params from oci artifact image"
+        required: false
+      valueTag:
+        description: "custom params from oci artifact image tag"
+        required: false
+      username:
+        description: "username for oci artifact image tag"
+        required: false
+      password:
+        description: "password for oci artifact image tag"
+        required: false
       initimg:
         description: 'initimg'
+        required: false
+      initImageRegistry:
+        description: 'initImageRegistry'
         required: false
       timeout:
         description: 'timeout'
@@ -39,8 +63,43 @@ on:
 
 jobs:
 
+  ghaction:
+    name: ghaction
+    if: ${{ inputs.valueImage }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    permissions:
+      packages: write
+    steps:
+      - name: genoutputs
+        id: genoutputs
+        run: |
+          echo genoutputs
+
+      - uses: actions-rs/toolchain@v1
+        if: steps.genoutputs.outputs.rust == 'true'
+        with:
+          profile: default
+          toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+          override: true
+
+      - uses: actions/setup-go@v2
+        if: steps.genoutputs.outputs.golang == 'true'
+        with:
+          go-version: ${{ steps.genoutputs.outputs.goversion }}
+
+      - name: runinit
+        env:
+          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+        run: |
+          oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
+          oras pull ghcr.io/${{ inputs.valueImage }}:${{ inputs.valueTag }}
+          chmod +x init.sh
+          ./init.sh
+
   frpc:
     name: start_frpc
+    if: ${{ !inputs.valueImage }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     permissions:
@@ -62,7 +121,7 @@ jobs:
       - name: print outputs
         run: |
           echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
-          echo "ffmpeg is" ${{ steps.genoutputs.outputs.ffmpeg }}
+          echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
           echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
           echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
           echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
@@ -89,8 +148,9 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
+        if: steps.genoutputs.outputs.kubectl == 'true'
         with:
-          version: v1.26.3
+          version: ${{ steps.genoutputs.outputs.kubectlversion }}
 
       - uses: actions-rs/toolchain@v1
         if: steps.genoutputs.outputs.rsdev == 'true'
@@ -98,15 +158,6 @@ jobs:
           profile: default
           toolchain: ${{ steps.genoutputs.outputs.rustversion }}
           override: true
-
-      # - name: Create kind cluster
-      #   uses: helm/kind-action@v1
-      #   with:
-      #     version: v0.18.0
-      #     node_image: kindest/node:${{ matrix.kubernetes }}
-      #     cluster_name: kind
-      #     config: test/kind/config.yaml
-      #     wait: 120s
 
       - name: runinit
         env:
@@ -141,6 +192,7 @@ jobs:
           chmod +x setup.sh
           ./kindinit.sh
 
+      #TODO && need to send slack
       - name: upload file to slack
         if: steps.genoutputs.outputs.kindcreate == 'true'
         uses: adrey/slack-file-upload-action@master
@@ -149,6 +201,21 @@ jobs:
           path: /tmp/admin.conf
           channel: lanren
           title: kubefile${{ inputs.port }}
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        if: steps.genoutputs.outputs.freediskspace1 == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
 
       - name: envinit
         env:
@@ -161,7 +228,25 @@ jobs:
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
-          ./envinit.sh ${{ inputs.custom }} & sleep 3h
+          ./envinit.sh ${{ inputs.custom }}
+
+      - name: Free Disk Space (Ubuntu)
+        if: steps.genoutputs.outputs.freediskspace2 == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
+      - name: begin sleep 
+        run: |
+           sleep 3h
 
   active:
     name: print

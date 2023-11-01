@@ -3,8 +3,16 @@ name: released image to DockerHub
 on:
   workflow_call:
     inputs:
+      repo:
+        description: 'source repo'
+        required: true
+        type: string
       tag:
         description: 'image tag'
+        required: true
+        type: string
+      ref:
+        description: 'code ref'
         required: true
         type: string
     secrets:
@@ -21,17 +29,18 @@ jobs:
     strategy:
       matrix:
         target:
-          - karmada-controller-manager
-          - karmada-scheduler
-          - karmada-descheduler
+          # - karmada-controller-manager
+          # - karmada-scheduler
+          # - karmada-descheduler
           - karmada-webhook
-          - karmada-agent
-          - karmada-scheduler-estimator
-          - karmada-interpreter-webhook-example
-          - karmada-aggregated-apiserver
-          - karmada-search
-          - karmada-operator
-    runs-on: ubuntu-20.04
+          # - karmada-agent
+          # - karmada-scheduler-estimator
+          # - karmada-interpreter-webhook-example
+          # - karmada-aggregated-apiserver
+          # - karmada-search
+          # - karmada-operator
+          # - karmada-metrics-adapter
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout code
         uses: actions/checkout@v3
@@ -39,12 +48,17 @@ jobs:
           # fetch-depth:
           # 0 indicates all history for all branches and tags.
           # for `git describe --tags` in Makefile.
-          repository: "karmada-io/karmada"
+          repository: ${{ inputs.repo }}
           fetch-depth: 0
+          ref: ${{ inputs.ref }}
       - name: install Go
         uses: actions/setup-go@v4
         with:
-          go-version: 1.19.5
+          go-version: 1.20.6
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.1.1
+        with:
+          cosign-release: 'v1.13.1'
       - name: install QEMU
         uses: docker/setup-qemu-action@v2
       - name: install Buildx
@@ -58,4 +72,6 @@ jobs:
         env:
           REGISTRY: lypgcs
           VERSION: ${{ inputs.tag }}
+          # COSIGN_EXPERIMENTAL: 1
+          # SIGN_IMAGE: 1
         run: make mp-image-${{ matrix.target }}

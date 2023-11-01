@@ -26,7 +26,7 @@ jobs:
 
   ubuntu_rustdesk:
     name: build_ubuntu_rustdesk
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -39,7 +39,7 @@ jobs:
 
   ubuntu_vnc:
     name: build_ubuntu_vnc
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -52,7 +52,7 @@ jobs:
 
   ubuntu_gnome:
     name: build_ubuntu_gnome
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout
         uses: actions/checkout@v3
