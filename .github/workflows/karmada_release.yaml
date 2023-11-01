@@ -29,14 +29,14 @@ jobs:
     strategy:
       matrix:
         target:
-          # - karmada-controller-manager
+          - karmada-controller-manager
           # - karmada-scheduler
           # - karmada-descheduler
           - karmada-webhook
-          # - karmada-agent
+          - karmada-agent
           # - karmada-scheduler-estimator
           # - karmada-interpreter-webhook-example
-          # - karmada-aggregated-apiserver
+          - karmada-aggregated-apiserver
           # - karmada-search
           # - karmada-operator
           # - karmada-metrics-adapter
