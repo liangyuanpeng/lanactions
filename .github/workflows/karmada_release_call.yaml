@@ -28,7 +28,7 @@ jobs:
     name: get dirty tag
     runs-on: ubuntu-22.04
     outputs:
-      tag: ${{ steps.outputdate.outputs.today }}
+      tag: ${{ steps.outputtag.outputs.tag }}
     steps:
       - name: checkout code
         uses: actions/checkout@v3
