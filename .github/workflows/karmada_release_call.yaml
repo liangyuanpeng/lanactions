@@ -61,6 +61,7 @@ jobs:
     with:
       tag: ${{needs.get_dirty_tag.outputs.tag}}
       ref: "cleanup_webhook_tls"
+      repo: "liangyuanpeng/karmada"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -71,6 +72,7 @@ jobs:
     with:
       tag: ${{needs.get_date.outputs.today}}
       ref: "cleanup_webhook_tls"
+      repo: "liangyuanpeng/karmada"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -80,6 +82,7 @@ jobs:
       with:
         tag: latest
         ref: "master"
+        repo: "liangyuanpeng/karmada"
       secrets:
         DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

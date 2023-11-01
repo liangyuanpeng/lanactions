@@ -3,6 +3,10 @@ name: released image to DockerHub
 on:
   workflow_call:
     inputs:
+      repo:
+        description: 'source repo'
+        required: true
+        type: string
       tag:
         description: 'image tag'
         required: true
@@ -44,7 +48,7 @@ jobs:
           # fetch-depth:
           # 0 indicates all history for all branches and tags.
           # for `git describe --tags` in Makefile.
-          repository: "liangyuanpeng/karmada"
+          repository: ${{ inputs.repo }}
           fetch-depth: 0
           ref: ${{ inputs.ref }}
       - name: install Go
