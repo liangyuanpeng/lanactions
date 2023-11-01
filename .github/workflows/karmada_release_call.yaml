@@ -35,6 +35,7 @@ jobs:
         id: outputtag
         run: |
           TAG=`git describe --tags --dirty`
+          echo dirty tag is $TAG
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   print_date:
