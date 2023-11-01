@@ -16,24 +16,12 @@ on:
 
 jobs:
 
-  get_date:
-    name: get date
-    runs-on: ubuntu-22.04
-    outputs:
-      today: ${{ steps.outputdate.outputs.today }}
-      hello: ${{ steps.outputdate.outputs.hello }}
-    steps:
-      - name: outputdate
-        id: outputdate
-        run: |
-          DATE_TODAY=`date "+%Y%m%d"`
-          echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
-
-  get_dirty_tag:
+  get_outputs:
     name: get dirty tag
     runs-on: ubuntu-22.04
     outputs:
       tag: ${{ steps.outputtag.outputs.tag }}
+      today: ${{ steps.outputdate.outputs.today }}
     steps:
       - name: checkout code
         uses: actions/checkout@v3
@@ -47,12 +35,14 @@ jobs:
           TAG=`git describe --tags --dirty`
           echo dirty tag is $TAG
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          DATE_TODAY=`date "+%Y%m%d"`
+          echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
 
   call_karmada_dirty:
     uses: ./.github/workflows/karmada_release.yaml
-    needs: get_dirty_tag
+    needs: get_outputs
     with:
-      tag: ${{needs.get_dirty_tag.outputs.tag}}
+      tag: ${{needs.get_outputs.outputs.tag}}
       ref: ${{ inputs.ref }}
       repo: ${{ inputs.repo }}
     secrets:
