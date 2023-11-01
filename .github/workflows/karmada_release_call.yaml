@@ -48,18 +48,7 @@ jobs:
           echo dirty tag is $TAG
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-  print_date:
-    name: print output
-    runs-on: ubuntu-22.04
-    needs: get_date
-    steps:
-      # TODO call github action to run
-      - name: print output
-        run: |
-          echo ${{needs.get_date.outputs.today}}
-
   call_karmada_dirty:
-    # uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
     uses: ./.github/workflows/karmada_release.yaml
     needs: get_dirty_tag
     with:
