@@ -18,7 +18,24 @@ jobs:
         run: |
           DATE_TODAY=`date "+%Y%m%d"`
           echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
-          echo "hello=world" >> "$GITHUB_OUTPUT"
+
+  get_dirty_tag:
+    name: get dirty tag
+    runs-on: ubuntu-22.04
+    outputs:
+      tag: ${{ steps.outputdate.outputs.today }}
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+        with:
+          repository: "liangyuanpeng/karmada"
+          fetch-depth: 0
+          ref: cleanup_webhook_tls
+      - name: outputtag
+        id: outputtag
+        run: |
+          TAG=`git describe --tags --dirty`
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
   print_date:
     name: print output
@@ -34,8 +51,9 @@ jobs:
   call_karmada_dirty:
     # uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
     uses: ./.github/workflows/karmada_release.yaml
+    # needs: get_dirty_tag
     with:
-      tag: "cleanup_webhook_tls"
+      tag: ${{needs.get_dirty_tag.outputs.tag}}
       ref: "cleanup_webhook_tls"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
@@ -46,7 +64,7 @@ jobs:
     needs: get_date
     with:
       tag: ${{needs.get_date.outputs.today}}
-      ref: "master"
+      ref: "cleanup_webhook_tls"
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
