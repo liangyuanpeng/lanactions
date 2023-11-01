@@ -3,6 +3,11 @@ name: call karmada release
 on:
   push:
     branches: [ karmada ]
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'repo'
+        required: false
 
 jobs:
 
