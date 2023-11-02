@@ -86,7 +86,7 @@ jobs:
           else
             valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
-          list=$(echo ${os} | jq -c)
+          list=$(echo ${valueTag} | jq -c)
           echo "::set-output name=valueTag::${list}"   
 
   ghaction:
