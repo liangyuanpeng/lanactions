@@ -91,7 +91,8 @@ jobs:
           echo ${valueTag}
           list=$(echo ${valueTag} | jq -c)
           echo ${list}
-          echo "::set-output name=valueTag::${list}"   
+          echo "valueTag=${list}" >> "$GITHUB_OUTPUT"
+          # echo "::set-output name=valueTag::${list}"   
 
   ghaction:
     name: ghaction
