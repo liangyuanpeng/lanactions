@@ -67,6 +67,7 @@ on:
 jobs:
 
   ghaction-setup:
+    if: ${{ !inputs.port }}
     name: ghaction-setup
     runs-on: ubuntu-22.04
     timeout-minutes: 180
@@ -101,7 +102,7 @@ jobs:
 
   ghaction:
     name: ghaction
-    if: ${{ inputs.valueImage }}
+    if: ${{ !inputs.port }}
     runs-on: ubuntu-22.04
     timeout-minutes: 200
     needs: ghaction-setup
@@ -185,7 +186,7 @@ jobs:
 
   frpc:
     name: start_frpc
-    if: ${{ !inputs.valueImage }}
+    if: ${{ !inputs.port }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     permissions:
