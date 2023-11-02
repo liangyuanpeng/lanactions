@@ -186,7 +186,7 @@ jobs:
 
   frpc:
     name: start_frpc
-    if: ${{ !inputs.port }}
+    if: ${{ inputs.port }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     permissions:
