@@ -103,7 +103,7 @@ jobs:
     name: ghaction
     if: ${{ inputs.valueImage }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 180
+    timeout-minutes: 200
     needs: ghaction-setup
     permissions:
       packages: write
@@ -136,6 +136,14 @@ jobs:
           oras pull ghcr.io/${{ inputs.valueImage }}:${{ matrix.valueTag }}
           chmod +x init.sh
           ./init.sh
+
+      - name: failed
+        if: ${{ failure() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          chmod +x failed.init 
+          ./failed.init
 
   # ghaction-member:
   #   name: ghaction-member
