@@ -81,10 +81,12 @@ jobs:
       - name: ghaction-setup
         id: ghaction-setup
         run: |
-          if ${{ inputs.actionkind == 'ocm' }}; then
+          if ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}; then
+          if ${{ inputs.actionkind == 'ocm' }};then 
             valueTag='["action-ocm","action-ocm-member"]'
-          else if ${{ inputs.actionkind == 'karmada' }}; then
+          else 
             valueTag='["action-karmada","action-karmada-member"]'
+          fi
           else
             valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
