@@ -58,18 +58,48 @@ on:
         description: 'timeout'
         required: false
         default: 120
-        type: number 
-  # pull_request:
+        type: number
+      actionkind:
+        description: 'actionkind'
+        required: false
+        default: ""
 
 jobs:
+
+  ghaction-setup:
+    name: ghaction-setup
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    permissions:
+      packages: write
+    steps:
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: setup
+        id: ghaction-setup
+        run: |
+          if ${{ inputs.actionkind == 'ocm' }}; then
+            valueTag='["action-ocm","action-ocm-member"]'
+          else if ${{ inputs.actionkind == 'karmada' }}; then
+            valueTag='["action-karmada","action-karmada-member"]'
+          else
+            valueTag='[ ${{ inputs.valueTag }} ]'
+          fi
+          list=$(echo ${os} | jq -c)
+          echo "::set-output name=valueTag::${list}"   
 
   ghaction:
     name: ghaction
     if: ${{ inputs.valueImage }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
+    needs: ghaction-setup
     permissions:
       packages: write
+    strategy:
+      matrix:
+        valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
     steps:
       - name: genoutputs
         id: genoutputs
@@ -93,7 +123,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
           oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
-          oras pull ghcr.io/${{ inputs.valueImage }}:${{ inputs.valueTag }}
+          oras pull ghcr.io/${{ inputs.valueImage }}:${{ matrix.valueTag }}
           chmod +x init.sh
           ./init.sh
 
