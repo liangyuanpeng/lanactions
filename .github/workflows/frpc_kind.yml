@@ -142,8 +142,8 @@ jobs:
         env: 
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
-          chmod +x failed.init 
-          ./failed.init
+          chmod +x failed.sh 
+          ./failed.sh
 
   # ghaction-member:
   #   name: ghaction-member
