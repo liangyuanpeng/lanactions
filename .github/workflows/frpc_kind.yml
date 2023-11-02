@@ -23,7 +23,7 @@ on:
     inputs:
       port:
         description: 'port'
-        required: true
+        required: false
       custom:
         description: "custom query param"
         required: false
