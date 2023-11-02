@@ -37,10 +37,10 @@ on:
       # 4. envinit 初始化实验环境
 
       # 基于value.json 的通用流程使用一个新的job来做,只提供一个step来完成自己的内容,减少复杂度,再逐渐迭代成多个操作的step,如果有需要的话
-        description: "custom params from oci artifact image"
+        description: "valueImage|custom params from oci artifact image"
         required: false
       valueTag:
-        description: "custom params from oci artifact image tag"
+        description: "valueTag|custom params from oci artifact image tag"
         required: false
       username:
         description: "username for oci artifact image tag"
@@ -84,7 +84,7 @@ jobs:
           else if ${{ inputs.actionkind == 'karmada' }}; then
             valueTag='["action-karmada","action-karmada-member"]'
           else
-            valueTag='[ ${{ inputs.valueTag }} ]'
+            valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
           list=$(echo ${os} | jq -c)
           echo "::set-output name=valueTag::${list}"   
