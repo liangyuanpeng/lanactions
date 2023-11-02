@@ -70,13 +70,15 @@ jobs:
     name: ghaction-setup
     runs-on: ubuntu-22.04
     timeout-minutes: 180
+    outputs:
+      valueTag: ${{ steps.ghaction-setup.outputs.valueTag }}
     permissions:
       packages: write
     steps:
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
-      - name: setup
+      - name: ghaction-setup
         id: ghaction-setup
         run: |
           if ${{ inputs.actionkind == 'ocm' }}; then
