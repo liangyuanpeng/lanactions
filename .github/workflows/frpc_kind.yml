@@ -358,5 +358,6 @@ jobs:
         if: ${{ inputs.valueTag }}
         run: |
           sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
+          oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
           cat info.json
