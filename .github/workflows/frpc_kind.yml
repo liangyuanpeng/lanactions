@@ -338,6 +338,9 @@ jobs:
   active:
     name: print
     runs-on: ubuntu-latest
+    # if: ${{ inputs.port }}
+    permissions:
+      packages: write
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
@@ -345,3 +348,15 @@ jobs:
           fetch-depth: 1
       - run: |
           env
+
+      - uses: oras-project/setup-oras@v1
+        if: ${{ inputs.valueImage }}
+        with:
+          version: 1.0.0
+
+      - name: save ghaction env
+        if: ${{ inputs.valueImage }}
+        run: |
+          sed -i 's/valueImage_VALUE/${{ inputs.valueImage }}/g' info.json
+          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          cat info.json
