@@ -350,13 +350,13 @@ jobs:
           env
 
       - uses: oras-project/setup-oras@v1
-        if: ${{ inputs.valueImage }}
+        if: ${{ inputs.valueTag }}
         with:
           version: 1.0.0
 
       - name: save ghaction env
-        if: ${{ inputs.valueImage }}
+        if: ${{ inputs.valueTag }}
         run: |
-          sed -i 's/valueImage_VALUE/${{ inputs.valueImage }}/g' info.json
+          sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
           cat info.json
