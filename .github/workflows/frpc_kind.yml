@@ -23,7 +23,7 @@ on:
     inputs:
       port:
         description: 'port'
-        required: true
+        required: false
       custom:
         description: "custom query param"
         required: false
@@ -37,10 +37,10 @@ on:
       # 4. envinit 初始化实验环境
 
       # 基于value.json 的通用流程使用一个新的job来做,只提供一个step来完成自己的内容,减少复杂度,再逐渐迭代成多个操作的step,如果有需要的话
-        description: "custom params from oci artifact image"
+        description: "valueImage|custom params from oci artifact image"
         required: false
       valueTag:
-        description: "custom params from oci artifact image tag"
+        description: "valueTag|custom params from oci artifact image tag"
         required: false
       username:
         description: "username for oci artifact image tag"
@@ -58,18 +58,59 @@ on:
         description: 'timeout'
         required: false
         default: 120
-        type: number 
-  # pull_request:
+        type: number
+      actionkind:
+        description: 'actionkind'
+        required: false
+        default: ""
 
 jobs:
 
-  ghaction:
-    name: ghaction
-    if: ${{ inputs.valueImage }}
+  ghaction-setup:
+    if: ${{ !inputs.port }}
+    name: ghaction-setup
     runs-on: ubuntu-22.04
     timeout-minutes: 180
+    outputs:
+      valueTag: ${{ steps.ghaction-setup.outputs.valueTag }}
     permissions:
       packages: write
+    steps:
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: ghaction-setup
+        id: ghaction-setup
+        run: |
+          if ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}; then
+          if ${{ inputs.actionkind == 'ocm' }};then 
+            valueTag='["action-ocm","action-ocm-member"]'
+            valueTag='["action-ocm"]'
+          else 
+            valueTag='["action-karmada","action-karmada-member"]'
+            valueTag='["action-karmada"]'
+          fi
+          else
+            valueTag='[ "${{ inputs.valueTag }}" ]'
+          fi
+          echo ${valueTag}
+          list=$(echo ${valueTag} | jq -c)
+          echo ${list}
+          echo "valueTag=${list}" >> "$GITHUB_OUTPUT"
+          
+# echo "::set-output name=valueTag::${list}"   
+
+  ghaction:
+    name: ghaction
+    if: ${{ !inputs.port }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 200
+    needs: ghaction-setup
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
     steps:
       - name: genoutputs
         id: genoutputs
@@ -93,13 +134,65 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
         run: |
           oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
-          oras pull ghcr.io/${{ inputs.valueImage }}:${{ inputs.valueTag }}
+          oras pull ghcr.io/${{ inputs.valueImage }}:${{ matrix.valueTag }}
           chmod +x init.sh
           ./init.sh
 
+      - name: failed
+        if: ${{ failure() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          chmod +x failed.sh 
+          ./failed.sh
+
+      - name: logout
+        if: ${{ always() }}
+        run: |
+          nohup sudo tailscale logout & 
+          sleep 3
+
+  # ghaction-member:
+  #   name: ghaction-member
+  #   if: ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}
+  #   runs-on: ubuntu-22.04
+  #   timeout-minutes: 180
+  #   needs: ghaction-setup
+  #   permissions:
+  #     packages: write
+  #   strategy:
+  #     matrix:
+  #       valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
+  #   steps:
+  #     - name: genoutputs
+  #       id: genoutputs
+  #       run: |
+  #         echo genoutputs
+
+  #     - uses: actions-rs/toolchain@v1
+  #       if: steps.genoutputs.outputs.rust == 'true'
+  #       with:
+  #         profile: default
+  #         toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+  #         override: true
+
+  #     - uses: actions/setup-go@v2
+  #       if: steps.genoutputs.outputs.golang == 'true'
+  #       with:
+  #         go-version: ${{ steps.genoutputs.outputs.goversion }}
+
+  #     - name: runinit
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+  #       run: |
+  #         oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
+  #         oras pull ghcr.io/${{ inputs.valueImage }}:${{ matrix.valueTag }}
+  #         chmod +x init.sh
+  #         ./init.sh
+
   frpc:
     name: start_frpc
-    if: ${{ !inputs.valueImage }}
+    if: ${{ inputs.port }}
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     permissions:
@@ -251,6 +344,9 @@ jobs:
   active:
     name: print
     runs-on: ubuntu-latest
+    # if: ${{ inputs.port }}
+    permissions:
+      packages: write
     steps:
       - name: checkoutactions
         uses: actions/checkout@v3
@@ -258,3 +354,16 @@ jobs:
           fetch-depth: 1
       - run: |
           env
+
+      - uses: oras-project/setup-oras@v1
+        if: ${{ inputs.valueTag }}
+        with:
+          version: 1.0.0
+
+      - name: save ghaction env
+        if: ${{ inputs.valueTag }}
+        run: |
+          sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
+          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          cat info.json

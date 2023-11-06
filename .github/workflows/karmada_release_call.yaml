@@ -1,88 +1,72 @@
 name: call karmada release
 
 on:
-  push:
-    branches: [ karmada ]
+  # push:
+  #   branches: [ karmada ]
   workflow_dispatch:
     inputs:
       repo:
         description: 'repo'
         required: false
+        default: "liangyuanpeng/karmada"
+      ref:
+        description: 'ref'
+        required: false
+        default: "master"
 
 jobs:
 
-  get_date:
-    name: get date
-    runs-on: ubuntu-22.04
-    outputs:
-      today: ${{ steps.outputdate.outputs.today }}
-      hello: ${{ steps.outputdate.outputs.hello }}
-    steps:
-      - name: outputdate
-        id: outputdate
-        run: |
-          DATE_TODAY=`date "+%Y%m%d"`
-          echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
-
-  get_dirty_tag:
+  get_outputs:
     name: get dirty tag
     runs-on: ubuntu-22.04
     outputs:
       tag: ${{ steps.outputtag.outputs.tag }}
+      today: ${{ steps.outputdate.outputs.today }}
     steps:
       - name: checkout code
         uses: actions/checkout@v3
         with:
-          repository: "liangyuanpeng/karmada"
+          repository: ${{ inputs.repo }}
           fetch-depth: 0
-          ref: cleanup_webhook_tls
+          ref: ${{ inputs.ref }}
       - name: outputtag
         id: outputtag
         run: |
           TAG=`git describe --tags --dirty`
           echo dirty tag is $TAG
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
-  print_date:
-    name: print output
-    runs-on: ubuntu-22.04
-    needs: get_date
-    steps:
-      # TODO call github action to run
-      - name: print output
-        run: |
-          echo ${{needs.get_date.outputs.today}}
-          echo ${{needs.get_date.outputs.hello}}
+          DATE_TODAY=`date "+%Y%m%d"`
+          echo "today=$DATE_TODAY" >> "$GITHUB_OUTPUT"
 
   call_karmada_dirty:
-    # uses: liangyuanpeng/lanactions/.github/workflows/karmada_release.yaml@pulsar
     uses: ./.github/workflows/karmada_release.yaml
-    needs: get_dirty_tag
+    needs: get_outputs
     with:
-      tag: ${{needs.get_dirty_tag.outputs.tag}}
-      ref: "cleanup_webhook_tls"
-      repo: "liangyuanpeng/karmada"
+      tag: ${{needs.get_outputs.outputs.tag}}
+      ref: ${{ inputs.ref }}
+      repo: ${{ inputs.repo }}
     secrets:
       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  call_karmada_release:
-    uses: ./.github/workflows/karmada_release.yaml
-    needs: get_date
-    with:
-      tag: ${{needs.get_date.outputs.today}}
-      ref: "cleanup_webhook_tls"
-      repo: "liangyuanpeng/karmada"
-    secrets:
-      DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  # call_karmada_today:
+  #   uses: ./.github/workflows/karmada_release.yaml
+  #   #TODO if ref=master & repo=karmada-io/karmada ?
+  #   needs: get_date
+  #   with:
+  #     tag: ${{needs.get_date.outputs.today}}
+  #     ref: ${{ inputs.ref }}
+  #     repo: ${{ inputs.repo }}
+  #   secrets:
+  #     DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
+  #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  call_karmada_release_latest:
-      uses: ./.github/workflows/karmada_release.yaml
-      with:
-        tag: latest
-        ref: "master"
-        repo: "liangyuanpeng/karmada"
-      secrets:
-        DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
-        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  # call_karmada_release_latest:
+  #     uses: ./.github/workflows/karmada_release.yaml
+  #     with:
+  #       tag: latest
+  #       ref: ${{ inputs.ref }}
+  #       repo: ${{ inputs.repo }}
+  #     secrets:
+  #       DOCKERHUB_USER_NAME: ${{ secrets.DOCKERHUB_USER_NAME }}
+  #       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
