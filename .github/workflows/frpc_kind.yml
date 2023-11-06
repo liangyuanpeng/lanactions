@@ -149,7 +149,7 @@ jobs:
       - name: logout
         if: ${{ always() }}
         run: |
-          nohup tailscale logout & 
+          nohup sudo tailscale logout & 
           sleep 3
 
   # ghaction-member:
