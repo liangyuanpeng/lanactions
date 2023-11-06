@@ -146,6 +146,12 @@ jobs:
           chmod +x failed.sh 
           ./failed.sh
 
+      - name: logout
+        if: ${{ always() }}
+        run: |
+          nohup tailscale logout & 
+          sleep 3
+
   # ghaction-member:
   #   name: ghaction-member
   #   if: ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}
