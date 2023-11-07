@@ -66,6 +66,40 @@ on:
 
 jobs:
 
+  active:
+    name: print
+    runs-on: ubuntu-latest
+    # if: ${{ inputs.port }}
+    permissions:
+      packages: write
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - run: |
+          env
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
+      - name: save ghaction env
+        if: ${{ inputs.valueTag }}
+        run: |
+          sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
+          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          cat info.json
+
+      - name: save ghaction env for ghkind
+        if: ${{ !inputs.valueTag }}
+        run: |
+          sed -i 's/valueImage_VALUE/ghkind/g' info.json
+          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          cat info.json
+
   ghaction-setup:
     if: ${{ !inputs.port }}
     name: ghaction-setup
@@ -340,37 +374,3 @@ jobs:
       - name: begin sleep 
         run: |
            sleep 3h
-
-  active:
-    name: print
-    runs-on: ubuntu-latest
-    # if: ${{ inputs.port }}
-    permissions:
-      packages: write
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - run: |
-          env
-
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-
-      - name: save ghaction env
-        if: ${{ inputs.valueTag }}
-        run: |
-          sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
-          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
-          cat info.json
-
-      - name: save ghaction env for ghkind
-        if: ${{ !inputs.valueTag }}
-        run: |
-          sed -i 's/valueImage_VALUE/ghkind/g' info.json
-          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
-          cat info.json
