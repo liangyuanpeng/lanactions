@@ -356,7 +356,6 @@ jobs:
           env
 
       - uses: oras-project/setup-oras@v1
-        if: ${{ inputs.valueTag }}
         with:
           version: 1.0.0
 
@@ -364,6 +363,14 @@ jobs:
         if: ${{ inputs.valueTag }}
         run: |
           sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
+          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          cat info.json
+
+      - name: save ghaction env
+        if: ${{ !inputs.valueTag }}
+        run: |
+          sed -i 's/valueImage_VALUE/ghkind/g' info.json
           oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
           cat info.json
