@@ -138,7 +138,7 @@ jobs:
     name: ghaction
     if: ${{ !inputs.port }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 200
+    timeout-minutes: 400
     needs: ghaction-setup
     permissions:
       packages: write
