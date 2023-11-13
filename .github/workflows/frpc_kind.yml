@@ -88,16 +88,20 @@ jobs:
         if: ${{ inputs.valueTag }}
         run: |
           sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
+          sed -i 's/GH_RUN_ID_VALUE/'$GITHUB_RUN_ID'/g' info.json
           oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          oras push ghcr.io/liangyuanpeng/ghactionenv:${{ inputs.valueTag }} info.json
           cat info.json
 
       - name: save ghaction env for ghkind
         if: ${{ !inputs.valueTag }}
         run: |
           sed -i 's/valueImage_VALUE/ghkind/g' info.json
+          sed -i 's/GH_RUN_ID_VALUE/'$GITHUB_RUN_ID'/g' info.json
           oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
+          oras push ghcr.io/liangyuanpeng/ghactionenv:ghkind info.json
           cat info.json
 
   ghaction-setup:
