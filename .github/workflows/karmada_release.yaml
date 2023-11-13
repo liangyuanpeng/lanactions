@@ -30,16 +30,16 @@ jobs:
       matrix:
         target:
           - karmada-controller-manager
-          # - karmada-scheduler
-          # - karmada-descheduler
+          - karmada-scheduler
+          - karmada-descheduler
           - karmada-webhook
           - karmada-agent
-          # - karmada-scheduler-estimator
-          # - karmada-interpreter-webhook-example
+          - karmada-scheduler-estimator
+          - karmada-interpreter-webhook-example
           - karmada-aggregated-apiserver
-          # - karmada-search
-          # - karmada-operator
-          # - karmada-metrics-adapter
+          - karmada-search
+          - karmada-operator
+          - karmada-metrics-adapter
     runs-on: ubuntu-22.04
     steps:
       - name: checkout code
