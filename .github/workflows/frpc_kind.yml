@@ -170,8 +170,9 @@ jobs:
       - name: runinit
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          IMG_PASSWORD: ${{ inputs.password }}
         run: |
-          oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
+          oras login ghcr.io -u${{ inputs.username }} -p$IMG_PASSWORD
           oras pull ghcr.io/${{ inputs.valueImage }}:${{ matrix.valueTag }}
           chmod +x init.sh
           ./init.sh
