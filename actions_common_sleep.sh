@@ -4,4 +4,5 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-sleep 3h
+ACTIONS_COMMON_SLEEP=${ACTIONS_COMMON_SLEEP:-"3h"}
+sleep $ACTIONS_COMMON_SLEEP
