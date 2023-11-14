@@ -177,6 +177,11 @@ jobs:
           chmod +x init.sh
           ./init.sh
 
+      - name: sleep 
+        run: |
+          chmod +x actions_common_sleep.sh
+          ./actions_common_sleep.sh
+
       - name: failed
         if: ${{ failure() }}
         env: 
