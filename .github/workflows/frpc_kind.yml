@@ -150,6 +150,10 @@ jobs:
       matrix:
         valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
     steps:
+      - name: checkoutactions
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
       - name: genoutputs
         id: genoutputs
         run: |
