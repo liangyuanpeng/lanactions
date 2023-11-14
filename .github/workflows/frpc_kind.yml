@@ -142,7 +142,7 @@ jobs:
     name: ghaction
     if: ${{ !inputs.port }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 400
+    timeout-minutes: 360
     needs: ghaction-setup
     permissions:
       packages: write
@@ -190,49 +190,11 @@ jobs:
           nohup sudo tailscale logout & 
           sleep 3
 
-  # ghaction-member:
-  #   name: ghaction-member
-  #   if: ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}
-  #   runs-on: ubuntu-22.04
-  #   timeout-minutes: 180
-  #   needs: ghaction-setup
-  #   permissions:
-  #     packages: write
-  #   strategy:
-  #     matrix:
-  #       valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
-  #   steps:
-  #     - name: genoutputs
-  #       id: genoutputs
-  #       run: |
-  #         echo genoutputs
-
-  #     - uses: actions-rs/toolchain@v1
-  #       if: steps.genoutputs.outputs.rust == 'true'
-  #       with:
-  #         profile: default
-  #         toolchain: ${{ steps.genoutputs.outputs.rustversion }}
-  #         override: true
-
-  #     - uses: actions/setup-go@v2
-  #       if: steps.genoutputs.outputs.golang == 'true'
-  #       with:
-  #         go-version: ${{ steps.genoutputs.outputs.goversion }}
-
-  #     - name: runinit
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-  #       run: |
-  #         oras login ghcr.io -u${{ inputs.username }} -p${{ inputs.password }}
-  #         oras pull ghcr.io/${{ inputs.valueImage }}:${{ matrix.valueTag }}
-  #         chmod +x init.sh
-  #         ./init.sh
-
   frpc:
     name: start_frpc
     if: ${{ inputs.port }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 180
+    timeout-minutes: 360
     permissions:
       packages: write
     # if: ${{ github.event.workflow_run  }}
