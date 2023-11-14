@@ -181,6 +181,8 @@ jobs:
         run: |
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
+          pwd 
+          ls
 
       - name: failed
         if: ${{ failure() }}
@@ -345,7 +347,5 @@ jobs:
 
       - name: sleep 
         run: |
-          pwd 
-          ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
