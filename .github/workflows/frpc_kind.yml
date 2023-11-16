@@ -186,6 +186,20 @@ jobs:
           chmod +x init.sh
           ./init.sh
 
+      - name: Free Disk Space (Ubuntu)
+        if: steps.genoutputs.outputs.freediskspace2 == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
       - name: sleep 
         run: |
           pwd 
@@ -361,3 +375,9 @@ jobs:
           ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
+
+      - name: logout
+        if: ${{ always() }}
+        run: |
+          nohup sudo tailscale logout & 
+          sleep 3
