@@ -13,6 +13,9 @@ set -o pipefail
 function util::initenv(){
   if [ -f .env ];then 
     while read line; do
+      if [ "$line" = "" ];then 
+        continue
+      fi
       # 用等号分割键值对
       key=$(echo $line | cut -d'=' -f1)
       value=$(echo $line | cut -d'=' -f2)
