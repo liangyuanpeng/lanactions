@@ -12,11 +12,19 @@ set -o pipefail
 
 function util::initenv(){
   if [ -f .env ];then 
+    #cat .env
     while read line; do
+      # 用等号分割键值对
       if [ "$line" = "" ];then 
         continue
       fi
-      # 用等号分割键值对
+
+      prefix="#"
+
+      if [[ $line =~ ^$prefix ]]; then
+        continue
+      fi
+
       key=$(echo $line | cut -d'=' -f1)
       value=$(echo $line | cut -d'=' -f2)
       # echo "key:"$key",value:"$value
