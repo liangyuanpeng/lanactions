@@ -179,6 +179,7 @@ jobs:
           ACTION_VALUE_IMAGE: ${{ inputs.valueImage }}
           ORAS_PASSWORD: ${{ inputs.password }}
           ORAS_USERNAME: ${{ inputs.username }}
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras login ghcr.io -u$ORAS_USERNAME -p$ORAS_PASSWORD
           oras pull ghcr.io/$ACTION_VALUE_IMAGE:$ACTION_VALUE_TAG
@@ -293,6 +294,7 @@ jobs:
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
           WORKSPACE: kind
           SYSTEM: debian
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
