@@ -63,6 +63,10 @@ on:
         description: 'actionkind'
         required: false
         default: ""
+      slackMsgId:
+        description: 'actionkind'
+        required: false
+        default: ""
 
 jobs:
 
