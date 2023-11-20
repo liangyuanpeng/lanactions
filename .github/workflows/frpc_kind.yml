@@ -216,6 +216,13 @@ jobs:
           chmod +x failed.sh 
           ./failed.sh
 
+      - name: run always
+        if: ${{ always() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          echo "run always shell"
+
       - name: logout
         if: ${{ always() }}
         run: |
@@ -376,6 +383,21 @@ jobs:
           ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
+
+      - name: run failed
+        if: ${{ failure() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          chmod +x failed.sh 
+          ./failed.sh
+
+      - name: run always
+        if: ${{ always() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          echo "run always shell"
 
       - name: logout
         if: ${{ always() }}
