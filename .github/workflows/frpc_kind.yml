@@ -96,7 +96,7 @@ jobs:
           cat info.json
           echo "===================slackMsgId======================="
           echo $slackMsgId
-          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId info.json
+          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId,${{ inputs.valueTag }}-$slackMsgId info.json
 
       - name: save ghaction env for ghkind
         if: ${{ !inputs.valueTag }}
@@ -111,6 +111,7 @@ jobs:
           cat info.json
           echo "===================slackMsgId======================="
           echo $slackMsgId
+          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId,ghkind-$slackMsgId info.json
 
   ghaction-setup:
     if: ${{ !inputs.port }}
