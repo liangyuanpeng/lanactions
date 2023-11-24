@@ -54,12 +54,11 @@ on:
       initImageRegistry:
         description: 'initImageRegistry'
         required: false
-      timeout:
-        description: 'timeout'
-        required: false
-        default: 120
-        type: number
       actionkind:
+        description: 'actionkind'
+        required: false
+        default: ""
+      slackMsgId:
         description: 'actionkind'
         required: false
         default: ""
@@ -67,7 +66,7 @@ on:
 jobs:
 
   active:
-    name: print
+    name: active
     runs-on: ubuntu-latest
     # if: ${{ inputs.port }}
     permissions:
@@ -86,6 +85,8 @@ jobs:
 
       - name: save ghaction env
         if: ${{ inputs.valueTag }}
+        env:
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
           sed -i 's/GH_RUN_ID_VALUE/'$GITHUB_RUN_ID'/g' info.json
@@ -93,9 +94,14 @@ jobs:
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
           oras push ghcr.io/liangyuanpeng/ghactionenv:${{ inputs.valueTag }} info.json
           cat info.json
+          echo "===================slackMsgId======================="
+          echo $slackMsgId
+          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId,${{ inputs.valueTag }}-$slackMsgId info.json
 
       - name: save ghaction env for ghkind
         if: ${{ !inputs.valueTag }}
+        env:
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           sed -i 's/valueImage_VALUE/ghkind/g' info.json
           sed -i 's/GH_RUN_ID_VALUE/'$GITHUB_RUN_ID'/g' info.json
@@ -103,6 +109,9 @@ jobs:
           oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
           oras push ghcr.io/liangyuanpeng/ghactionenv:ghkind info.json
           cat info.json
+          echo "===================slackMsgId======================="
+          echo $slackMsgId
+          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId,ghkind-$slackMsgId info.json
 
   ghaction-setup:
     if: ${{ !inputs.port }}
@@ -180,6 +189,7 @@ jobs:
           ACTION_VALUE_IMAGE: ${{ inputs.valueImage }}
           ORAS_PASSWORD: ${{ inputs.password }}
           ORAS_USERNAME: ${{ inputs.username }}
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras login ghcr.io -u$ORAS_USERNAME -p$ORAS_PASSWORD
           oras pull ghcr.io/$ACTION_VALUE_IMAGE:$ACTION_VALUE_TAG
@@ -215,6 +225,13 @@ jobs:
         run: |
           chmod +x failed.sh 
           ./failed.sh
+
+      - name: run always
+        if: ${{ always() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          echo "run always shell"
 
       - name: logout
         if: ${{ always() }}
@@ -294,6 +311,7 @@ jobs:
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
           WORKSPACE: kind
           SYSTEM: debian
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
@@ -375,6 +393,21 @@ jobs:
           ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
+
+      - name: run failed
+        if: ${{ failure() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          chmod +x failed.sh 
+          ./failed.sh
+
+      - name: run always
+        if: ${{ always() }}
+        env: 
+          ACTION_VALUE_TAG: ${{ matrix.valueTag }}
+        run: |
+          echo "run always shell"
 
       - name: logout
         if: ${{ always() }}
