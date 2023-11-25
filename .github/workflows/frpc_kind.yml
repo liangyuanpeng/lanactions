@@ -217,6 +217,11 @@ jobs:
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
           
+      - name: logout
+        if: ${{ always() }}
+        run: |
+          nohup sudo tailscale logout & 
+          sleep 3
 
       - name: failed
         if: ${{ failure() }}
@@ -233,11 +238,7 @@ jobs:
         run: |
           echo "run always shell"
 
-      - name: logout
-        if: ${{ always() }}
-        run: |
-          nohup sudo tailscale logout & 
-          sleep 3
+
 
   frpc:
     name: start_frpc
@@ -394,6 +395,12 @@ jobs:
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
 
+      - name: logout
+        if: ${{ always() }}
+        run: |
+          nohup sudo tailscale logout & 
+          sleep 3
+
       - name: run failed
         if: ${{ failure() }}
         env: 
@@ -409,8 +416,3 @@ jobs:
         run: |
           echo "run always shell"
 
-      - name: logout
-        if: ${{ always() }}
-        run: |
-          nohup sudo tailscale logout & 
-          sleep 3
