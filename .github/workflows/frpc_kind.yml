@@ -148,6 +148,7 @@ jobs:
             echo "runos=ubuntu-22.04" >> "$GITHUB_OUTPUT"
           fi
 
+          echo "runos:"${runos}
           echo ${valueTag}
           list=$(echo ${valueTag} | jq -c)
           echo ${list}
