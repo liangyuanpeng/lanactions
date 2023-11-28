@@ -120,6 +120,7 @@ jobs:
     timeout-minutes: 180
     outputs:
       valueTag: ${{ steps.ghaction-setup.outputs.valueTag }}
+      runos: ${{ steps.ghaction-setup.outputs.runos }}
     permissions:
       packages: write
     steps:
@@ -140,6 +141,13 @@ jobs:
           else
             valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
+
+          if [ "${valueTag}" == 'action-windows' ];then
+            echo "runos=windows-2022" >> "$GITHUB_OUTPUT"
+          else 
+            echo "runos=ubuntu-22.04" >> "$GITHUB_OUTPUT"
+          fi
+
           echo ${valueTag}
           list=$(echo ${valueTag} | jq -c)
           echo ${list}
@@ -150,7 +158,7 @@ jobs:
   ghaction:
     name: ghaction
     if: ${{ !inputs.port }}
-    runs-on: ubuntu-22.04
+    runs-on: ${{ fromJson(needs.ghaction-setup.outputs.runos) }} # ubuntu-22.04
     timeout-minutes: 360
     needs: ghaction-setup
     permissions:
