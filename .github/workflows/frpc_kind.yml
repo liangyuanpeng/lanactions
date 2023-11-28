@@ -206,7 +206,7 @@ jobs:
           ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras login ghcr.io -u$ORAS_USERNAME -p$ORAS_PASSWORD
-          oras pull ghcr.io/$ACTION_VALUE_IMAGE:$ACTION_VALUE_TAG
+          oras pull ghcr.io/${ACTION_VALUE_IMAGE}:${ACTION_VALUE_TAG}
           chmod +x init.sh
           ./init.sh
 
