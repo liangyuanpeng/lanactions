@@ -131,24 +131,25 @@ jobs:
         id: ghaction-setup
         run: |
           if ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}; then
-          if ${{ inputs.actionkind == 'ocm' }};then 
-            valueTag='["action-ocm","action-ocm-member"]'
-            valueTag='["action-ocm"]'
-          else 
-            valueTag='["action-karmada","action-karmada-member"]'
-            valueTag='["action-karmada"]'
-          fi
+            if ${{ inputs.actionkind == 'ocm' }};then 
+              valueTag='["action-ocm","action-ocm-member"]'
+              valueTag='["action-ocm"]'
+            else 
+              valueTag='["action-karmada","action-karmada-member"]'
+              valueTag='["action-karmada"]'
+            fi
           else
             valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
 
-          if [ "${valueTag}" == 'action-windows' ];then
+          if ${{ inputs.valueTag == 'action-windows' }} ;then
             echo "runos=windows-2022" >> "$GITHUB_OUTPUT"
           else 
             echo "runos=ubuntu-22.04" >> "$GITHUB_OUTPUT"
           fi
 
           echo "runos:"${runos}
+          echo "======================================="
           echo ${valueTag}
           list=$(echo ${valueTag} | jq -c)
           echo ${list}
