@@ -190,6 +190,10 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
       - name: runinit
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
