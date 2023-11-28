@@ -160,7 +160,7 @@ jobs:
   ghaction:
     name: ghaction
     if: ${{ !inputs.port }}
-    runs-on: ${{ fromJson(needs.ghaction-setup.outputs.runos) }} # ubuntu-22.04
+    runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-22.04
     timeout-minutes: 360
     needs: ghaction-setup
     permissions:
