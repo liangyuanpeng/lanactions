@@ -158,7 +158,8 @@ jobs:
 # echo "::set-output name=valueTag::${list}"   
 
   ghaction:
-    name: ghaction-${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
+    # name: ghaction-${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
+    name: ${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
     if: ${{ !inputs.port }}
     runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-22.04
     timeout-minutes: 360
