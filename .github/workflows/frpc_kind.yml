@@ -159,7 +159,7 @@ jobs:
 
   ghaction:
     # name: ghaction-${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
-    name: ${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
+    name: ${{ matrix.valueTag }}-${{ needs.ghaction-setup.outputs.runos }}
     if: ${{ !inputs.port }}
     runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-22.04
     timeout-minutes: 360
