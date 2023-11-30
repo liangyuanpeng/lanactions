@@ -227,8 +227,6 @@ jobs:
 
       - name: sleep 
         run: |
-          pwd 
-          ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
           
