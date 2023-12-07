@@ -51,8 +51,8 @@ on:
       initimg:
         description: 'initimg'
         required: false
-      initImageRegistry:
-        description: 'initImageRegistry'
+      ghevent:
+        description: 'ghevent'
         required: false
       actionkind:
         description: 'actionkind'
@@ -205,6 +205,7 @@ jobs:
           ORAS_PASSWORD: ${{ inputs.password }}
           ORAS_USERNAME: ${{ inputs.username }}
           ACTION_CUSTOM: ${{ inputs.custom }}
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras login ghcr.io -u ${ORAS_USERNAME} -p ${ORAS_PASSWORD}
           oras pull ghcr.io/${ACTION_VALUE_IMAGE}:${ACTION_VALUE_TAG}
@@ -326,6 +327,7 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
           ACTION_CUSTOM: ${{ inputs.custom }}
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
@@ -343,6 +345,7 @@ jobs:
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
           WORKSPACE: kind
           SYSTEM: debian
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           #oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x kindinit.sh
@@ -382,6 +385,7 @@ jobs:
           FRPC_PORT: ${{ inputs.port }}
           WORKSPACE: kind
           SYSTEM: debian
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
