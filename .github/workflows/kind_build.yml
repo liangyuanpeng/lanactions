@@ -23,6 +23,10 @@ on:
     branches: [ kind_build ]
   workflow_dispatch:
     inputs:
+      repo:
+        description: 'source repo of kubernetes '
+        required: false
+        default: "kubernetes/kubernetes"
       ref:
         description: 'source ref of kubernetes '
         required: true
@@ -123,7 +127,8 @@ jobs:
       - name: checkoutactions
         uses: actions/checkout@v3
         with:
-          repository: kubernetes/kubernetes
+          repository: ${{ github.event.inputs.repo }}
+          #kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
 
