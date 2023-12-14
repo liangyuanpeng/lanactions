@@ -51,8 +51,8 @@ on:
       initimg:
         description: 'initimg'
         required: false
-      initImageRegistry:
-        description: 'initImageRegistry'
+      ghevent:
+        description: 'ghevent'
         required: false
       actionkind:
         description: 'actionkind'
@@ -120,6 +120,7 @@ jobs:
     timeout-minutes: 180
     outputs:
       valueTag: ${{ steps.ghaction-setup.outputs.valueTag }}
+      runos: ${{ steps.ghaction-setup.outputs.runos }}
     permissions:
       packages: write
     steps:
@@ -130,16 +131,25 @@ jobs:
         id: ghaction-setup
         run: |
           if ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}; then
-          if ${{ inputs.actionkind == 'ocm' }};then 
-            valueTag='["action-ocm","action-ocm-member"]'
-            valueTag='["action-ocm"]'
-          else 
-            valueTag='["action-karmada","action-karmada-member"]'
-            valueTag='["action-karmada"]'
-          fi
+            if ${{ inputs.actionkind == 'ocm' }};then 
+              valueTag='["action-ocm","action-ocm-member"]'
+              valueTag='["action-ocm"]'
+            else 
+              valueTag='["action-karmada","action-karmada-member"]'
+              valueTag='["action-karmada"]'
+            fi
           else
             valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
+
+          if ${{ inputs.valueTag == 'action-windows' }}; then
+            runos='windows-2022'
+          else 
+            runos='ubuntu-22.04'
+          fi
+          echo "runos=${runos}" >> "$GITHUB_OUTPUT"
+          echo "runos:"${runos}
+          echo "======================================="
           echo ${valueTag}
           list=$(echo ${valueTag} | jq -c)
           echo ${list}
@@ -148,9 +158,10 @@ jobs:
 # echo "::set-output name=valueTag::${list}"   
 
   ghaction:
-    name: ghaction
+    # name: ghaction-${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
+    name: ${{ matrix.valueTag }}-${{ needs.ghaction-setup.outputs.runos }}
     if: ${{ !inputs.port }}
-    runs-on: ubuntu-22.04
+    runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-22.04
     timeout-minutes: 360
     needs: ghaction-setup
     permissions:
@@ -180,6 +191,10 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
       - name: runinit
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
@@ -190,9 +205,10 @@ jobs:
           ORAS_PASSWORD: ${{ inputs.password }}
           ORAS_USERNAME: ${{ inputs.username }}
           ACTION_CUSTOM: ${{ inputs.custom }}
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
-          oras login ghcr.io -u$ORAS_USERNAME -p$ORAS_PASSWORD
-          oras pull ghcr.io/$ACTION_VALUE_IMAGE:$ACTION_VALUE_TAG
+          oras login ghcr.io -u ${ORAS_USERNAME} -p ${ORAS_PASSWORD}
+          oras pull ghcr.io/${ACTION_VALUE_IMAGE}:${ACTION_VALUE_TAG}
           chmod +x init.sh
           ./init.sh
 
@@ -212,8 +228,6 @@ jobs:
 
       - name: sleep 
         run: |
-          pwd 
-          ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
           
@@ -273,6 +287,11 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
+      - uses: actions/setup-node@v4
+        if: steps.genoutputs.outputs.setupnode == 'true'
+        with:
+          node-version: ${{ steps.genoutputs.outputs.nodeversion }}
+
       - uses: FedericoCarboni/setup-ffmpeg@v2
         if: steps.genoutputs.outputs.ffmpeg == 'true'
         id: setup-ffmpeg
@@ -313,6 +332,7 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
           ACTION_CUSTOM: ${{ inputs.custom }}
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
@@ -330,6 +350,7 @@ jobs:
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
           WORKSPACE: kind
           SYSTEM: debian
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           #oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x kindinit.sh
@@ -369,6 +390,7 @@ jobs:
           FRPC_PORT: ${{ inputs.port }}
           WORKSPACE: kind
           SYSTEM: debian
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
