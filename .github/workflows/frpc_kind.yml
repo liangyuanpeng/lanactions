@@ -287,6 +287,11 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
+      - uses: actions/setup-node@v4
+        if: steps.genoutputs.outputs.setupnode == 'true'
+        with:
+          node-version: ${{ steps.genoutputs.outputs.nodeversion }}
+
       - uses: FedericoCarboni/setup-ffmpeg@v2
         if: steps.genoutputs.outputs.ffmpeg == 'true'
         id: setup-ffmpeg
