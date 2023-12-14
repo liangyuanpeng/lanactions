@@ -117,7 +117,7 @@ jobs:
           if [ "$MAKETAG" = "" ];then
               echo "maketag=true" >> "$GITHUB_OUTPUT"
           else
-              echo "maketag=$REF" >> "$GITHUB_OUTPUT"
+              echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: oras-project/setup-oras@v1
