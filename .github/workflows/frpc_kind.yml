@@ -287,11 +287,6 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: ${{ steps.genoutputs.outputs.golangciversion }}
-
       - uses: actions/setup-node@v4
         if: steps.genoutputs.outputs.setupnode == 'true'
         with:
