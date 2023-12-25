@@ -145,7 +145,7 @@ jobs:
           if ${{ inputs.valueTag == 'action-windows' }}; then
             runos='windows-2022'
           elif ${{ inputs.valueTag == 'action-macos' }}; then
-            runos='macos-13'
+            runos='macos-12'
           else
             runos='ubuntu-22.04'
           fi
