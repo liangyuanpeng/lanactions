@@ -144,7 +144,9 @@ jobs:
 
           if ${{ inputs.valueTag == 'action-windows' }}; then
             runos='windows-2022'
-          else 
+          else if ${{ inputs.valueTag == 'action-macos' }}; then
+            runos='macos-13'
+          else
             runos='ubuntu-22.04'
           fi
           echo "runos=${runos}" >> "$GITHUB_OUTPUT"
