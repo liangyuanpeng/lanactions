@@ -135,7 +135,7 @@ jobs:
           ref: ${{ steps.genoutputs.outputs.ref }}
 
       - name: make tag
-        if: ${{ steps.genoutputs.outputs.maketag }}
+        if: steps.genoutputs.outputs.maketag == 'true'
         run: |
           export TAG=`git describe --tags`
           echo "ref=$TAG" >> "$GITHUB_OUTPUT"
