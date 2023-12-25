@@ -147,16 +147,14 @@ jobs:
             IMGTAG=`git describe --tags`
             echo "maketag is true1"
           fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
+          if [[ ${{ steps.genoutputs.outputs.maketag }} = "true" ]];then
             echo "maketag is true2"
-          fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
-            echo "maketag is true3"
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "input:"${{ github.event.inputs.maketag }}
+          echo "result:"$IMGTAG
 
       - name: rebuild init message
         run: |
