@@ -253,6 +253,10 @@ jobs:
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
           echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
 
 
 
@@ -439,4 +443,8 @@ jobs:
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
           echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
 
