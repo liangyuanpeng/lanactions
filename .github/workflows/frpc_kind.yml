@@ -183,19 +183,19 @@ jobs:
           echo "goversion=1.21" >> "$GITHUB_OUTPUT"
           echo "golang=true" >> "$GITHUB_OUTPUT"
 
-      - name: download vagrant boxs 
-        if: needs.ghaction-setup.outputs.runos == 'macos-12'
-        run: |
-          echo "download"
-      #    vagrant box add --name generic/ubuntu2204 https://app.vagantup.com/generic/boxes/ubuntu2204/versions/4.3.8/providers/virtualbox/amd64/vagrant.box
-
-      # - name: Cache Vagrant boxes
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.vagrant.d/boxes
-      #     key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-vagrant-
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v3
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+        
+      # - name: download vagrant boxs 
+      #   if: needs.ghaction-setup.outputs.runos == 'macos-12'
+      #   run: |
+      #     echo "download"
+      #     vagrant box add generic/ubuntu2204 --provider virtualbox 
 
       - uses: actions-rs/toolchain@v1
         if: steps.genoutputs.outputs.rust == 'true'
