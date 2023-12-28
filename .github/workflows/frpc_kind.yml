@@ -181,6 +181,7 @@ jobs:
         run: |
           echo genoutputs
           echo "goversion=1.21" >> "$GITHUB_OUTPUT"
+          echo "golang=true" >> "$GITHUB_OUTPUT"
 
       - uses: actions-rs/toolchain@v1
         if: steps.genoutputs.outputs.rust == 'true'
