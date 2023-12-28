@@ -184,7 +184,7 @@ jobs:
           echo "golang=true" >> "$GITHUB_OUTPUT"
 
       - name: download vagrant boxs 
-        if: ${{ needs.ghaction-setup.outputs.runos == "macos-12" }}
+        if: needs.ghaction-setup.outputs.runos == "macos-12"
         run: |
           vagrant box add generic/ubuntu2204 --name ubuntu2204
 
