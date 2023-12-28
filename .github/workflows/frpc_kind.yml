@@ -186,7 +186,7 @@ jobs:
       - name: download vagrant boxs 
         if: needs.ghaction-setup.outputs.runos == 'macos-12'
         run: |
-          vagrant box add generic/ubuntu2204 --name ubuntu2204
+          vagrant box add generic/ubuntu2204
 
       # - name: Cache Vagrant boxes
       #   uses: actions/cache@v3
