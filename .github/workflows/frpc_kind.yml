@@ -65,37 +65,37 @@ on:
 
 jobs:
 
-  build_minikube_test_binaries:
-    runs-on: ubuntu-20.04
-    if: ${{ !inputs.valueTag }}
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-        with:
-          repository: liangyuanpeng/minikube
-          fetch-depth: 0
-          ref: v1.29
-      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
-        with:
-          go-version: ${{env.GO_VERSION}}
-          cache-dependency-path: ./go.sum
-      - name: Download Dependencies
-        run: go mod download
-      - name: Build Binaries
-        run: |
-          make e2e-linux-amd64 e2e-darwin-amd64
-          cp -r test/integration/testdata ./out
-          whoami
-          echo github ref $GITHUB_REF
-          echo workflow $GITHUB_WORKFLOW
-          echo home $HOME
-          echo event name $GITHUB_EVENT_NAME
-          echo workspace $GITHUB_WORKSPACE
-          echo "end of debug stuff"
-          echo $(which jq)
-      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
-        with:
-          name: minikube_binaries
-          path: out
+  # build_minikube_test_binaries:
+  #   runs-on: ubuntu-20.04
+  #   if: ${{ !inputs.valueTag }}
+  #   steps:
+  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+  #       with:
+  #         repository: liangyuanpeng/minikube
+  #         fetch-depth: 0
+  #         ref: v1.29
+  #     - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+  #       with:
+  #         go-version: ${{env.GO_VERSION}}
+  #         cache-dependency-path: ./go.sum
+  #     - name: Download Dependencies
+  #       run: go mod download
+  #     - name: Build Binaries
+  #       run: |
+  #         make e2e-linux-amd64 e2e-darwin-amd64
+  #         cp -r test/integration/testdata ./out
+  #         whoami
+  #         echo github ref $GITHUB_REF
+  #         echo workflow $GITHUB_WORKFLOW
+  #         echo home $HOME
+  #         echo event name $GITHUB_EVENT_NAME
+  #         echo workspace $GITHUB_WORKSPACE
+  #         echo "end of debug stuff"
+  #         echo $(which jq)
+  #     - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
+  #       with:
+  #         name: minikube_binaries
+  #         path: out
 
   active:
     name: active
@@ -319,7 +319,7 @@ jobs:
       GOPOGH_RESULT: ""
       SHELL: "/bin/bash" # To prevent https://github.com/kubernetes/minikube/issues/6643
       DEBIAN_FRONTEND: noninteractive
-    needs: [build_minikube_test_binaries]
+    # needs: [build_minikube_test_binaries]
     permissions:
       packages: write
       contents: none
@@ -419,7 +419,7 @@ jobs:
           version: 1.0.0
 
       - uses: graalvm/setup-graalvm@v1
-        if: steps.genoutputs.outputs.graalvm == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_GRAALVM == 'true'
         with:
           java-version: '17'
           version: '22.3.2' # Old 'version' option for the GraalVM version
