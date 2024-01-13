@@ -319,6 +319,7 @@ jobs:
       GOPOGH_RESULT: ""
       SHELL: "/bin/bash" # To prevent https://github.com/kubernetes/minikube/issues/6643
       DEBIAN_FRONTEND: noninteractive
+    needs: [build_minikube_test_binaries]
     permissions:
       packages: write
       contents: none
