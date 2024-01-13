@@ -65,6 +65,33 @@ on:
 
 jobs:
 
+  build_minikube_test_binaries:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        with:
+          go-version: ${{env.GO_VERSION}}
+          cache-dependency-path: ./go.sum
+      - name: Download Dependencies
+        run: go mod download
+      - name: Build Binaries
+        run: |
+          make e2e-linux-amd64 e2e-darwin-amd64
+          cp -r test/integration/testdata ./out
+          whoami
+          echo github ref $GITHUB_REF
+          echo workflow $GITHUB_WORKFLOW
+          echo home $HOME
+          echo event name $GITHUB_EVENT_NAME
+          echo workspace $GITHUB_WORKSPACE
+          echo "end of debug stuff"
+          echo $(which jq)
+      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
+        with:
+          name: minikube_binaries
+          path: out
+
   active:
     name: active
     runs-on: ubuntu-latest
