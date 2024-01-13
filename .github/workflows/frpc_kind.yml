@@ -337,25 +337,25 @@ jobs:
           chmod +x actionops.sh
           ./actionops.sh
 
-      - name: print outputs
-        run: |
-          echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
-          echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
-          echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
-          echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
-          echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
+      # - name: print outputs
+      #   run: |
+      #     echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
+      #     echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
+      #     echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
+      #     echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
+      #     echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
 
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
       - uses: actions/setup-node@v4
-        if: steps.genoutputs.outputs.setupnode == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUPNODE == 'true'
         with:
-          node-version: ${{ steps.genoutputs.outputs.nodeversion }}
+          node-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_NODEVERSION }}
 
       - name: Install kubectl
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         shell: bash
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -sSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -363,7 +363,7 @@ jobs:
           kubectl version --client=true
       # https://rootlesscontaine.rs/getting-started/common/cgroup2/
       - name: Set up cgroup v2 delegation
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         run: |
           sudo mkdir -p /etc/systemd/system/user@.service.d
           cat <<EOF | sudo tee /etc/systemd/system/user@.service.d/delegate.conf
@@ -372,7 +372,7 @@ jobs:
           EOF
           sudo systemctl daemon-reload
       - name: Set up Rootless Docker
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         run: |
           sudo apt-get remove moby-engine-*
           curl https://get.docker.com | sudo sh
@@ -380,7 +380,7 @@ jobs:
           docker context use rootless
       - name: Docker Info
         shell: bash
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         run: |
           echo "--------------------------"
           docker version || true
@@ -394,16 +394,16 @@ jobs:
           docker ps || true
           echo "--------------------------"
       - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         with:
           go-version: ${{env.GO_VERSION}}
       - name: Install gopogh
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         shell: bash
         run: |
           go install github.com/medyagh/gopogh/cmd/gopogh@v0.26.0
       - name: Download Binaries
-        if: steps.genoutputs.outputs.minikube == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4
         with:
           name: minikube_binaries
@@ -411,7 +411,7 @@ jobs:
 
 
       - uses: FedericoCarboni/setup-ffmpeg@v2
-        if: steps.genoutputs.outputs.ffmpeg == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FFMPEG == 'true'
         id: setup-ffmpeg
         
       - uses: oras-project/setup-oras@v1
@@ -428,15 +428,15 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
-        if: steps.genoutputs.outputs.kubectl == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_KUBECTL == 'true'
         with:
-          version: ${{ steps.genoutputs.outputs.kubectlversion }}
+          version: ${{ steps.genoutputs.outputs.GH_OUTPUT_KUBECTLVERSION }}
 
       - uses: actions-rs/toolchain@v1
-        if: steps.genoutputs.outputs.rsdev == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_RUST == 'true'
         with:
           profile: default
-          toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+          toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
           override: true
 
       - name: runinit
@@ -458,7 +458,7 @@ jobs:
           ./init.sh
 
       - name: kindinit
-        if: steps.genoutputs.outputs.kindcreate == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_KINDCREATE == 'true'
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
@@ -477,7 +477,7 @@ jobs:
 
       #TODO && need to send slack
       - name: upload file to slack
-        if: steps.genoutputs.outputs.kindcreate == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_KINDCREATE == 'true'
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_TOKEN }}
@@ -487,7 +487,7 @@ jobs:
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
-        if: steps.genoutputs.outputs.freediskspace1 == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE1 == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -515,7 +515,7 @@ jobs:
           ./envinit.sh ${{ inputs.custom }}
 
       - name: Free Disk Space (Ubuntu)
-        if: steps.genoutputs.outputs.freediskspace2 == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE2 == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
