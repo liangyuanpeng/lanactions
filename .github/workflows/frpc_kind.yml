@@ -426,6 +426,13 @@ jobs:
           # java-version: '17.0.7'
           # distribution: 'graalvm' # See 'Options' for all available distributions
 
+      - uses: graalvm/setup-java@v1
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUPJAVA == 'true'
+        with:
+          java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
+          distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAV }}
+          cache: 'maven'
+
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         if: steps.genoutputs.outputs.GH_OUTPUT_KUBECTL == 'true'
