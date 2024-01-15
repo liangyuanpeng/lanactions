@@ -431,7 +431,7 @@ jobs:
         with:
           java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
           distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVA }}
-          cache: 'maven'
+          # cache: 'maven'
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
