@@ -430,7 +430,7 @@ jobs:
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUPJAVA == 'true'
         with:
           java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
-          distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAV }}
+          distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVA }}
           cache: 'maven'
 
       - name: Install kubectl
