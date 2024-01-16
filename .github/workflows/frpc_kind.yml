@@ -65,37 +65,52 @@ on:
 
 jobs:
 
-  # build_minikube_test_binaries:
-  #   runs-on: ubuntu-20.04
-  #   if: ${{ !inputs.valueTag }}
-  #   steps:
-  #     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
-  #       with:
-  #         repository: liangyuanpeng/minikube
-  #         fetch-depth: 0
-  #         ref: v1.29
-  #     - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
-  #       with:
-  #         go-version: ${{env.GO_VERSION}}
-  #         cache-dependency-path: ./go.sum
-  #     - name: Download Dependencies
-  #       run: go mod download
-  #     - name: Build Binaries
-  #       run: |
-  #         make e2e-linux-amd64 e2e-darwin-amd64
-  #         cp -r test/integration/testdata ./out
-  #         whoami
-  #         echo github ref $GITHUB_REF
-  #         echo workflow $GITHUB_WORKFLOW
-  #         echo home $HOME
-  #         echo event name $GITHUB_EVENT_NAME
-  #         echo workspace $GITHUB_WORKSPACE
-  #         echo "end of debug stuff"
-  #         echo $(which jq)
-  #     - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
-  #       with:
-  #         name: minikube_binaries
-  #         path: out
+  build_minikube_test_binaries:
+    runs-on: ubuntu-20.04
+    if: ${{ !inputs.valueTag }}
+    steps:
+      - name: genoutputs
+        id: genoutputs
+        run: |
+          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          chmod +x actionops.sh
+          ./actionops.sh
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        with:
+          repository: liangyuanpeng/minikube
+          fetch-depth: 0
+          ref: v1.29
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        with:
+          go-version: ${{env.GO_VERSION}}
+          cache-dependency-path: ./go.sum
+      - name: Download Dependencies
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: go mod download
+      - name: Build Binaries
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: |
+          make e2e-linux-amd64 e2e-darwin-amd64
+          cp -r test/integration/testdata ./out
+          whoami
+          echo github ref $GITHUB_REF
+          echo workflow $GITHUB_WORKFLOW
+          echo home $HOME
+          echo event name $GITHUB_EVENT_NAME
+          echo workspace $GITHUB_WORKSPACE
+          echo "end of debug stuff"
+          echo $(which jq)
+      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        with:
+          name: minikube_binaries
+          path: out
+
+      - name: print 
+        run: |
+          echo "hello"
 
   active:
     name: active
@@ -236,7 +251,7 @@ jobs:
           toolchain: ${{ steps.genoutputs.outputs.rustversion }}
           override: true
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         if: steps.genoutputs.outputs.golang == 'true'
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
@@ -306,8 +321,6 @@ jobs:
             ./always.sh
           fi
 
-
-
   frpc:
     name: start_frpc
     if: ${{ inputs.port }}
@@ -345,7 +358,7 @@ jobs:
       #     echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
       #     echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ steps.genoutputs.outputs.goversion }}
 
