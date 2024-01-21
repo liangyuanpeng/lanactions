@@ -362,7 +362,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: ${{ steps.genoutputs.outputs.goversion }}
+          go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
       - uses: actions/setup-node@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUPNODE == 'true'
