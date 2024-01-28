@@ -531,6 +531,7 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
           slackMsgId: ${{ inputs.slackMsgId }}
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
