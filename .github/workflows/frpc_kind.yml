@@ -225,12 +225,19 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
+      # - name: genoutputs
+      #   id: genoutputs
+      #   run: |
+      #     echo genoutputs
+      #     echo "goversion=1.21" >> "$GITHUB_OUTPUT"
+      #     echo "golang=true" >> "$GITHUB_OUTPUT"
+
       - name: genoutputs
         id: genoutputs
         run: |
-          echo genoutputs
-          echo "goversion=1.21" >> "$GITHUB_OUTPUT"
-          echo "golang=true" >> "$GITHUB_OUTPUT"
+          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          chmod +x actionops.sh
+          ./actionops.sh
 
       - name: Cache Vagrant boxes
         uses: actions/cache@v3
@@ -262,6 +269,20 @@ jobs:
         with:
           version: 1.0.0
 
+      - name: Free Disk Space (Ubuntu)
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE1 == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
       - name: runinit
         env:
           GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
@@ -280,7 +301,7 @@ jobs:
           ./init.sh
 
       - name: Free Disk Space (Ubuntu)
-        if: steps.genoutputs.outputs.freediskspace2 == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE2 == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -362,7 +383,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
+          go-version: ${{ steps.genoutputs.outputs.goversion }}
 
       - uses: actions/setup-node@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUPNODE == 'true'
@@ -531,7 +552,6 @@ jobs:
           WORKSPACE: kind
           SYSTEM: debian
           slackMsgId: ${{ inputs.slackMsgId }}
-          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
