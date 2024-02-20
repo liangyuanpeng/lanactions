@@ -261,9 +261,9 @@ jobs:
           override: true
 
       - uses: actions/setup-go@v3
-        if: steps.genoutputs.outputs.golang == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUPGO == 'true'
         with:
-          go-version: ${{ steps.genoutputs.outputs.goversion }}
+          go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
       - uses: oras-project/setup-oras@v1
         with:
@@ -383,7 +383,7 @@ jobs:
 
       - uses: actions/setup-go@v3
         with:
-          go-version: ${{ steps.genoutputs.outputs.goversion }}
+          go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
       - uses: actions/setup-node@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUPNODE == 'true'
