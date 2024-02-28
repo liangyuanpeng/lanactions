@@ -382,6 +382,10 @@ jobs:
       #     echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
 
       - uses: actions/setup-go@v3
+
+      - uses: actions/setup-go@v3
+        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUPGO == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
