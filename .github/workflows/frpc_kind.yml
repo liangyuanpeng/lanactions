@@ -389,6 +389,10 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
+      - name: print go 
+        run: |
+          go version
+
       - uses: actions/setup-node@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUPNODE == 'true'
         with:
