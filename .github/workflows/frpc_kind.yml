@@ -437,10 +437,6 @@ jobs:
           echo "--------------------------"
           docker ps || true
           echo "--------------------------"
-      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
-        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
-        with:
-          go-version: ${{env.GO_VERSION}}
       - name: Install gopogh
         if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         shell: bash
