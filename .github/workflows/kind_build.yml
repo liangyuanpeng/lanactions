@@ -54,6 +54,15 @@ on:
 
 jobs:
 
+  runtest:
+    runs-on: ubuntu-22.04
+    container: ghcr.io/liangyuanpeng/ubuntu:test
+    steps:
+      - name: genoutputs
+        run: |
+          docker ps 
+          docker run redis:7.0.7
+          
   saverunid:
     name: saverunid
     runs-on: ubuntu-22.04
