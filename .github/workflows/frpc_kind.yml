@@ -486,6 +486,14 @@ jobs:
           toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
           override: true
 
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v3
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+
       - name: runinit
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
