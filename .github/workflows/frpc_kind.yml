@@ -122,7 +122,7 @@ jobs:
       packages: write
     steps:
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       - run: |
@@ -222,7 +222,7 @@ jobs:
         valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
     steps:
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
       # - name: genoutputs
@@ -362,7 +362,7 @@ jobs:
     # if: ${{ github.event.workflow_run  }}
     steps:
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
