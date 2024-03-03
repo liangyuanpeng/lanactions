@@ -489,6 +489,12 @@ jobs:
           toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
           override: true
 
+      - name: install vagrant  
+        #uses: actions/cache@v4 
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
+        run: |
+          echo "now,it just print install vagrant"
+
       - name: Cache Vagrant boxes
         uses: actions/cache@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
