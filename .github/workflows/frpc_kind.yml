@@ -240,7 +240,8 @@ jobs:
           ./actionops.sh
 
       - name: Cache Vagrant boxes
-        uses: actions/cache@v3
+        uses: actions/cache@v4
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
         with:
           path: ~/.vagrant.d/boxes
           key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
@@ -261,7 +262,7 @@ jobs:
           override: true
 
       - uses: actions/setup-go@v3
-        if: steps.genoutputs.outputs.GH_OUTPUT_SETUPGO == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
@@ -384,7 +385,7 @@ jobs:
       - uses: actions/setup-go@v3
 
       - uses: actions/setup-go@v3
-        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUPGO == 'true'
+        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
         if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
@@ -467,7 +468,7 @@ jobs:
           # distribution: 'graalvm' # See 'Options' for all available distributions
 
       - uses: actions/setup-java@v3
-        if: steps.genoutputs.outputs.GH_OUTPUT_SETUPJAVA == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_JAVA == 'true'
         with:
           java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
           distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVA }}
@@ -480,14 +481,15 @@ jobs:
           version: ${{ steps.genoutputs.outputs.GH_OUTPUT_KUBECTLVERSION }}
 
       - uses: actions-rs/toolchain@v1
-        if: steps.genoutputs.outputs.GH_OUTPUT_RUST == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_RUST == 'true'
         with:
           profile: default
           toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
           override: true
 
       - name: Cache Vagrant boxes
-        uses: actions/cache@v3
+        uses: actions/cache@v4
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
         with:
           path: ~/.vagrant.d/boxes
           key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
