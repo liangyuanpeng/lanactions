@@ -392,6 +392,7 @@ jobs:
 
       - name: print go 
         run: |
+          echo "output go version is:"${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
           go version
 
       - uses: actions/setup-node@v4
