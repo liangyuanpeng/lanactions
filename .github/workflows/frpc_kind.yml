@@ -374,9 +374,10 @@ jobs:
           chmod +x actionops.sh
           ./actionops.sh
 
-      # - name: print outputs
-      #   run: |
-      #     echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
+      - name: print outputs
+        run: |
+          echo "goversion is" ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
+          echo "outputs is "${{ steps.genoutputs.outputs }}
       #     echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
       #     echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
       #     echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
