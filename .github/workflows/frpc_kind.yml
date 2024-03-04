@@ -125,7 +125,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - run: |
+      - name: print env
+        env:
+          ACTION_CUSTOM: ${{ inputs.custom }}
+        run: |
           env
 
       - uses: oras-project/setup-oras@v1
