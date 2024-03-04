@@ -116,7 +116,7 @@ jobs:
 
   active:
     name: active
-    runs-on: ubuntu-latestc
+    runs-on: ubuntu-latest
     # if: ${{ inputs.port }}
     permissions:
       packages: write
