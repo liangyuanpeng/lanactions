@@ -116,7 +116,7 @@ jobs:
 
   active:
     name: active
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latestc
     # if: ${{ inputs.port }}
     permissions:
       packages: write
@@ -126,8 +126,6 @@ jobs:
         with:
           fetch-depth: 1
       - name: print env
-        env:
-          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           env
 
@@ -379,6 +377,7 @@ jobs:
 
       - name: print outputs
         run: |
+          echo "ACTION_CUSTOM is:" ${{ inputs.custom }}
           echo "goversion is" ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
           echo "outputs is "${{ steps.genoutputs.outputs }}
       #     echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
