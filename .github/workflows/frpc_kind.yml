@@ -63,6 +63,9 @@ on:
         required: false
         default: ""
 
+env:
+  ACTION_CUSTOM: ${{ inputs.custom }}
+
 jobs:
 
   build_minikube_test_binaries:
