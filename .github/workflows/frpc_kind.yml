@@ -235,6 +235,8 @@ jobs:
 
       - name: genoutputs
         id: genoutputs
+        env:
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x actionops.sh
@@ -370,6 +372,8 @@ jobs:
 
       - name: genoutputs
         id: genoutputs
+        env:
+          ACTION_CUSTOM: ${{ inputs.custom }}
         run: |
           oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x actionops.sh
