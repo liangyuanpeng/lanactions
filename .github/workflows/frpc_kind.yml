@@ -132,7 +132,7 @@ jobs:
         run: |
           env
 
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@v1.1.1
         with:
           version: 1.0.0
 
@@ -178,7 +178,7 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@v1.1.1
         with:
           version: 1.0.0
       - name: ghaction-setup
@@ -271,7 +271,7 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@v1.1.1
         with:
           version: 1.0.0
 
@@ -462,7 +462,7 @@ jobs:
         if: steps.genoutputs.outputs.GH_OUTPUT_FFMPEG == 'true'
         id: setup-ffmpeg
         
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@v1.1.1
         with:
           version: 1.0.0
 
