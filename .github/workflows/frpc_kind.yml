@@ -77,7 +77,7 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
+          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -240,7 +240,7 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
+          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
 
@@ -291,8 +291,8 @@ jobs:
 
       - name: runinit
         env:
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-          GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
           ACTION_VALUE_IMAGE: ${{ inputs.valueImage }}
@@ -374,7 +374,7 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
 
@@ -513,7 +513,7 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FRPC_PORT: ${{ inputs.port }}
           FRP_SERVER_PORT: ${{ secrets.FRP_SERVER_PORT }}
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
@@ -531,7 +531,7 @@ jobs:
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FRPC_PORT: ${{ inputs.port }}
           FRP_SERVER_PORT: ${{ secrets.FRP_SERVER_PORT }}
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
@@ -571,7 +571,7 @@ jobs:
 
       - name: envinit
         env:
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           FRPC_PORT: ${{ inputs.port }}
