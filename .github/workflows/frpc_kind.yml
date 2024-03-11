@@ -77,7 +77,7 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -u${{ github.repository.owner }} -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/${{ github.repository.owner }}/lanfiles:kindinit
+          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -239,7 +239,7 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -u${{ github.repository.owner }} -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/${{ github.repository.owner }}/lanfiles:kindinit
+          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
 
