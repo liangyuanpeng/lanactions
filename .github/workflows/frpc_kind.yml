@@ -71,11 +71,13 @@ jobs:
   build_minikube_test_binaries:
     runs-on: ubuntu-22.04
     if: ${{ !inputs.valueTag }}
+    permissions:
+      packages: write
     steps:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -u${{ github.repository.owner }} -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/${{ github.repository.owner }}/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
@@ -237,7 +239,7 @@ jobs:
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -u${{ github.repository.owner }} -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/${{ github.repository.owner }}/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
 
