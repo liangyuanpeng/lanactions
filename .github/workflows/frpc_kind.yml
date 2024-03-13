@@ -222,6 +222,7 @@ jobs:
     needs: ghaction-setup
     permissions:
       packages: write
+      contents: write
     strategy:
       matrix:
         valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
