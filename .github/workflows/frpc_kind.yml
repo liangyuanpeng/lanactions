@@ -268,7 +268,8 @@ jobs:
           override: true
 
       - uses: actions/setup-go@v3
-        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
+        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
