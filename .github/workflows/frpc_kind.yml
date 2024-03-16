@@ -250,6 +250,10 @@ jobs:
       #     echo "goversion=1.21" >> "$GITHUB_OUTPUT"
       #     echo "golang=true" >> "$GITHUB_OUTPUT"
 
+      - uses: liangyuanpeng/setup-oras@node20
+        with:
+          version: 1.0.0
+
       - name: genoutputs
         id: genoutputs
         run: |
@@ -285,9 +289,7 @@ jobs:
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
 
-      - uses: liangyuanpeng/setup-oras@node20
-        with:
-          version: 1.0.0
+
 
       - name: Free Disk Space (Ubuntu)
         if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE1 == 'true'
