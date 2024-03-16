@@ -252,10 +252,12 @@ jobs:
 
       - uses: liangyuanpeng/setup-oras@node20
         with:
-          version: 1.0.0
+          version: 1.1.0
 
       - name: genoutputs
         id: genoutputs
+        env:
+          RUNOS: ${{ needs.ghaction-setup.outputs.runos }}
         run: |
           oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
           chmod +x actionops.sh
@@ -288,8 +290,6 @@ jobs:
         if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
           go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
-
-
 
       - name: Free Disk Space (Ubuntu)
         if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE1 == 'true'
