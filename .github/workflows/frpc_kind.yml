@@ -132,7 +132,7 @@ jobs:
         run: |
           env
 
-      - uses: liangyuanpeng/setup-oras@node20
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.0.0
 
@@ -178,7 +178,7 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: liangyuanpeng/setup-oras@node20
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.0.0
       - name: ghaction-setup
@@ -250,7 +250,7 @@ jobs:
       #     echo "goversion=1.21" >> "$GITHUB_OUTPUT"
       #     echo "golang=true" >> "$GITHUB_OUTPUT"
 
-      - uses: liangyuanpeng/setup-oras@node20
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.1.0
 
@@ -484,7 +484,7 @@ jobs:
         if: steps.genoutputs.outputs.GH_OUTPUT_FFMPEG == 'true'
         id: setup-ffmpeg
         
-      - uses: liangyuanpeng/setup-oras@node20
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.0.0
 
