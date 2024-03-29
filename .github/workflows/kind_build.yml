@@ -38,7 +38,7 @@ on:
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
-        default: "v0.20.0"
+        default: "v0.22.0"
       triggerIssueCommentId:
         description: 'triggerIssueCommentId'
         required: false
