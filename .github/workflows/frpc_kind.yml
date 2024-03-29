@@ -474,7 +474,7 @@ jobs:
           go install github.com/medyagh/gopogh/cmd/gopogh@v0.26.0
       - name: Download Binaries
         if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
-        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4
+        uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427
         with:
           name: minikube_binaries
           path: minikube_binaries
