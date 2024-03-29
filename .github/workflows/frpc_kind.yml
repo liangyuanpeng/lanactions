@@ -288,7 +288,7 @@ jobs:
           toolchain: ${{ steps.genoutputs.outputs.rustversion }}
           override: true
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
         if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
@@ -410,9 +410,9 @@ jobs:
       #     echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
       #     echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
 
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
         if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
