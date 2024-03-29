@@ -1,4 +1,4 @@
-name: Build Docker Images
+name: get latest image
 on: [push, repository_dispatch]
 
 jobs:
