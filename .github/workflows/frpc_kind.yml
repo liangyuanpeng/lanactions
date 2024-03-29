@@ -80,7 +80,7 @@ jobs:
           oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017
         if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
         with:
           repository: liangyuanpeng/minikube
