@@ -23,6 +23,10 @@ on:
     branches: [ kind_build ]
   workflow_dispatch:
     inputs:
+      repo:
+        description: 'source repo of kubernetes '
+        required: false
+        default: "kubernetes/kubernetes"
       ref:
         description: 'source ref of kubernetes '
         required: true
@@ -34,7 +38,7 @@ on:
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
-        default: "v0.20.0"
+        default: "v0.22.0"
       triggerIssueCommentId:
         description: 'triggerIssueCommentId'
         required: false
@@ -49,6 +53,26 @@ on:
         default: 0
 
 jobs:
+
+  runtest:
+    runs-on: ubuntu-22.04
+    container: ghcr.io/liangyuanpeng/ubuntu:test
+    steps:
+      - name: runtest
+        run: |
+          docker ps 
+          docker run -it -d --name redis redis:7.0.7
+          docker ps -a
+
+  runtest2:
+    runs-on: ubuntu-22.04
+    container: cruizba/ubuntu-dind
+    steps:
+      - name: runtest
+        run: |
+          docker ps 
+          docker run -it -d --name redis redis:7.0.7
+          docker ps -a  
 
   saverunid:
     name: saverunid
@@ -79,19 +103,6 @@ jobs:
     permissions:
       packages: write
     steps:
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
 
       - name: make default value
         id: genoutputs
@@ -100,6 +111,7 @@ jobs:
           REF: ${{ github.event.inputs.ref }}
           MAKETAG: ${{ github.event.inputs.maketag }}
         run: |
+          echo "inputs.maketag:"${{ github.event.inputs.maketag }}
           if [ "$KINDVERSION" = "" ];then
               echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
           else
@@ -113,22 +125,24 @@ jobs:
           if [ "$MAKETAG" = "" ];then
               echo "maketag=true" >> "$GITHUB_OUTPUT"
           else
-              echo "maketag=$REF" >> "$GITHUB_OUTPUT"
+              echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
           fi
+
 
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
 
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          repository: kubernetes/kubernetes
+          repository: ${{ github.event.inputs.repo }}
+          #kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
 
       - name: make tag
-        if: ${{ steps.genoutputs.outputs.maketag }}
+        if: steps.genoutputs.outputs.maketag == 'true'
         run: |
           export TAG=`git describe --tags`
           echo "ref=$TAG" >> "$GITHUB_OUTPUT"
@@ -140,16 +154,14 @@ jobs:
             IMGTAG=`git describe --tags`
             echo "maketag is true1"
           fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
+          if [[ ${{ steps.genoutputs.outputs.maketag }} = "true" ]];then
             echo "maketag is true2"
-          fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
-            echo "maketag is true3"
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "input:"${{ github.event.inputs.maketag }}
+          echo "result:"$IMGTAG
 
       - name: rebuild init message
         run: |
@@ -175,6 +187,21 @@ jobs:
           mv kind-linux-amd64 /usr/local/bin/kind
           kind --version
           kind build node-image -h
+
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
 
 #TODO docker login action
       - name: build

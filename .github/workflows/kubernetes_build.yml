@@ -56,7 +56,7 @@ jobs:
           swap-storage: false
 
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
 #          repository: liangyuanpeng/kubernetes
           repository: kubernetes/kubernetes

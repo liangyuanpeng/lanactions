@@ -51,8 +51,8 @@ on:
       initimg:
         description: 'initimg'
         required: false
-      initImageRegistry:
-        description: 'initImageRegistry'
+      ghevent:
+        description: 'ghevent'
         required: false
       actionkind:
         description: 'actionkind'
@@ -63,7 +63,59 @@ on:
         required: false
         default: ""
 
+env:
+  ACTION_CUSTOM: ${{ inputs.custom }}
+
 jobs:
+
+  build_minikube_test_binaries:
+    runs-on: ubuntu-22.04
+    if: ${{ !inputs.valueTag }}
+    permissions:
+      packages: write
+    steps:
+      - name: genoutputs
+        id: genoutputs
+        run: |
+          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
+          chmod +x actionops.sh
+          ./actionops.sh
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        with:
+          repository: liangyuanpeng/minikube
+          fetch-depth: 0
+          ref: v1.29
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        with:
+          go-version: ${{env.GO_VERSION}}
+          cache-dependency-path: ./go.sum
+      - name: Download Dependencies
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: go mod download
+      - name: Build Binaries
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: |
+          make e2e-linux-amd64 e2e-darwin-amd64
+          cp -r test/integration/testdata ./out
+          whoami
+          echo github ref $GITHUB_REF
+          echo workflow $GITHUB_WORKFLOW
+          echo home $HOME
+          echo event name $GITHUB_EVENT_NAME
+          echo workspace $GITHUB_WORKSPACE
+          echo "end of debug stuff"
+          echo $(which jq)
+      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        with:
+          name: minikube_binaries
+          path: out
+
+      - name: print 
+        run: |
+          echo "hello"
 
   active:
     name: active
@@ -73,13 +125,14 @@ jobs:
       packages: write
     steps:
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - run: |
+      - name: print env
+        run: |
           env
 
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.0.0
 
@@ -88,15 +141,16 @@ jobs:
         env:
           slackMsgId: ${{ inputs.slackMsgId }}
         run: |
+          
           sed -i 's/valueImage_VALUE/${{ inputs.valueTag }}/g' info.json
           sed -i 's/GH_RUN_ID_VALUE/'$GITHUB_RUN_ID'/g' info.json
-          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
-          oras push ghcr.io/liangyuanpeng/ghactionenv:${{ inputs.valueTag }} info.json
+          oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/ghactionenv:$GITHUB_RUN_ID info.json
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/ghactionenv:${{ inputs.valueTag }} info.json
           cat info.json
           echo "===================slackMsgId======================="
           echo $slackMsgId
-          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId,${{ inputs.valueTag }}-$slackMsgId info.json
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/ghactionenv-slack:$slackMsgId,${{ inputs.valueTag }}-$slackMsgId info.json
 
       - name: save ghaction env for ghkind
         if: ${{ !inputs.valueTag }}
@@ -105,13 +159,13 @@ jobs:
         run: |
           sed -i 's/valueImage_VALUE/ghkind/g' info.json
           sed -i 's/GH_RUN_ID_VALUE/'$GITHUB_RUN_ID'/g' info.json
-          oras login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/ghactionenv:$GITHUB_RUN_ID info.json
-          oras push ghcr.io/liangyuanpeng/ghactionenv:ghkind info.json
+          oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/ghactionenv:$GITHUB_RUN_ID info.json
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/ghactionenv:ghkind info.json
           cat info.json
           echo "===================slackMsgId======================="
           echo $slackMsgId
-          oras push ghcr.io/liangyuanpeng/ghactionenv-slack:$slackMsgId,ghkind-$slackMsgId info.json
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/ghactionenv-slack:$slackMsgId,ghkind-$slackMsgId info.json
 
   ghaction-setup:
     if: ${{ !inputs.port }}
@@ -124,31 +178,46 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.0.0
       - name: ghaction-setup
         id: ghaction-setup
         run: |
           if ${{ inputs.actionkind == 'ocm' || inputs.actionkind == 'karmada' }}; then
-          if ${{ inputs.actionkind == 'ocm' }};then 
-            valueTag='["action-ocm","action-ocm-member"]'
-            valueTag='["action-ocm"]'
-          else 
-            valueTag='["action-karmada","action-karmada-member"]'
-            valueTag='["action-karmada"]'
-          fi
+            if ${{ inputs.actionkind == 'ocm' }};then 
+              valueTag='["action-ocm","action-ocm-member"]'
+              valueTag='["action-ocm"]'
+            else 
+              valueTag='["action-karmada","action-karmada-member"]'
+              valueTag='["action-karmada"]'
+            fi
           else
             valueTag='[ "${{ inputs.valueTag }}" ]'
           fi
 
-          if [ "${valueTag}" == 'action-windows' ];then
-            echo "runos=windows-2022" >> "$GITHUB_OUTPUT"
-          else 
-            echo "runos=ubuntu-22.04" >> "$GITHUB_OUTPUT"
+          if ${{ inputs.valueTag == 'action-windows' }}; then
+            runos='windows-2022'
+          elif ${{ inputs.valueTag == 'action-macos' }}; then
+            runos='macos-12'
+          elif ${{ inputs.valueTag == 'action-macos-13' }}; then
+            runos='macos-13'
+          elif ${{ inputs.valueTag == 'action-macos-13-large' }}; then
+            runos='macos-13-large'
+          elif ${{ inputs.valueTag == 'action-macos-13-xlarge' }}; then
+            runos='macos-13-xlarge'
+          elif ${{ inputs.valueTag == 'action-macos-14' }}; then
+            runos='macos-14'
+          elif ${{ inputs.valueTag == 'action-macos-14-large' }}; then
+            runos='macos-14-large'
+          elif ${{ inputs.valueTag == 'action-macos-14-xlarge' }}; then
+            runos='macos-14-xlarge'
+          else
+            runos='ubuntu-22.04'
           fi
-
+          echo "runos=${runos}" >> "$GITHUB_OUTPUT"
           echo "runos:"${runos}
+          echo "======================================="
           echo ${valueTag}
           list=$(echo ${valueTag} | jq -c)
           echo ${list}
@@ -157,25 +226,60 @@ jobs:
 # echo "::set-output name=valueTag::${list}"   
 
   ghaction:
-    name: ghaction
+    # name: ghaction-${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
+    name: ${{ matrix.valueTag }}-${{ needs.ghaction-setup.outputs.runos }}
     if: ${{ !inputs.port }}
-    runs-on: ${{ fromJson(needs.ghaction-setup.outputs.runos) }} # ubuntu-22.04
+    runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-22.04
     timeout-minutes: 360
     needs: ghaction-setup
     permissions:
       packages: write
+      contents: write
     strategy:
       matrix:
         valueTag: ${{ fromJson(needs.ghaction-setup.outputs.valueTag) }}
     steps:
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      # - name: genoutputs
+      #   id: genoutputs
+      #   run: |
+      #     echo genoutputs
+      #     echo "goversion=1.21" >> "$GITHUB_OUTPUT"
+      #     echo "golang=true" >> "$GITHUB_OUTPUT"
+
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.1.0
+
       - name: genoutputs
         id: genoutputs
+        env:
+          RUNOS: ${{ needs.ghaction-setup.outputs.runos }}
         run: |
-          echo genoutputs
+          oras pull -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/lanfiles:kindinit
+          chmod +x actionops.sh
+          ./actionops.sh
+
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v4
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+        
+      # - name: download vagrant boxs 
+      #   if: needs.ghaction-setup.outputs.runos == 'macos-12'
+      #   run: |
+      #     echo "download"
+      #     vagrant box add generic/ubuntu2204 --provider virtualbox 
+
+      - name: install Buildx
+        uses: docker/setup-buildx-action@v2
 
       - uses: actions-rs/toolchain@v1
         if: steps.genoutputs.outputs.rust == 'true'
@@ -184,29 +288,44 @@ jobs:
           toolchain: ${{ steps.genoutputs.outputs.rustversion }}
           override: true
 
-      - uses: actions/setup-go@v2
-        if: steps.genoutputs.outputs.golang == 'true'
+      - uses: actions/setup-go@v3
+        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
-          go-version: ${{ steps.genoutputs.outputs.goversion }}
+          go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
+
+      - name: Free Disk Space (Ubuntu)
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE1 == 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
 
       - name: runinit
         env:
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
-          GH_PACKAGE_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
           ACTION_VALUE_IMAGE: ${{ inputs.valueImage }}
           ORAS_PASSWORD: ${{ inputs.password }}
           ORAS_USERNAME: ${{ inputs.username }}
-          ACTION_CUSTOM: ${{ inputs.custom }}
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
-          oras login ghcr.io -u$ORAS_USERNAME -p$ORAS_PASSWORD
-          oras pull ghcr.io/$ACTION_VALUE_IMAGE:$ACTION_VALUE_TAG
+          oras login ghcr.io -u ${ORAS_USERNAME} -p ${ORAS_PASSWORD}
+          oras pull ghcr.io/${ACTION_VALUE_IMAGE}:${ACTION_VALUE_TAG}
           chmod +x init.sh
           ./init.sh
 
       - name: Free Disk Space (Ubuntu)
-        if: steps.genoutputs.outputs.freediskspace2 == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE2 == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -221,8 +340,6 @@ jobs:
 
       - name: sleep 
         run: |
-          pwd 
-          ls
           chmod +x actions_common_sleep.sh
           ./actions_common_sleep.sh
           
@@ -246,82 +363,185 @@ jobs:
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
           echo "run always shell"
-
-
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
 
   frpc:
     name: start_frpc
     if: ${{ inputs.port }}
     runs-on: ubuntu-22.04
     timeout-minutes: 360
+    env:
+      TIME_ELAPSED: time
+      JOB_NAME: "functional_docker_rootless_containerd_ubuntu"
+      GOPOGH_RESULT: ""
+      SHELL: "/bin/bash" # To prevent https://github.com/kubernetes/minikube/issues/6643
+      DEBIAN_FRONTEND: noninteractive
+    needs: [build_minikube_test_binaries]
     permissions:
       packages: write
+      contents: none
     # if: ${{ github.event.workflow_run  }}
     steps:
       - name: checkoutactions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: install Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: genoutputs
         id: genoutputs
         run: |
-          oras pull -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
+          oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x actionops.sh
           ./actionops.sh
 
       - name: print outputs
         run: |
-          echo "goversion is" ${{ steps.genoutputs.outputs.goversion }}
-          echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
-          echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
-          echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
-          echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
+          echo "ACTION_CUSTOM is:" ${{ inputs.custom }}
+          echo "goversion is" ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
+          echo "outputs is "${{ steps.genoutputs.outputs }}
+      #     echo "ffmpeg is" ${{ steps.genourtputs.outputs.ffmpeg }}
+      #     echo "graalvm is" ${{ steps.genoutputs.outputs.graalvm }}
+      #     echo "rsdev is" ${{ steps.genoutputs.outputs.rsdev }}
+      #     echo "rustversion is" ${{ steps.genoutputs.outputs.rustversion }}
 
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
+
+      - uses: actions/setup-go@v3
+        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_GO == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_GOVERSION != ''
         with:
-          go-version: ${{ steps.genoutputs.outputs.goversion }}
+          go-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
+
+      - name: print go 
+        run: |
+          echo "output go version is:"${{ steps.genoutputs.outputs.GH_OUTPUT_GOVERSION }}
+          go version
+
+      - uses: actions/setup-node@v4
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUPNODE == 'true'
+        with:
+          node-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_NODEVERSION }}
+
+      - name: Install kubectl
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        shell: bash
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -sSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install kubectl /usr/local/bin/kubectl
+          kubectl version --client=true
+      # https://rootlesscontaine.rs/getting-started/common/cgroup2/
+      - name: Set up cgroup v2 delegation
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: |
+          sudo mkdir -p /etc/systemd/system/user@.service.d
+          cat <<EOF | sudo tee /etc/systemd/system/user@.service.d/delegate.conf
+          [Service]
+          Delegate=cpu cpuset io memory pids
+          EOF
+          sudo systemctl daemon-reload
+      - name: Set up Rootless Docker
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: |
+          sudo apt-get remove moby-engine-*
+          curl https://get.docker.com | sudo sh
+          dockerd-rootless-setuptool.sh install -f
+          docker context use rootless
+      - name: Docker Info
+        shell: bash
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        run: |
+          echo "--------------------------"
+          docker version || true
+          echo "--------------------------"
+          docker info || true
+          echo "--------------------------"
+          docker system df || true
+          echo "--------------------------"
+          docker system info --format='{{json .}}'|| true
+          echo "--------------------------"
+          docker ps || true
+          echo "--------------------------"
+      - name: Install gopogh
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        shell: bash
+        run: |
+          go install github.com/medyagh/gopogh/cmd/gopogh@v0.26.0
+      - name: Download Binaries
+        if: steps.genoutputs.outputs.GH_OUTPUT_MINIKUBE == 'true'
+        uses: actions/download-artifact@7a1cd3216ca9260cd8022db641d960b1db4d1be4
+        with:
+          name: minikube_binaries
+          path: minikube_binaries
+
 
       - uses: FedericoCarboni/setup-ffmpeg@v2
-        if: steps.genoutputs.outputs.ffmpeg == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FFMPEG == 'true'
         id: setup-ffmpeg
         
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.0.0
 
       - uses: graalvm/setup-graalvm@v1
-        if: steps.genoutputs.outputs.graalvm == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_GRAALVM == 'true'
         with:
           java-version: '17'
           version: '22.3.2' # Old 'version' option for the GraalVM version
           # java-version: '17.0.7'
           # distribution: 'graalvm' # See 'Options' for all available distributions
 
+      - uses: actions/setup-java@v3
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_JAVA == 'true'
+        with:
+          java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
+          distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVA }}
+          # cache: 'maven'
+
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
-        if: steps.genoutputs.outputs.kubectl == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_KUBECTL == 'true'
         with:
-          version: ${{ steps.genoutputs.outputs.kubectlversion }}
+          version: ${{ steps.genoutputs.outputs.GH_OUTPUT_KUBECTLVERSION }}
 
       - uses: actions-rs/toolchain@v1
-        if: steps.genoutputs.outputs.rsdev == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_RUST == 'true'
         with:
           profile: default
-          toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+          toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
           override: true
+
+      - name: install vagrant  
+        #uses: actions/cache@v4 
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
+        run: |
+          echo "now,it just print install vagrant"
+
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v4
+        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_VAGRANT == 'true'
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
 
       - name: runinit
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FRPC_PORT: ${{ inputs.port }}
           FRP_SERVER_PORT: ${{ secrets.FRP_SERVER_PORT }}
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
           WORKSPACE: kind
           SYSTEM: debian
-          ACTION_CUSTOM: ${{ inputs.custom }}
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras login ghcr.io -uliangyuanpeng -p$GH_TOKEN
           oras pull ghcr.io/liangyuanpeng/lanfiles:ghdev
@@ -329,16 +549,17 @@ jobs:
           ./init.sh
 
       - name: kindinit
-        if: steps.genoutputs.outputs.kindcreate == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_KINDCREATE == 'true'
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FRPC_PORT: ${{ inputs.port }}
           FRP_SERVER_PORT: ${{ secrets.FRP_SERVER_PORT }}
           FRP_SERVER_ADDR: ${{ secrets.FRP_SERVER_ADDR }}
           WORKSPACE: kind
           SYSTEM: debian
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           #oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:kindinit
           chmod +x kindinit.sh
@@ -347,7 +568,7 @@ jobs:
 
       #TODO && need to send slack
       - name: upload file to slack
-        if: steps.genoutputs.outputs.kindcreate == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_KINDCREATE == 'true'
         uses: adrey/slack-file-upload-action@master
         with:
           token: ${{ secrets.SLACK_TOKEN }}
@@ -357,7 +578,7 @@ jobs:
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
-        if: steps.genoutputs.outputs.freediskspace1 == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE1 == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -372,19 +593,20 @@ jobs:
 
       - name: envinit
         env:
-          GH_TOKEN: ${{ secrets.GH_PACKAGE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
           FRPC_PORT: ${{ inputs.port }}
           WORKSPACE: kind
           SYSTEM: debian
+          slackMsgId: ${{ inputs.slackMsgId }}
         run: |
           oras pull -uliangyuanpeng -p$GH_TOKEN ghcr.io/liangyuanpeng/lanfiles:envinit
           chmod +x envinit.sh
           ./envinit.sh ${{ inputs.custom }}
 
       - name: Free Disk Space (Ubuntu)
-        if: steps.genoutputs.outputs.freediskspace2 == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_FREEDISKSPACE2 == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -424,4 +646,8 @@ jobs:
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
           echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
 
