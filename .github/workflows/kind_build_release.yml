@@ -1,0 +1,279 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: kind_build_release
+on:
+  push:
+    branches: [ kind_build_release ]
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'source repo of kubernetes '
+        required: false
+        default: "kubernetes/kubernetes"
+      ref:
+        description: 'source ref of kubernetes '
+        required: true
+        default: "master"
+      maketag:
+        description: 'is it need to make a describe tag'
+        required: true
+        default: true
+      kindversion:
+        description: 'version of kind,v0.20.0 by default.'
+        required: false
+        default: "v0.22.0"
+      triggerIssueCommentId:
+        description: 'triggerIssueCommentId'
+        required: false
+        default: 0
+      triggerDiscussionCommentId:
+        description: 'triggerDiscussionCommentId'
+        required: false
+        default: 0
+      discussionId:
+        description: 'discussionId'
+        required: false
+        default: 0
+
+jobs:
+
+  runtest:
+    runs-on: ubuntu-22.04
+    container: ghcr.io/liangyuanpeng/ubuntu:test
+    steps:
+      - name: runtest
+        run: |
+          docker ps 
+          docker run -it -d --name redis redis:7.0.7
+          docker ps -a
+
+  runtest2:
+    runs-on: ubuntu-22.04
+    container: cruizba/ubuntu-dind
+    steps:
+      - name: runtest
+        run: |
+          docker ps 
+          docker run -it -d --name redis redis:7.0.7
+          docker ps -a  
+
+  saverunid:
+    name: saverunid
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    steps:
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
+      - name: saverunid 
+        run: |
+          touch /tmp/result.txt
+          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          mv /tmp/result.txt .
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          rm -f result.txt
+
+#TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
+  release:
+    name: release
+    runs-on: ubuntu-22.04
+    needs: saverunid
+    permissions:
+      packages: write
+    steps:
+
+      - name: make default value
+        id: genoutputs
+        env:
+          KINDVERSION: ${{ github.event.inputs.kindversion }}
+          REF: ${{ github.event.inputs.ref }}
+          MAKETAG: ${{ github.event.inputs.maketag }}
+        run: |
+          echo "inputs.maketag:"${{ github.event.inputs.maketag }}
+          if [ "$KINDVERSION" = "" ];then
+              echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
+          else
+              echo "kindversion=$KINDVERSION" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$MAKETAG" = "" ];then
+              echo "maketag=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
+          fi
+
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.repo }}
+          #kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ steps.genoutputs.outputs.ref }}
+
+      - name: make tag
+        if: steps.genoutputs.outputs.maketag == 'true'
+        run: |
+          export TAG=`git describe --tags`
+          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: print
+        run: |
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
+            IMGTAG=`git describe --tags`
+            echo "maketag is true1"
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} = "true" ]];then
+            echo "maketag is true2"
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
+          fi
+          echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
+          echo "input:"${{ github.event.inputs.maketag }}
+          echo "result:"$IMGTAG
+
+      - name: rebuild init message
+        run: |
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          touch /tmp/result.txt
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
+          fi
+          echo "image=$IMAGE" > /tmp/result.txt
+          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          cp /tmp/result.txt .
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          rm -f result.txt
+
+      - name: download kind
+        run: |
+          echo ${{ steps.genoutputs.outputs.kindversion }}
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
+          chmod +x kind-linux-amd64
+          mv kind-linux-amd64 /usr/local/bin/kind
+          kind --version
+          kind build node-image -h
+
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
+#TODO docker login action
+      - name: build
+        id: build
+        run: |
+          docker rmi `docker images -aq`
+          git branch
+          git describe
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
+            IMGTAG=`git describe --tags`
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
+            echo "maketag is true2"
+          fi
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            echo "maketag is true3"
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
+          fi
+          echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
+          echo "IMGTAG:"$IMGTAG
+          mkdir tmp
+          cd tmp
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG --kube-root $PWD/../
+          docker images
+          cd ../_output
+          tree .
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker push ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          export IMAGE=ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          CHTIME=`date +"%Y%m%d%H"`
+          if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
+            docker tag ghcr.io/liangyuanpeng/kindest/node:$IMGTAG ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker push ghcr.io/liangyuanpeng/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+          fi
+          
+          #touch /tmp/result.txt
+          echo "image=$IMAGE" > /tmp/result.txt
+          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          cat /tmp/result.txt
+
+      - name: test
+        run: |
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
+          fi
+          echo "IMGTAG:"$IMGTAG
+          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          kubectl get po -A
+          kubectl wait node --all --for condition=ready
+
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: result
+      #     path: /tmp/result.txt
+
+      - name: save outputs 
+        id: saveoutputs
+        run: |
+          mv /tmp/result.txt .
+          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+
+          export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+            IMGREF=`git describe --tags`
+            IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
+          fi
+
+          echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
+          echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
+          oras push ghcr.io/liangyuanpeng/artifacts-kind-buildrun:$IMGTAG result.txt
