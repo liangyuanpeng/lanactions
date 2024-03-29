@@ -504,7 +504,7 @@ jobs:
           # cache: 'maven'
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_KUBECTL == 'true'
         with:
           version: ${{ steps.genoutputs.outputs.GH_OUTPUT_KUBECTLVERSION }}
