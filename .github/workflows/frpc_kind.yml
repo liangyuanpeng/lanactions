@@ -279,7 +279,7 @@ jobs:
       #     vagrant box add generic/ubuntu2204 --provider virtualbox 
 
       - name: install Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - uses: actions-rs/toolchain@v1
         if: steps.genoutputs.outputs.rust == 'true'
@@ -391,7 +391,7 @@ jobs:
           fetch-depth: 1
 
       - name: install Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: genoutputs
         id: genoutputs
