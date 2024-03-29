@@ -480,7 +480,7 @@ jobs:
           path: minikube_binaries
 
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
         if: steps.genoutputs.outputs.GH_OUTPUT_FFMPEG == 'true'
         id: setup-ffmpeg
         
