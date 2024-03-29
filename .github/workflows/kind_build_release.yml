@@ -17,10 +17,10 @@
 # under the License.
 #
 
-name: kind_build
+name: kind_build_release
 on:
   push:
-    branches: [ kind_build ]
+    branches: [ kind_build_release ]
   workflow_dispatch:
     inputs:
       repo:
