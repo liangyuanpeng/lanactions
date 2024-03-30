@@ -282,10 +282,11 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - uses: actions-rs/toolchain@v1
-        if: steps.genoutputs.outputs.rust == 'true'
+        # if: steps.genoutputs.outputs.rust == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION != ''
         with:
           profile: default
-          toolchain: ${{ steps.genoutputs.outputs.rustversion }}
+          toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
           override: true
 
       - uses: actions/setup-go@v5
@@ -510,7 +511,8 @@ jobs:
           version: ${{ steps.genoutputs.outputs.GH_OUTPUT_KUBECTLVERSION }}
 
       - uses: actions-rs/toolchain@v1
-        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_RUST == 'true'
+        # if: steps.genoutputs.outputs.rust == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION != ''
         with:
           profile: default
           toolchain: ${{ steps.genoutputs.outputs.GH_OUTPUT_RUSTVERSION }}
