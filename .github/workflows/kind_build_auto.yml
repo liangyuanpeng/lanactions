@@ -52,6 +52,5 @@ jobs:
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
     with:
-      repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
       maketag: false
