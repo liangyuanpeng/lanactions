@@ -29,11 +29,11 @@ on:
         default: "kubernetes/kubernetes"
       ref:
         description: 'source ref of kubernetes '
-        required: true
+        required: false
         default: "master"
       maketag:
         description: 'is it need to make a describe tag'
-        required: true
+        required: false
         default: true
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
