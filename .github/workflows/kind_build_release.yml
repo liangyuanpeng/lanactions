@@ -27,30 +27,37 @@ on:
         description: 'source repo of kubernetes '
         required: false
         default: "kubernetes/kubernetes"
+        type: string
       ref:
         description: 'source ref of kubernetes '
         required: false
         default: "master"
+        type: string
       maketag:
         description: 'is it need to make a describe tag'
         required: false
         default: true
+        type: bool
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
         default: "v0.22.0"
+        type: string
       triggerIssueCommentId:
         description: 'triggerIssueCommentId'
         required: false
         default: 0
+        type: number
       triggerDiscussionCommentId:
         description: 'triggerDiscussionCommentId'
         required: false
         default: 0
+        type: number
       discussionId:
         description: 'discussionId'
         required: false
         default: 0
+        type: number
 
 jobs:
 
