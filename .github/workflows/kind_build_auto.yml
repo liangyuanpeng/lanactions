@@ -49,6 +49,7 @@ jobs:
     - gettags
     uses: ./.github/workflows/kind_build_release.yml
     strategy:
+      fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
     with:
