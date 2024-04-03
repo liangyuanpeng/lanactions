@@ -54,3 +54,4 @@ jobs:
     with:
       ref: ${{ matrix.ref }}
       maketag: false
+      repo: "kubernetes/kubernetes"
