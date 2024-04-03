@@ -61,26 +61,6 @@ on:
 
 jobs:
 
-  runtest:
-    runs-on: ubuntu-22.04
-    container: ghcr.io/liangyuanpeng/ubuntu:test
-    steps:
-      - name: runtest
-        run: |
-          docker ps 
-          docker run -it -d --name redis redis:7.0.7
-          docker ps -a
-
-  runtest2:
-    runs-on: ubuntu-22.04
-    container: cruizba/ubuntu-dind
-    steps:
-      - name: runtest
-        run: |
-          docker ps 
-          docker run -it -d --name redis redis:7.0.7
-          docker ps -a  
-
   saverunid:
     name: saverunid
     runs-on: ubuntu-22.04
@@ -98,7 +78,7 @@ jobs:
           echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
           mv /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
@@ -182,7 +162,7 @@ jobs:
           echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
           cp /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
@@ -237,7 +217,7 @@ jobs:
           docker images
           cd ../_output
           tree .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           export IMAGE=ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           CHTIME=`date +"%Y%m%d%H"`
