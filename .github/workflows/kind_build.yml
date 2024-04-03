@@ -43,14 +43,17 @@ on:
         description: 'triggerIssueCommentId'
         required: false
         default: 0
+        type: number
       triggerDiscussionCommentId:
         description: 'triggerDiscussionCommentId'
         required: false
         default: 0
+        type: number
       discussionId:
         description: 'discussionId'
         required: false
         default: 0
+        type: number
 
 jobs:
 
