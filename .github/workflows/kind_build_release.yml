@@ -81,7 +81,8 @@ jobs:
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
-          echo "cloning repo:"${{ github.event.repo }}
+          echo "cloning repo:"${{ github.event.inputs.repo }}
+          echo "cloning repo2:"${{ inputs.repo }}
 
 
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
