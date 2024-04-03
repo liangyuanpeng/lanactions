@@ -21,7 +21,7 @@ name: kind_build_release
 on:
   push:
     branches: [ kind_build_release ]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       repo:
         description: 'source repo of kubernetes '
