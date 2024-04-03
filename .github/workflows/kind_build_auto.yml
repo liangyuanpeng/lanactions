@@ -39,6 +39,7 @@ jobs:
           chmod +x gher 
           ./gher
           list=$(./gher | jq .tags | jq -c )
+          echo "list:"${list}
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
 
   build:
