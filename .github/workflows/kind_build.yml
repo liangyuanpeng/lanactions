@@ -65,6 +65,6 @@ jobs:
       ref: ${{ inputs.ref }}
       maketag: ${{ inputs.maketag }}
       kindversion: ${{ inputs.kindversion }}
-      triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
-      triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
-      discussionId: ${{ inputs.discussionId }}
+      # triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
+      # triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
+      # discussionId: ${{ inputs.discussionId }}
