@@ -101,6 +101,7 @@ jobs:
           MAKETAG: ${{ github.event.inputs.maketag }}
         run: |
           echo "inputs.maketag:"${{ github.event.inputs.maketag }}
+          echo "inputs.repo:"${{ github.event.inputs.repo }}
           if [ "$KINDVERSION" = "" ];then
               echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
           else
