@@ -79,7 +79,7 @@ jobs:
           echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
           mv /tmp/result.txt .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
@@ -163,7 +163,7 @@ jobs:
           echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
           cp /tmp/result.txt .
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
       - name: download kind
@@ -253,7 +253,7 @@ jobs:
         id: saveoutputs
         run: |
           mv /tmp/result.txt .
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
 
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
@@ -263,4 +263,4 @@ jobs:
 
           echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
           echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
-          oras push ghcr.io/liangyuanpeng/artifacts-kind-buildrun:$IMGTAG result.txt
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
