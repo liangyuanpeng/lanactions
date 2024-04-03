@@ -243,6 +243,9 @@ jobs:
           kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
+          kubectl run test --image httpd:2
+          kubectl wait --timeout=1m --for=condition=ready pods test
+          kubectl get pods -A -owide
 
       # - uses: actions/upload-artifact@v3
       #   with:
