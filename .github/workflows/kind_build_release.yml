@@ -37,7 +37,7 @@ on:
         description: 'is it need to make a describe tag'
         required: false
         default: true
-        type: bool
+        type: boolean
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
