@@ -21,6 +21,7 @@ name: kind_build_auto
 on:
   push:
     branches: [ kind_build_auto ]
+  workflow_dispatch: {}
 
 
 jobs:
