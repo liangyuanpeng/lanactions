@@ -61,10 +61,10 @@ jobs:
   build:
     uses: ./.github/workflows/kind_build_release.yml
     with:
-      repo: ${{ github.event.inputs.repo }}
-      ref: ${{ github.event.inputs.ref }}
-      maketag: ${{ github.event.inputs.maketag }}
-      kindversion: ${{ github.event.inputs.kindversion }}
-      triggerIssueCommentId: ${{ github.event.inputs.triggerIssueCommentId }}
-      triggerDiscussionCommentId: ${{ github.event.inputs.triggerDiscussionCommentId }}
-      discussionId: ${{ github.event.inputs.discussionId }}
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
+      maketag: ${{ inputs.maketag }}
+      kindversion: ${{ inputs.kindversion }}
+      triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
+      triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
+      discussionId: ${{ inputs.discussionId }}
