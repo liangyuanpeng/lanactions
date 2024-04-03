@@ -41,8 +41,8 @@ jobs:
           ./gher
           list=$(./gher | jq .tags | jq -c )
           echo "list:"${list}
-          # echo "ref=${list}" >> "$GITHUB_OUTPUT"
-          echo "::set-output name=ref::${list}"  
+          echo "ref=${list}" >> "$GITHUB_OUTPUT"
+          # echo "::set-output name=ref::${list}"  
 
   build:
     needs:
