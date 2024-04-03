@@ -1,5 +1,8 @@
 name: get latest image
-on: [push, repository_dispatch]
+# on: [push, repository_dispatch]
+on:
+  push: 
+    branches: [ disable ]
 
 jobs:
   build:

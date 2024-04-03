@@ -35,6 +35,7 @@ on:
         description: 'is it need to make a describe tag'
         required: true
         default: true
+        type: boolean
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
@@ -43,24 +44,27 @@ on:
         description: 'triggerIssueCommentId'
         required: false
         default: 0
+        type: number
       triggerDiscussionCommentId:
         description: 'triggerDiscussionCommentId'
         required: false
         default: 0
+        type: number
       discussionId:
         description: 'discussionId'
         required: false
         default: 0
+        type: number
 
 jobs:
 
   build:
     uses: ./.github/workflows/kind_build_release.yml
     with:
-      repo: ${{ github.event.inputs.repo }}
-      ref: ${{ github.event.inputs.ref }}
-      maketag: ${{ github.event.inputs.maketag }}
-      kindversion: ${{ github.event.inputs.kindversion }}
-      triggerIssueCommentId: ${{ github.event.inputs.triggerIssueCommentId }}
-      triggerDiscussionCommentId: ${{ github.event.inputs.triggerDiscussionCommentId }}
-      discussionId: ${{ github.event.inputs.discussionId }}
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
+      maketag: ${{ inputs.maketag }}
+      kindversion: ${{ inputs.kindversion }}
+      # triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
+      # triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
+      # discussionId: ${{ inputs.discussionId }}

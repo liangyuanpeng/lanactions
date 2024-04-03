@@ -21,6 +21,9 @@ name: kind_build_auto
 on:
   push:
     branches: [ kind_build_auto ]
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 */1 * * *'
 
 
 jobs:
@@ -28,27 +31,31 @@ jobs:
   gettags:
     runs-on: ubuntu-22.04
     outputs:
-      ref: ${{ steps.ghaction-setup.outputs.ref }}
+      ref: ${{ steps.gher.outputs.ref }}
     steps:
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
-      - name: gettags
+      - name: gher
+        id: gher
         run: |
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
           ./gher
           list=$(./gher | jq .tags | jq -c )
+          echo "list:"${list}
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
+          # echo "::set-output name=ref::${list}  "  
 
   build:
     needs:
     - gettags
     uses: ./.github/workflows/kind_build_release.yml
     strategy:
+      fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
     with:
-      repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
       maketag: false
+      repo: "kubernetes/kubernetes"

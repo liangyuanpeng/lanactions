@@ -21,58 +21,45 @@ name: kind_build_release
 on:
   push:
     branches: [ kind_build_release ]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       repo:
         description: 'source repo of kubernetes '
         required: false
         default: "kubernetes/kubernetes"
+        type: string
       ref:
         description: 'source ref of kubernetes '
-        required: true
+        required: false
         default: "master"
+        type: string
       maketag:
         description: 'is it need to make a describe tag'
-        required: true
+        required: false
         default: true
+        type: boolean
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
         default: "v0.22.0"
+        type: string
       triggerIssueCommentId:
         description: 'triggerIssueCommentId'
         required: false
         default: 0
+        type: number
       triggerDiscussionCommentId:
         description: 'triggerDiscussionCommentId'
         required: false
         default: 0
+        type: number
       discussionId:
         description: 'discussionId'
         required: false
         default: 0
+        type: number
 
 jobs:
-
-  runtest:
-    runs-on: ubuntu-22.04
-    container: ghcr.io/liangyuanpeng/ubuntu:test
-    steps:
-      - name: runtest
-        run: |
-          docker ps 
-          docker run -it -d --name redis redis:7.0.7
-          docker ps -a
-
-  runtest2:
-    runs-on: ubuntu-22.04
-    container: cruizba/ubuntu-dind
-    steps:
-      - name: runtest
-        run: |
-          docker ps 
-          docker run -it -d --name redis redis:7.0.7
-          docker ps -a  
 
   saverunid:
     name: saverunid
@@ -88,12 +75,14 @@ jobs:
       - name: saverunid 
         run: |
           touch /tmp/result.txt
-          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
-          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           mv /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
+          echo "cloning repo:"${{ inputs.repo }}
+
 
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
   release:
@@ -107,11 +96,12 @@ jobs:
       - name: make default value
         id: genoutputs
         env:
-          KINDVERSION: ${{ github.event.inputs.kindversion }}
-          REF: ${{ github.event.inputs.ref }}
-          MAKETAG: ${{ github.event.inputs.maketag }}
+          KINDVERSION: ${{ inputs.kindversion }}
+          REF: ${{ inputs.ref }}
+          MAKETAG: ${{ inputs.maketag }}
         run: |
-          echo "inputs.maketag:"${{ github.event.inputs.maketag }}
+          echo "inputs.maketag:"${{ inputs.maketag }}
+          echo "inputs.repo:"${{ inputs.repo }}
           if [ "$KINDVERSION" = "" ];then
               echo "kindversion=v0.20.0" >> "$GITHUB_OUTPUT"
           else
@@ -136,7 +126,7 @@ jobs:
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.inputs.repo }}
+          repository: ${{ inputs.repo }}
           #kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
@@ -160,7 +150,7 @@ jobs:
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
-          echo "input:"${{ github.event.inputs.maketag }}
+          echo "input:"${{ inputs.maketag }}
           echo "result:"$IMGTAG
 
       - name: rebuild init message
@@ -172,11 +162,11 @@ jobs:
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "image=$IMAGE" > /tmp/result.txt
-          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
-          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           cp /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
       - name: download kind
@@ -230,7 +220,7 @@ jobs:
           docker images
           cd ../_output
           tree .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           docker push ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           export IMAGE=ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           CHTIME=`date +"%Y%m%d%H"`
@@ -241,8 +231,8 @@ jobs:
           
           #touch /tmp/result.txt
           echo "image=$IMAGE" > /tmp/result.txt
-          echo "discussionCommentId=${{ github.event.inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
-          echo "discussionId=${{ github.event.inputs.discussionId }}" >> /tmp/result.txt
+          echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
+          echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           cat /tmp/result.txt
 
       - name: test
@@ -253,9 +243,14 @@ jobs:
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
           echo "IMGTAG:"$IMGTAG
-          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          #TODO 测试多节点
+          #TODO 收集日志,失败的时候可以查看
+          kind create cluster --retain --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
+          kubectl run test --image httpd:2
+          kubectl wait --timeout=1m --for=condition=ready pods test
+          kubectl get pods -A -owide
 
       # - uses: actions/upload-artifact@v3
       #   with:
@@ -266,7 +261,7 @@ jobs:
         id: saveoutputs
         run: |
           mv /tmp/result.txt .
-          oras push ghcr.io/liangyuanpeng/artifacts-kind:${{ github.run_id }} result.txt
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
 
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
@@ -276,4 +271,4 @@ jobs:
 
           echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
           echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
-          oras push ghcr.io/liangyuanpeng/artifacts-kind-buildrun:$IMGTAG result.txt
+          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
