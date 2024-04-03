@@ -496,7 +496,7 @@ jobs:
           # java-version: '17.0.7'
           # distribution: 'graalvm' # See 'Options' for all available distributions
 
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_JAVA == 'true'
         with:
           java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
