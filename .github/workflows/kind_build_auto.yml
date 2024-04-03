@@ -28,12 +28,13 @@ jobs:
   gettags:
     runs-on: ubuntu-22.04
     outputs:
-      ref: ${{ steps.ghaction-setup.outputs.ref }}
+      ref: ${{ steps.gher.outputs.ref }}
     steps:
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
-      - name: gettags
+      - name: gher
+        id: gher
         run: |
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
