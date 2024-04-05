@@ -165,7 +165,7 @@ jobs:
       - name: rebuild init message
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-           if [ ${{ steps.genoutputs.outputs.tagWithKind == false }} ];then 
+          if [ ${{ steps.genoutputs.outputs.tagWithKind == false }} ];then 
             IMGTAG=${{ steps.genoutputs.outputs.ref }}
             echo "tagWithKind is false,tag not with kind version."
           fi
@@ -214,11 +214,9 @@ jobs:
           git branch
           git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          if [ ${{ steps.genoutputs.outputs.maketag }} == true ];then
-            IMGTAG=`git describe --tags`
-          fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} == "true" ]];then
-            echo "maketag is true2"
+          if [ ${{ steps.genoutputs.outputs.tagWithKind == false }} ];then 
+            IMGTAG=${{ steps.genoutputs.outputs.ref }}
+            echo "tagWithKind is false,tag not with kind version."
           fi
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             echo "maketag is true3"
