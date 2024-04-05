@@ -21,7 +21,14 @@ name: kind_build_auto
 on:
   push:
     branches: [ kind_build_auto ]
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      tagWithKind:
+        description: 'is it need to add kind version for tag'
+        required: false
+        default: true
+        type: boolean
+
   schedule:
     - cron: '0 3 * * 0,6'
     # - cron: '0 */1 * * *'
@@ -32,12 +39,12 @@ jobs:
   gettags:
     runs-on: ubuntu-22.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
-    strategy:
-      fail-fast: false
-      matrix:
-        TAG_WITH_KIND: ["0","1"]
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     TAG_WITH_KIND: ["0","1"]
     env:
-      TAG_WITH_KIND: ${{ matrix.TAG_WITH_KIND }}
+      TAG_WITH_KIND: ${{ inputs.tagWithKind }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
     steps:
@@ -53,7 +60,7 @@ jobs:
           list=$(./gher | jq .tags | jq -c )
           echo "list:"${list}
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
-          # echo "::set-output name=ref::${list}  "  
+          # echo "::set-output name=ref::${list} "  
 
   build:
     needs:

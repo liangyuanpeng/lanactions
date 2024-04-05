@@ -36,6 +36,11 @@ on:
         required: true
         default: true
         type: boolean
+      tagWithKind:
+        description: 'is it need to add kind version for tag'
+        required: false
+        default: true
+        type: boolean
       kindversion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
