@@ -218,7 +218,7 @@ jobs:
             IMGTAG=${{ steps.genoutputs.outputs.ref }}
             echo "tagWithKind is false,tag not with kind version."
           fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == true  ]];then
             echo "maketag is true3"
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
@@ -253,7 +253,7 @@ jobs:
             IMGTAG=${{ steps.genoutputs.outputs.ref }}
             echo "tagWithKind is false,tag not with kind version."
           fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == true  ]];then
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
@@ -283,7 +283,7 @@ jobs:
             IMGTAG=${{ steps.genoutputs.outputs.ref }}
             echo "tagWithKind is false,tag not with kind version."
           fi
-          if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
+          if [[ ${{ steps.genoutputs.outputs.maketag }} == true  ]];then
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
