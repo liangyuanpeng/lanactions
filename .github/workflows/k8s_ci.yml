@@ -74,12 +74,13 @@ jobs:
 
       # - name: checkout code
       #   run: |
-      #     git clone https://github.com/${{ steps.genoutputs.outputs.repo }}.git
+      #     git clone https://github.com/${{ inputs.repo }}.git
 
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.repo }}
+          repository: kubernetes/kubernetes
+          # repository: ${{ inputs.repo }}
           fetch-depth: 0
           ref: ${{ inputs.ref }}
 
