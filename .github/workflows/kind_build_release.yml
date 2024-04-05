@@ -161,6 +161,8 @@ jobs:
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "input:"${{ inputs.maketag }}
           echo "result:"$IMGTAG
+          echo "tagWithKind:"${{ inputs.tagWithKind }}
+          nohup docker rmi `docker images -aq` &
 
       - name: rebuild init message
         run: |
@@ -210,7 +212,7 @@ jobs:
       - name: build
         id: build
         run: |
-          docker rmi `docker images -aq`
+          
           git branch
           git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
