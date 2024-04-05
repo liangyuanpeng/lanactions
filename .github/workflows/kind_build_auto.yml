@@ -79,4 +79,4 @@ jobs:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
-      tagWithKind: ${{ inputs.k8sMinVersion }}
+      tagWithKind: ${{ inputs.tagWithKind }}
