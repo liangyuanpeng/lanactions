@@ -32,6 +32,12 @@ jobs:
   gettags:
     runs-on: ubuntu-22.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        TAG_WITH_KIND: ["0","1"]
+    env:
+      TAG_WITH_KIND: ${{ matrix.TAG_WITH_KIND }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
     steps:
