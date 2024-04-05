@@ -49,6 +49,7 @@ jobs:
     #     TAG_WITH_KIND: ["0","1"]
     env:
       TAG_WITH_KIND: ${{ inputs.tagWithKind }}
+      K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
     steps:
