@@ -25,7 +25,7 @@ on:
     inputs:
       ref:
         description: 'source ref of kubernetes '
-        required: true
+        required: false
         default: "master"
       repo:
         description: 'repo of kubernetes'
@@ -127,7 +127,7 @@ jobs:
       - name: run test 
         run: |
           mv _output/bin/* /usr/local/bin/
-          
+
           ginkgo --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
