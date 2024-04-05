@@ -249,6 +249,10 @@ jobs:
       - name: test
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.tagWithKind == false }} ];then 
+            IMGTAG=${{ steps.genoutputs.outputs.ref }}
+            echo "tagWithKind is false,tag not with kind version."
+          fi
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
@@ -275,6 +279,10 @@ jobs:
           oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
 
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          if [ ${{ steps.genoutputs.outputs.tagWithKind == false }} ];then 
+            IMGTAG=${{ steps.genoutputs.outputs.ref }}
+            echo "tagWithKind is false,tag not with kind version."
+          fi
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
