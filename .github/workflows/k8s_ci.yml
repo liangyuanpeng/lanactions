@@ -107,14 +107,23 @@ jobs:
 
       - name: build kind node
         run: |
-          mkdir tmp
-          cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:test --kube-root $PWD/../
-          cd ..
-          rm -rf tmp
+          IMGTAG=`git describe --tags`
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep mediaType | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
+            docker pull ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+          else 
+            mkdir tmp
+            cd tmp
+            kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  --kube-root $PWD/../
+            cd ..
+            rm -rf tmp
+            docker push ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+          fi
 
       - name: create cluster with kind 
         run: |
+          IMGTAG=`git describe --tags`
           cat <<EOF | /usr/local/bin/kind create cluster \
             --name kind           \
             -v7 --wait 1m --retain --config=-
@@ -124,11 +133,11 @@ jobs:
             ipFamily: ipv4
           nodes:
             - role: control-plane
-              image: ghcr.io/liangyuanpeng/kindest/node:test
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
             - role: worker
-              image: ghcr.io/liangyuanpeng/kindest/node:test
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
             - role: worker
-              image: ghcr.io/liangyuanpeng/kindest/node:test
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
           EOF
 
           mkdir _artifacts
