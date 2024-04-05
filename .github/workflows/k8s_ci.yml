@@ -116,7 +116,22 @@ jobs:
 
       - name: create cluster with kind 
         run: |
-          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:test
+          cat <<EOF | /usr/local/bin/kind create cluster \
+            --name ${{ env.KIND_CLUSTER_NAME}}           \
+            --image ghcr.io/liangyuanpeng/kindest/node:test  \
+            -v7 --wait 1m --retain --config=-
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          networking:
+            ipFamily: ipv4
+          nodes:
+            - role: control-plane
+            - role: worker
+              image: ghcr.io/liangyuanpeng/kindest/node:test
+            - role: worker
+              image: ghcr.io/liangyuanpeng/kindest/node:test
+          EOF
+
           mkdir _artifacts
           cp ~/.kube/config _artifacts/
           mkdir -p _artifacts/testreport
