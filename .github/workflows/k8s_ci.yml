@@ -148,7 +148,17 @@ jobs:
 
       - name: build
         run: |
-          make
+          IMGTAG=`git describe --tags`
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            mkdir -p _output
+            cd _output
+            oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
+            cd ..
+          else 
+            make
+          fi
+          
 
       - name: run test 
         run: |
