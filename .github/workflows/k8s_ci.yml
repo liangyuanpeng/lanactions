@@ -41,7 +41,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: '1.22'
 
       - uses: oras-project/setup-oras@v1
         with:
@@ -76,9 +76,66 @@ jobs:
       #   run: |
       #     git clone https://github.com/${{ steps.genoutputs.outputs.repo }}.git
 
-      - name: run ci
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo }}
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: download kind
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
-          kind create cluster
-          kubectl get po -A
+          nohup docker rmi `docker images -aq` &
+          # kind create cluster
+          # kubectl get po -A
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
+      - name: build kind node
+        run: |
+          mkdir tmp
+          cd tmp
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:test --kube-root $PWD/../
+          cd ..
+          rm -rf tmp
+
+      - name: create cluster with kind 
+        run: |
+          kind create cluster --image ghcr.io/liangyuanpeng/kindest/node:test
+          mkdir _artifacts
+          cp ~/.kube/config _artifacts/
+          mkdir -p _artifacts/testreport
+
+      - name: build
+        run: |
+          make
+
+      - name: run test 
+        run: |
+          mv _output/bin/* /usr/local/bin/
+          
+          ginkgo --nodes=25                \
+          --focus="\[Conformance\]"     \
+          --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=false                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=true
+
