@@ -165,6 +165,10 @@ jobs:
       - name: rebuild init message
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+           if [ ${{ steps.genoutputs.outputs.tagWithKind == false }} ];then 
+            IMGTAG=${{ steps.genoutputs.outputs.ref }}
+            echo "tagWithKind is false,tag not with kind version."
+          fi
           touch /tmp/result.txt
           if [[ ${{ steps.genoutputs.outputs.maketag }} ]];then
             IMGREF=`git describe --tags`
