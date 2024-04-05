@@ -110,7 +110,7 @@ jobs:
       - name: build kind node
         run: |
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          
+
           IMGTAG=`git describe --tags`
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
@@ -160,7 +160,6 @@ jobs:
           else 
             make
           fi
-          
 
       - name: run test 
         run: |
