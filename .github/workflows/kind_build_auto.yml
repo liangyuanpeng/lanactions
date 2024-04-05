@@ -23,6 +23,10 @@ on:
     branches: [ kind_build_auto ]
   workflow_dispatch:
     inputs:
+      k8sMinVersion:
+        description: 'k8sMinVersion'
+        required: false
+        default: "v1.27.0"
       tagWithKind:
         description: 'is it need to add kind version for tag'
         required: false
