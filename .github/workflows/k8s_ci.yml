@@ -152,6 +152,10 @@ jobs:
 
       - name: run test 
         run: |
+          IMGTAG=`git describe --tags`
+          cd _output 
+          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG bin
+          cd ..
           mv _output/bin/* /usr/local/bin/
 
           ginkgo --nodes=25                \
