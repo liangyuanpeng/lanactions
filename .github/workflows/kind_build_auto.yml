@@ -32,6 +32,11 @@ on:
         required: false
         default: true
         type: boolean
+      onceCount:
+        description: 'is it need to add kind version for tag'
+        required: false
+        default: 5
+        type: number
 
   schedule:
     - cron: '0 3 * * 0,6'
@@ -50,6 +55,7 @@ jobs:
     env:
       TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
+      ONCE_COUNT: ${{ inputs.onceCount }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
     steps:
