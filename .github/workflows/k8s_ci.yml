@@ -36,6 +36,8 @@ jobs:
 
   e2e:
     name: e2e
+    permissions:
+      packages: write
     runs-on: ubuntu-22.04
     steps:
 
