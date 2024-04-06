@@ -288,11 +288,11 @@ jobs:
 
       - name: run test 
         run: |
+          IMGTAG=`git describe --tags`
           mkdir -p _output/bin
           cd _output/bin
           oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
           chmod +x ./*
-          IMGTAG=`git describe --tags`
           cd ../..
           mv _output/bin/* /usr/local/bin/
 
