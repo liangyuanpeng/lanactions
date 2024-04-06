@@ -249,19 +249,19 @@ jobs:
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
 
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
+      # # Free up disk space on Ubuntu
+      # - name: Free Disk Space (Ubuntu)
+      #   uses: jlumbroso/free-disk-space@main
+      #   with:
+      #     # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+      #     tool-cache: false
+      #     # all of these default to true, but feel free to set to "false" if necessary for your workflow
+      #     android: true
+      #     dotnet: true
+      #     haskell: true
+      #     large-packages: false
+      #     docker-images: false
+      #     swap-storage: false
 
       - name: create cluster with kind 
         run: |
