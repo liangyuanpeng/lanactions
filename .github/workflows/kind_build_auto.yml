@@ -90,3 +90,4 @@ jobs:
       maketag: false
       repo: "kubernetes/kubernetes"
       tagWithKind: ${{ inputs.tagWithKind }}
+      kindversion: ${{ inputs.kindversion }}
