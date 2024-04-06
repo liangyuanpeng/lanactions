@@ -113,7 +113,6 @@ jobs:
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
-            docker pull ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
           else 
             mkdir tmp
             cd tmp
