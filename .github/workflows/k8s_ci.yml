@@ -112,7 +112,7 @@ jobs:
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
 
           IMGTAG=`git describe --tags`
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep mediaType | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
             docker pull ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
