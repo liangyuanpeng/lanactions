@@ -153,10 +153,10 @@ jobs:
           IMGTAG=`git describe --tags`
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            mkdir -p _output
-            cd _output
+            mkdir -p _output/bin
+            cd _output/bin
             oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
-            cd ..
+            cd ../..
           else 
             make
           fi
@@ -164,9 +164,10 @@ jobs:
       - name: run test 
         run: |
           IMGTAG=`git describe --tags`
-          cd _output 
-          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG bin
-          cd ..
+          cd _output/bin 
+          bins=`ls .`
+          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
+          cd ../..
           mv _output/bin/* /usr/local/bin/
 
           ginkgo --nodes=25                \
