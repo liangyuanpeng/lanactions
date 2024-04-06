@@ -156,6 +156,7 @@ jobs:
             mkdir -p _output/bin
             cd _output/bin
             oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
+            chmod +x ./*
             cd ../..
           else 
             make
