@@ -20,7 +20,7 @@
 name: k8s_ci_bak
 on:
   push:
-    branches: [ k8s_ci ]
+    branches: [ k8s_ci_bak ]
   workflow_dispatch:
     inputs:
       ref:
