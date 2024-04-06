@@ -27,6 +27,10 @@ on:
         description: 'k8sMinVersion'
         required: false
         default: "v1.27.0"
+      kindversion:
+        description: 'kindversion'
+        required: false
+        default: "v0.22.0"
       tagWithKind:
         description: 'is it need to add kind version for tag'
         required: false
