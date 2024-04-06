@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: k8s_ci
+name: k8s_ci_bak
 on:
   push:
     branches: [ k8s_ci ]
@@ -136,7 +136,6 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
@@ -175,7 +174,9 @@ jobs:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
           tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
           android: true
           dotnet: true
           haskell: true
@@ -188,35 +189,33 @@ jobs:
           IMGTAG=`git describe --tags`
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist bins"
+            echo "exist "
           else 
             make
-            cd _output/bin
-            oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
           fi
 
   e2e:
     name: e2e
-    needs:
-    - build-kind
-    - build-k8sbins
     permissions:
       packages: write
     runs-on: ubuntu-22.04
     steps:
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
+
       - name: clean
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+
       - name: make default value
         id: genoutputs
         env:
@@ -235,6 +234,10 @@ jobs:
               echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           fi
 
+      # - name: checkout code
+      #   run: |
+      #     git clone https://github.com/${{ inputs.repo }}.git
+
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -247,6 +250,8 @@ jobs:
         run: |
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+          # kind create cluster
+          # kubectl get po -A
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
@@ -261,6 +266,24 @@ jobs:
           large-packages: false
           docker-images: false
           swap-storage: false
+
+      - name: build kind node
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+
+          IMGTAG=`git describe --tags`
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
+            docker pull ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+          else 
+            mkdir tmp
+            cd tmp
+            kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  --kube-root $PWD/../
+            cd ..
+            rm -rf tmp
+            docker push ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+          fi
 
       - name: create cluster with kind 
         run: |
@@ -285,13 +308,26 @@ jobs:
           cp ~/.kube/config _artifacts/
           mkdir -p _artifacts/testreport
 
+      - name: build
+        run: |
+          IMGTAG=`git describe --tags`
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            mkdir -p _output/bin
+            cd _output/bin
+            oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
+            chmod +x ./*
+            cd ../..
+          else 
+            make
+          fi
+
       - name: run test 
         run: |
-          mkdir -p _output/bin
-          cd _output/bin
-          oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
-          chmod +x ./*
           IMGTAG=`git describe --tags`
+          cd _output/bin 
+          bins=`ls .`
+          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
           cd ../..
           mv _output/bin/* /usr/local/bin/
 
