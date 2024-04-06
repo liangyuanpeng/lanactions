@@ -51,6 +51,7 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
@@ -106,7 +107,7 @@ jobs:
 
       - name: build kind node
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          
 
           IMGTAG=`git describe --tags`
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep schemaVersion | wc -l `
