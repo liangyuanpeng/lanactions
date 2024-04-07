@@ -31,9 +31,13 @@ on:
         description: 'repo of kubernetes'
         required: false
         default: "kubernetes/kubernetes"
+      kindVersion:
+        description: 'kindVersion'
+        required: false
+        default: "v0.22.0"
 
-env:
-  KIND_VERSION: "v0.22.0"
+# env:
+#   KIND_VERSION: "v0.22.0"
 
 jobs:
 
@@ -46,6 +50,8 @@ jobs:
     permissions:
       packages: write
     runs-on: ubuntu-22.04
+    env:
+      KIND_VERSION: ${{ inputs.kindVersion }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -111,19 +117,17 @@ jobs:
 
       - name: build kind node
         run: |
-          
-
           IMGTAG=`git describe --tags`
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
           else 
             mkdir tmp
             cd tmp
-            kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG  --kube-root $PWD/../
+            kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
             cd ..
             rm -rf tmp
-            docker push ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+            docker push ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
           fi
 
   build-k8sbins:
@@ -190,14 +194,14 @@ jobs:
       - name: build
         run: |
           IMGTAG=`git describe --tags`
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$KIND_VERSION-$IMGTAG  | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist bins"
           else 
             make
             cd _output/bin
             bins=`ls .`
-            oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
+            oras push ghcr.io/liangyuanpeng/kubebins:$KIND_VERSION-$IMGTAG $bins
           fi
 
   e2e:
@@ -208,6 +212,8 @@ jobs:
     permissions:
       packages: write
     runs-on: ubuntu-22.04
+    env:
+      KIND_VERSION: ${{ inputs.kindVersion }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -279,11 +285,11 @@ jobs:
             ipFamily: ipv4
           nodes:
             - role: control-plane
-              image: ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
             - role: worker
-              image: ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
             - role: worker
-              image: ghcr.io/liangyuanpeng/kindest/testnode:$IMGTAG
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
           EOF
 
           mkdir _artifacts
@@ -295,7 +301,7 @@ jobs:
           IMGTAG=`git describe --tags`
           mkdir -p _output/bin
           cd _output/bin
-          oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
+          oras pull ghcr.io/liangyuanpeng/kubebins:$KIND_VERSION-$IMGTAG
           chmod +x ./*
           cd ../..
           mv _output/bin/* /usr/local/bin/
