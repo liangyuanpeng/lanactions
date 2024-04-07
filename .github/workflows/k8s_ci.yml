@@ -34,10 +34,10 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.22.0"
+        default: "${{ inputs.kindVersion }}"
 
 # env:
-#   KIND_VERSION: "v0.22.0"
+#   KIND_VERSION: "${{ inputs.kindVersion }}"
 
 jobs:
 
@@ -256,7 +256,7 @@ jobs:
 
       - name: download kind
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ inputs.kindVersion }}/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
 
       # # Free up disk space on Ubuntu
