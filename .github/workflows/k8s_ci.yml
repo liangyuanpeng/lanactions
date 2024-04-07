@@ -34,10 +34,10 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "${{ inputs.kindVersion }}"
+        default: "v0.22.0"
 
 # env:
-#   KIND_VERSION: "${{ inputs.kindVersion }}"
+#   KIND_VERSION: v0.22.0
 
 jobs:
 
