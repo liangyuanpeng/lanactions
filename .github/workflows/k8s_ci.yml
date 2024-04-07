@@ -196,6 +196,7 @@ jobs:
           else 
             make
             cd _output/bin
+            bins=`ls .`
             oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
           fi
 
