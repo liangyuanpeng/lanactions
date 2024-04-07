@@ -194,14 +194,14 @@ jobs:
       - name: build
         run: |
           IMGTAG=`git describe --tags`
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$KIND_VERSION-$IMGTAG  | grep mediaType | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist bins"
           else 
             make
             cd _output/bin
             bins=`ls .`
-            oras push ghcr.io/liangyuanpeng/kubebins:$KIND_VERSION-$IMGTAG $bins
+            oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
           fi
 
   e2e:
@@ -301,7 +301,7 @@ jobs:
           IMGTAG=`git describe --tags`
           mkdir -p _output/bin
           cd _output/bin
-          oras pull ghcr.io/liangyuanpeng/kubebins:$KIND_VERSION-$IMGTAG
+          oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
           chmod +x ./*
           cd ../..
           mv _output/bin/* /usr/local/bin/
