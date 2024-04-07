@@ -35,6 +35,7 @@ on:
         description: 'kindVersion'
         required: false
         default: "v0.22.0"
+      #TODO 使用Kind的master 构建kind bin
 
 # env:
 #   KIND_VERSION: v0.22.0
