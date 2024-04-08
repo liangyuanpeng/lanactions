@@ -27,14 +27,17 @@ on:
         description: 'source ref of kubernetes '
         required: false
         default: "master"
+        type: string
       repo:
         description: 'repo of kubernetes'
         required: false
         default: "kubernetes/kubernetes"
+        type: string
       kindVersion:
         description: 'kindVersion'
         required: false
         default: "v0.22.0"
+        type: string
       #TODO 使用Kind的master 构建kind bin
 
 jobs:
