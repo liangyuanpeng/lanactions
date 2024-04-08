@@ -1,0 +1,50 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: k8s_ci_call
+on:
+  push:
+    branches: [ k8s_ci_call ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref of kubernetes '
+        required: false
+        default: "master"
+      repo:
+        description: 'repo of kubernetes'
+        required: false
+        default: "kubernetes/kubernetes"
+      kindVersion:
+        description: 'kindVersion'
+        required: false
+        default: "v0.22.0"
+      #TODO 使用Kind的master 构建kind bin
+
+jobs:
+#TODO 构建k8s容器镜像
+#TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
+
+  build:
+    name: build
+    uses: ./.github/workflows/kind_build_release.yml
+    with:
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
+      kindversion: ${{ inputs.kindversion }}

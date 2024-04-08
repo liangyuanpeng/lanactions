@@ -21,7 +21,7 @@ name: k8s_ci
 on:
   push:
     branches: [ k8s_ci ]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ref:
         description: 'source ref of kubernetes '
@@ -37,11 +37,7 @@ on:
         default: "v0.22.0"
       #TODO 使用Kind的master 构建kind bin
 
-# env:
-#   KIND_VERSION: v0.22.0
-
 jobs:
-
 
 #TODO 构建k8s容器镜像
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
