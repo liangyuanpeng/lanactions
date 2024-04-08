@@ -43,7 +43,7 @@ jobs:
 
   build:
     name: build
-    uses: ./.github/workflows/kind_build_release.yml
+    uses: ./.github/workflows/k8s_ci.yml
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
