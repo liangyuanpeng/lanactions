@@ -393,9 +393,8 @@ jobs:
               image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
           EOF
 
-          mkdir _artifacts
-          cp ~/.kube/config _artifacts/
-          mkdir -p _artifacts/testreport
+          cd .. 
+          rm -rf kubernetes
 
       - name: run test 
         run: |
