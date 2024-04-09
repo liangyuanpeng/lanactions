@@ -52,6 +52,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
+    outputs:
+      imgtag: ${{ steps.build-kind-node.outputs.imgtag }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -116,8 +118,10 @@ jobs:
           swap-storage: false
 
       - name: build kind node
+        id: build-kind-node
         run: |
           IMGTAG=`git describe --tags`
+          echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
@@ -329,6 +333,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
+      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -343,31 +348,6 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
-      - name: make default value
-        id: genoutputs
-        env:
-          REF: ${{ github.event.inputs.ref }}
-          REPO: ${{ github.event.inputs.repo }}
-        run: |
-          if [ "$REF" = "" ];then
-              echo "ref=master" >> "$GITHUB_OUTPUT"
-          else
-              echo "ref=$REF" >> "$GITHUB_OUTPUT"
-          fi
-
-          if [ "$REPO" = "" ];then
-              echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
-          else
-              echo "repo=$REPO" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          # repository: ${{ inputs.repo }}
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
 
       - name: download kind
         run: |
@@ -376,7 +356,6 @@ jobs:
 
       - name: create cluster with kind 
         run: |
-          IMGTAG=`git describe --tags`
           cat <<EOF | /usr/local/bin/kind create cluster \
             --name kind           \
             -v7 --wait 1m --retain --config=-
