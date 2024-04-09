@@ -398,6 +398,7 @@ jobs:
 
       - name: run test 
         run: |
+          pwd
           git clone https://github.com/kubernetes-sigs/hydrophone.git
           cd hydrophone
           go mod tidy
