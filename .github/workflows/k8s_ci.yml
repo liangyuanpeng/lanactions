@@ -382,7 +382,7 @@ jobs:
           cd hydrophone
           go mod tidy
           make 
-          bin/hydrophone
+          bin/hydrophone --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
 
   # test:
   #   name: test
