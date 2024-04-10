@@ -323,6 +323,8 @@ jobs:
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=true
 
+          find / -name "*junit.xml"
+
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
     needs:
