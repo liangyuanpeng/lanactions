@@ -319,11 +319,13 @@ jobs:
           --                                            \
           --kubeconfig=${PWD}/_artifacts/config     \
           --provider=local                              \
-          --dump-logs-on-failure=false                  \
+          --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=true
+          --disable-log-dump=false
 
-          find / -name "*junit.xml"
+          ls _artifacts/testreport
+          # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
+          # find / -name "*junit"
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
