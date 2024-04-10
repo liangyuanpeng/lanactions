@@ -38,6 +38,11 @@ on:
         required: false
         default: "v0.22.0"
         type: string
+      hydrophone:
+        description: 'hydrophone'
+        required: false
+        default: false
+        type: boolean
       #TODO 使用Kind的master 构建kind bin
 
 jobs:
@@ -334,6 +339,7 @@ jobs:
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
+    if: ${{ inputs.hydrophone }}
     needs:
     - build-kind
     - build-k8sbins

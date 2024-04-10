@@ -31,10 +31,11 @@ on:
         description: 'repo of kubernetes'
         required: false
         default: "kubernetes/kubernetes"
-      kindVersion:
-        description: 'kindVersion'
+      hydrophone:
+        description: 'hydrophone'
         required: false
-        default: "v0.22.0"
+        default: false
+        type: boolean
       #TODO 使用Kind的master 构建kind bin
 
 jobs:
@@ -48,3 +49,4 @@ jobs:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
       kindversion: ${{ inputs.kindversion }}
+      hydrophone: ${{ inputs.hydrophone }}
