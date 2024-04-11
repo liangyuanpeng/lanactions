@@ -399,8 +399,8 @@ jobs:
           go mod tidy
           make 
           #bin/hydrophone --conformance --parallel 25 --focus sig-apps --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
-          #bin/hydrophone --conformance --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
-          bin/hydrophone --conformance --parallel 25
+          bin/hydrophone --conformance --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+          #bin/hydrophone --conformance --parallel 25
           # see report 
           ls
 
