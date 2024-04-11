@@ -398,7 +398,7 @@ jobs:
           cd hydrophone
           go mod tidy
           make 
-          bin/hydrophone --parallel 25 --focus sig-apps --cleanup --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+          bin/hydrophone --conformance --parallel 25 --focus sig-apps --cleanup --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
           # see report 
           ls
 
