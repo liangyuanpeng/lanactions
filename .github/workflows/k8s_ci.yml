@@ -339,6 +339,7 @@ jobs:
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
+    timeout-minutes: 60
     if: ${{ inputs.hydrophone }}
     needs:
     - build-kind
