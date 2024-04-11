@@ -154,6 +154,7 @@ jobs:
       - name: clean
         run: |
           kind version
+          which kind
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
