@@ -400,7 +400,7 @@ jobs:
           make 
           #bin/hydrophone --conformance --parallel 25 --focus sig-apps --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
           export EXTRA_ARGS="--parallel=25"
-          bin/hydrophone --conformance --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+          bin/hydrophone --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
           #bin/hydrophone --conformance --parallel 25
           #bin/hydrophone --parallel 25 --focus sig-apps
           # see report 
