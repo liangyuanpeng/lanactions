@@ -153,6 +153,7 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
+          kind version
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
@@ -372,7 +373,6 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
-          kind version
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
