@@ -340,6 +340,7 @@ jobs:
       - name: export logs
         if: always()
         run: |
+          kubectl get pod -A
           kind export logs /tmp/kind
 
       - name: upload kind logs
