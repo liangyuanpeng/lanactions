@@ -21,6 +21,8 @@ name: k8s_ci_call
 on:
   push:
     branches: [ k8s_ci_call ]
+  schedule:
+    - cron: '0 3 * * 0,6'
   workflow_dispatch:
     inputs:
       ref:
