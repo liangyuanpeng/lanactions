@@ -372,6 +372,7 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
+          kind version
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
@@ -423,6 +424,7 @@ jobs:
           # hydrophone --conformance --parallel 25
           # hydrophone --parallel 25 --focus sig-apps
           # see report 
+          # hydrophone --parallel 25  --focus=\[StatefulSetBasic\]
           ls
 
       - name: export logs
