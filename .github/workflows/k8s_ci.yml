@@ -334,8 +334,20 @@ jobs:
 
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         with:
-          name: testreport
+          name: kind_testreport
           path: _artifacts/testreport
+
+      - name: export logs
+        if: always()
+        run: |
+          kind export logs /tmp/kind
+
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kind_test_${{ needs.build-kind.outputs.imgtag }}
+          path: /tmp/kind/
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
@@ -410,6 +422,18 @@ jobs:
           # hydrophone --parallel 25 --focus sig-apps
           # see report 
           ls
+
+      - name: export logs
+        if: always()
+        run: |
+          kind export logs /tmp/kind
+
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kind_test_hydrophone_${{ needs.build-kind.outputs.imgtag }}
+          path: /tmp/kind/
 
   # test:
   #   name: test
