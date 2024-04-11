@@ -50,6 +50,7 @@ jobs:
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 
   build:
+  #TODO push的话跳过,无法使用 inputs 参数, push的话加一个job手动传递参数
     name: build
     uses: ./.github/workflows/k8s_ci.yml
     with:
