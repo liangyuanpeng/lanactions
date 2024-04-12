@@ -41,6 +41,9 @@ jobs:
       packages: write
     steps:
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -74,6 +77,7 @@ jobs:
       - name: checkimgs
         id: checkimgs
         run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
           echo "check images for "$IMGTAG
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG  | grep schemaVersion | wc -l `
@@ -87,7 +91,6 @@ jobs:
       - name: make
         if: steps.checkimgs.outputs.exist == 'true'
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
 
           #export KUBE_DOCKER_REGISTRY=ghcr.io
           #export IMGTAG="v1.27.4-patch"
