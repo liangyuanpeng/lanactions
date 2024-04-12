@@ -412,7 +412,7 @@ jobs:
           # watch kubectl get pod -A
           # hydrophone --conformance --parallel 25 --focus sig-apps --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
           export EXTRA_ARGS="--parallel=25"
-          hydrophone --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+          hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
           # hydrophone --conformance --parallel 25
           # hydrophone --parallel 25 --focus sig-apps
           # see report 
