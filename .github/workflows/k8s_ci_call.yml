@@ -62,6 +62,6 @@ jobs:
   buildk8s:
     name: buildk8s
     uses: ./.github/workflows/kubernetes_build.yml
-    # with:
-    #   repo: ${{ inputs.repo }}
-    #   ref: ${{ inputs.ref }}
+    with:
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
