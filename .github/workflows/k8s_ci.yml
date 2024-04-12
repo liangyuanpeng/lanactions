@@ -277,7 +277,6 @@ jobs:
 
       - name: create cluster with kind 
         run: |
-          IMGTAG=`git describe --tags`
           cat <<EOF | /usr/local/bin/kind create cluster \
             --name kind           \
             -v7 --wait 1m --retain --config=-
