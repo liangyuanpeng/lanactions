@@ -58,3 +58,10 @@ jobs:
       ref: ${{ inputs.ref }}
       kindversion: ${{ inputs.kindversion }}
       hydrophone: ${{ inputs.hydrophone }}
+
+  buildk8s:
+    name: buildk8s
+    uses: ./.github/workflows/kubernetes_build.yml
+    # with:
+    #   repo: ${{ inputs.repo }}
+    #   ref: ${{ inputs.ref }}
