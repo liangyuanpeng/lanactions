@@ -73,7 +73,7 @@ jobs:
 
       - name: make
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
 
           #export KUBE_DOCKER_REGISTRY=ghcr.io
           #export IMGTAG="v1.27.4-patch"
