@@ -46,13 +46,13 @@ jobs:
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
+          tool-cache: true
           # all of these default to true, but feel free to set to "false" if necessary for your workflow
           android: true
           dotnet: true
           haskell: true
           large-packages: false
-          docker-images: false
+          docker-images: true
           swap-storage: false
 
       - name: checkoutactions
@@ -83,7 +83,8 @@ jobs:
           echo "begin make"
           
           #make quick-release-images
-          make release-images KUBE_BUILD_CONFORMANCE=y
+          #make release-images KUBE_BUILD_CONFORMANCE=y
+          make quick-release-images KUBE_BUILD_CONFORMANCE=y
           docker images
           ls _output
           echo "======================="
