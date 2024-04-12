@@ -27,89 +27,17 @@ on:
         description: 'source ref of kubernetes '
         required: false
         default: "master"
+        type: string
       repo:
         description: 'kubernetes/kubernetes'
         required: false
         default: "kubernetes/kubernetes"
+        type: string
 
 jobs:
-
-  release:
-    name: release
-    runs-on: ubuntu-22.04
-    permissions:
-      packages: write
-    steps:
-
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
-
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-#          repository: liangyuanpeng/kubernetes
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-#          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
-#          ref: dev_1.28
-          ref: master
-
-      - name: git tag
-        run: |
-          echo "do git tag"
-          #git tag v1.27.4-patch
-          nohup docker rmi `docker images -aq` &
-
-      - name: make
-        run: |
-          export KUBE_DOCKER_REGISTRY=ghcr.io
-          #export VERSION="v1.27.4-patch"
-          export VERSION=`git describe`
-          git tag `git describe`
-          echo "begin make"
-          #make quick-release-images
-          make release-images
-          docker images
-          ls _output
-          echo "======================="
-          ls _output/release-images
-          echo "======================="
-          ls _output/images
-          echo "======================="
-          tree _output
-          echo "======================="
-          rm -rf _output/dockerized
-          rm -rf _output/release-stage
-          # docker load -i _output/release-images/amd64/kube-apiserver.tar
-          # rm -f _output/release-images/amd64/kube-apiserver.tar
-          # docker load -i _output/release-images/amd64/kube-controller-manager.tar
-          # rm -f _output/release-images/amd64/kube-controller-manager.tar
-          # docker load -i _output/release-images/amd64/kube-proxy.tar
-          # rm -f _output/release-images/amd64/kube-proxy.tar
-          # docker load -i _output/release-images/amd64/kube-scheduler.tar
-          # rm -f _output/release-images/amd64/kube-scheduler.tar
-          # docker images
-          # docker tag registry.k8s.io/kube-apiserver-amd64:$VERSION ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
-          # docker tag registry.k8s.io/kube-controller-manager-amd64:$VERSION ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
-          # docker tag registry.k8s.io/kube-proxy-amd64:$VERSION ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
-          # docker tag registry.k8s.io/kube-scheduler-amd64:$VERSION ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
-          # docker login ghcr.io -uliangyuanpeng -p${{ secrets.GH_PACKAGE_TOKEN }}
-          # docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$VERSION
-          # docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$VERSION
-          # docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$VERSION
-          # docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$VERSION
-
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
+  buildk8s:
+    name: buildk8s
+    uses: ./.github/workflows/kubernetes_build.yml
+    # with:
+    #   repo: ${{ inputs.repo }}
+    #   ref: ${{ inputs.ref }}
