@@ -44,7 +44,7 @@ jobs:
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
-      # Free up disk space on Ubuntu
+
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -87,7 +87,7 @@ jobs:
           fi
 
       - name: make
-        if: steps.checkimgs.outputs.exist == 'true'
+        if: steps.checkimgs.outputs.exist != 'true'
         run: |
 
           #export KUBE_DOCKER_REGISTRY=ghcr.io
