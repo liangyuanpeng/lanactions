@@ -153,8 +153,6 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
-          kind version
-          which kind
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
@@ -225,6 +223,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
+      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -256,14 +255,6 @@ jobs:
           else
               echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          # repository: ${{ inputs.repo }}
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
 
       - name: download kind
         run: |
@@ -307,9 +298,8 @@ jobs:
           cp ~/.kube/config _artifacts/
           mkdir -p _artifacts/testreport
 
-      - name: run test 
+      - name: download bins
         run: |
-          IMGTAG=`git describe --tags`
           mkdir -p _output/bin
           cd _output/bin
           oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
@@ -317,8 +307,9 @@ jobs:
           cd ../..
           mv _output/bin/* /usr/local/bin/
 
+      - name: run test 
+        run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
-
           ginkgo --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
