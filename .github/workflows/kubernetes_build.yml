@@ -71,7 +71,21 @@ jobs:
           #git tag v1.27.4-patch
           nohup docker rmi `docker images -aq` &
 
+      - name: checkimgs
+        id: checkimgs
+        run: |
+          IMGTAG=`git describe --tags`
+          echo "check images for "$IMGTAG
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist kubeimgs"
+            echo "exist=true" >> "$GITHUB_OUTPUT"
+          else 
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: make
+        if: steps.checkimgs.outputs.exist == 'true'
         run: |
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
 
@@ -103,30 +117,26 @@ jobs:
           rm -rf _output/dockerized
           rm -rf _output/release-stage
 
-          # docker load -i _output/release-images/amd64/kube-apiserver.tar
-          # rm -f _output/release-images/amd64/kube-apiserver.tar
-          # docker load -i _output/release-images/amd64/kube-controller-manager.tar
-          # rm -f _output/release-images/amd64/kube-controller-manager.tar
-          # docker load -i _output/release-images/amd64/kube-proxy.tar
-          # rm -f _output/release-images/amd64/kube-proxy.tar
-          # docker load -i _output/release-images/amd64/kube-scheduler.tar
-          # rm -f _output/release-images/amd64/kube-scheduler.tar
+          docker load -i _output/release-images/amd64/kube-apiserver.tar
+          rm -f _output/release-images/amd64/kube-apiserver.tar
+          docker load -i _output/release-images/amd64/kube-controller-manager.tar
+          rm -f _output/release-images/amd64/kube-controller-manager.tar
+          docker load -i _output/release-images/amd64/kube-proxy.tar
+          rm -f _output/release-images/amd64/kube-proxy.tar
+          docker load -i _output/release-images/amd64/kube-scheduler.tar
+          rm -f _output/release-images/amd64/kube-scheduler.tar
           docker load -i _output/release-images/amd64/conformance-amd64.tar
           rm -f _output/release-images/amd64/conformance-amd64.tar
           
           docker images
-          # docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-apiserver-amd64:$IMGTAG
-          # docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$IMGTAG
-          # docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
-          # docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-apiserver-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
           docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG
           
-          # docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$IMGTAG
-          # docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$IMGTAG
-          # docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
-          # docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
+          docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$IMGTAG
+          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$IMGTAG
+          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
+          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
           docker push ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG
-
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
