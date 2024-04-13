@@ -309,6 +309,8 @@ jobs:
             -v7 --wait 1m --retain --config=-
           kind: Cluster
           apiVersion: kind.x-k8s.io/v1alpha4
+          featureGates:
+            "AllAlpha": true
           networking:
             ipFamily: ipv4
           nodes:
@@ -371,7 +373,7 @@ jobs:
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
-    timeout-minutes: 45
+    timeout-minutes: 60
     if: ${{ inputs.hydrophone }}
     needs:
     - build-kind
@@ -383,8 +385,9 @@ jobs:
       fail-fast: false
       matrix:
         tests:
-        - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
-        -  hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+        # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
+        - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.3 --parallel 25  --focus=\[Feature:StatefulSet\]
+        - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.3 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
@@ -415,6 +418,8 @@ jobs:
             -v7 --wait 1m --retain --config=-
           kind: Cluster
           apiVersion: kind.x-k8s.io/v1alpha4
+          featureGates:
+            "AllAlpha": true
           networking:
             ipFamily: ipv4
           nodes:
