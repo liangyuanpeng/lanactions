@@ -40,7 +40,7 @@ cat kind-ci.yaml
 
 /usr/local/bin/kind create cluster \
 --name kind           \
--v7 --wait 1m --retain --config=kind-ci.yaml
+-v7 --wait 4m --retain --config=kind-ci.yaml
 
 mkdir _artifacts
 cp ~/.kube/config _artifacts/
