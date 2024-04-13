@@ -60,8 +60,8 @@ jobs:
         uses: actions/checkout@v4
         with:
 #          repository: liangyuanpeng/kubernetes
-          # repository: kubernetes/kubernetes
-          repository: ${{ inputs.repo }}
+          repository: kubernetes/kubernetes
+          # repository: ${{ inputs.repo }}
           fetch-depth: 0
 #          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
 #          ref: dev_1.28
