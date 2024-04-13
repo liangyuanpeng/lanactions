@@ -63,7 +63,7 @@ jobs:
       TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
-      KIND_VERSION: ${{ inputs.kindversion }}
+      KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
     steps:
