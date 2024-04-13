@@ -28,8 +28,8 @@ on:
         required: false
         default: "v1.27.0"
         type: string
-      kindversion:
-        description: 'kindversion'
+      kindVersion:
+        description: 'kindVersion'
         required: false
         default: "v0.22.0"
         type: string
@@ -93,4 +93,4 @@ jobs:
       maketag: false
       repo: "kubernetes/kubernetes"
       tagWithKind: ${{ inputs.tagWithKind }}
-      kindversion: ${{ inputs.kindversion }}
+      kindVersion: ${{ inputs.kindVersion }}

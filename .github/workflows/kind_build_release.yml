@@ -43,7 +43,7 @@ on:
         required: false
         default: true
         type: boolean
-      kindversion:
+      kindVersion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
         default: "v0.22.0"
@@ -101,7 +101,7 @@ jobs:
       - name: make default value
         id: genoutputs
         env:
-          KINDVERSION: ${{ inputs.kindversion }}
+          KINDVERSION: ${{ inputs.kindVersion }}
           REF: ${{ inputs.ref }}
           MAKETAG: ${{ inputs.maketag }}
         run: |
