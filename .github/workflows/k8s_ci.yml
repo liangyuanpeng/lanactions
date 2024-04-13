@@ -356,7 +356,7 @@ jobs:
           mv _output/bin/* /usr/local/bin/
 
       - name: run conformance test 
-        if: ${{ matrix.tests = "conformance" }}
+        if: matrix.tests == "conformance"
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
           #TODO 测试 StatefulSet
@@ -376,7 +376,7 @@ jobs:
           # find / -name "*junit"
 
       - name: run statefulset test 
-        if: ${{ matrix.tests = "conformance" }}
+        if: matrix.tests == "statefulset"
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
           #TODO 测试 StatefulSet
