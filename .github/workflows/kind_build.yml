@@ -41,7 +41,7 @@ on:
         required: false
         default: true
         type: boolean
-      kindversion:
+      kindVersion:
         description: 'version of kind,v0.20.0 by default.'
         required: false
         default: "v0.22.0"
@@ -69,7 +69,7 @@ jobs:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
       maketag: ${{ inputs.maketag }}
-      kindversion: ${{ inputs.kindversion }}
+      kindVersion: ${{ inputs.kindVersion }}
       # triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
       # triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
       # discussionId: ${{ inputs.discussionId }}
