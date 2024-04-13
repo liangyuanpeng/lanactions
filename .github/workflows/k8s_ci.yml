@@ -260,12 +260,18 @@ jobs:
         - etcd-master
         - etcd-release3.5
         - xline
+        storageMediaType: 
+        - application/vnd.kubernetes.protobuf
+        - application/json
+        # - application/vnd.kubernetes.protobuf
+        # - TODO CBOR
     runs-on: ubuntu-22.04
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
       TEST_WHAT: ${{ matrix.tests }}
       WHICH_ETCD: ${{ matrix.etcd }}
+      STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
     steps:
       - uses: actions/setup-go@v5
         with:

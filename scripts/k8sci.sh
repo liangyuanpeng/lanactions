@@ -6,6 +6,7 @@ set -o nounset;
 
 KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
 IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
+STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"application/json"}
 
 cat <<EOF> kind-ci.yaml
 kind: Cluster
@@ -29,7 +30,7 @@ nodes:
     apiServer:
       extraArgs:
         runtime-config: api/all=true 
-        storage-media-type: application/json
+        storage-media-type: $STORAGE_MEDIA_TYPE
 - role: worker
   image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
 - role: worker
