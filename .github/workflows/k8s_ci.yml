@@ -346,6 +346,12 @@ jobs:
       #     cp ~/.kube/config _artifacts/
       #     mkdir -p _artifacts/testreport
 
+      - name: waiting for cluster ready 
+        run: |
+          kubectl get nodes -o wide
+          kubectl get pods -A
+          kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
+
       - name: download bins
         run: |
           mkdir -p _output/bin
@@ -488,6 +494,12 @@ jobs:
 
           cd .. 
           rm -rf kubernetes
+
+      - name: waiting for cluster ready 
+        run: |
+          kubectl get nodes -o wide
+          kubectl get pods -A
+          kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
 
       - name: build hydrophone
         run: |
