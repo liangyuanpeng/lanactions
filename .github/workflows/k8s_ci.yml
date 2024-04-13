@@ -91,9 +91,9 @@ jobs:
         run: |
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
-          echo "check images for ghcr.io/kindest/testnode:"$KIND_VERSION-$IMGTAG
+          echo "check images for ghcr.io/liangyuanpeng/kindest/testnode:"$KIND_VERSION-$IMGTAG
 
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist testnode"
             echo "exist=true" >> "$GITHUB_OUTPUT"
@@ -130,13 +130,13 @@ jobs:
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
+          tool-cache: true
           # all of these default to true, but feel free to set to "false" if necessary for your workflow
           android: true
           dotnet: true
           haskell: true
           large-packages: false
-          docker-images: false
+          docker-images: true
           swap-storage: false
 
       - name: build kind node
@@ -145,7 +145,6 @@ jobs:
         run: |
           IMGTAG=`git describe --tags`
           echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
           mkdir -p tmp
           cd tmp
           kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
