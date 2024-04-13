@@ -248,6 +248,12 @@ jobs:
     - build-k8sbins
     permissions:
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+        - conformance
+        - statefulset
     runs-on: ubuntu-22.04
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
@@ -349,13 +355,33 @@ jobs:
           cd ../..
           mv _output/bin/* /usr/local/bin/
 
-      - name: run test 
+      - name: run conformance test 
+        if: ${{ matrix.tests == "conformance" }}
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
           #TODO 测试 StatefulSet
           ginkgo --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+
+          ls _artifacts/testreport
+          # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
+          # find / -name "*junit"
+
+      - name: run statefulset test 
+        if: ${{ matrix.tests == "conformance" }}
+        run: |
+          #TODO 进行更多测试,例如 alpha,beta 功能测试
+          #TODO 测试 StatefulSet
+          ginkgo --nodes=25                \
+          --focus="\[Feature:StatefulSet\]"     \
           /usr/local/bin/e2e.test                       \
           --                                            \
           --kubeconfig=${PWD}/_artifacts/config     \
