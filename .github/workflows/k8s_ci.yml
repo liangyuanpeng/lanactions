@@ -316,11 +316,20 @@ jobs:
             "DisableCloudProviders": true
             "DisableKubeletCloudCredentialProviders": true
             "EventedPLEG": false
+            "StorageVersionAPI": false
+            "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
           networking:
             ipFamily: ipv4
           nodes:
             - role: control-plane
               image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+              kubeadmConfigPatches:
+              - |
+                kind: ClusterConfiguration
+                apiServer:
+                  extraArgs:
+                    runtime-config: api/all=true 
+                    storage-media-type: application/json
             - role: worker
               image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
             - role: worker
@@ -425,18 +434,25 @@ jobs:
           kind: Cluster
           apiVersion: kind.x-k8s.io/v1alpha4
           featureGates:
-            # test-infra/config/jobs/kubernetes/generated/generated.yaml 
-            # ci-kubernetes-e2e-gce-cos-k8sbeta-alphafeatures
             "AllAlpha": true
             "InTreePluginGCEUnregister": false
             "DisableCloudProviders": true
             "DisableKubeletCloudCredentialProviders": true
             "EventedPLEG": false
+            "StorageVersionAPI": false
+            "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
           networking:
             ipFamily: ipv4
           nodes:
             - role: control-plane
               image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+              kubeadmConfigPatches:
+              - |
+                kind: ClusterConfiguration
+                apiServer:
+                  extraArgs:
+                    runtime-config: api/all=true 
+                    storage-media-type: application/json
             - role: worker
               image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
             - role: worker
