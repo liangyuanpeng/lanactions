@@ -41,7 +41,7 @@ on:
       hydrophone:
         description: 'hydrophone'
         required: false
-        default: false
+        default: true
         type: boolean
       #TODO 使用Kind的master 构建kind bin
 
