@@ -45,7 +45,8 @@ on:
         type: number
 
   schedule:
-    - cron: '0 3 * * 0,6'
+    - cron: '0 3 * * 0,1,2,3,4,5,6'
+    # - cron: '0 3 * * 0,6'
     # - cron: '0 */1 * * *'
 
 
@@ -74,9 +75,12 @@ jobs:
         run: |
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
-          ./gher
-          list=$(./gher | jq .tags | jq -c )
+          ./gher > tags.json
+          list=$(cat tags.json | jq .tags | jq -c )
+          tagslength=$(cat tags.json | jq '.tags | length' )
           echo "list:"${list}
+          echo "tagslength:"${tagslength}
+          echo "tagslength=${tagslength}" >> "$GITHUB_OUTPUT"
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
           # echo "::set-output name=ref::${list} "  
 
@@ -84,6 +88,7 @@ jobs:
     needs:
     - gettags
     uses: ./.github/workflows/kind_build_release.yml
+    if: ${{ fromJson(needs.gettags.outputs.tagslength > 0 ) }}
     strategy:
       fail-fast: false
       matrix:
