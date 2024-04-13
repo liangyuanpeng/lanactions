@@ -60,19 +60,6 @@ jobs:
     outputs:
       imgtag: ${{ steps.build-kind-node.outputs.imgtag }}
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-      - name: clean
-        run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          nohup docker rmi `docker images -aq` &
-          rm -rf /opt/hostedtoolcache/CodeQL
-          rm -rf /opt/hostedtoolcache/node
-          rm -rf /opt/hostedtoolcache/Python
       - name: make default value
         id: genoutputs
         env:
@@ -91,10 +78,6 @@ jobs:
               echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           fi
 
-      # - name: checkout code
-      #   run: |
-      #     git clone https://github.com/${{ inputs.repo }}.git
-
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -103,13 +86,47 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.ref }}
 
+      - name: checkimgs
+        id: checkimgs
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          IMGTAG=`git describe --tags`
+          echo "check images for ghcr.io/kindest/testnode:"$KIND_VERSION-$IMGTAG
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist testnode"
+            echo "exist=true" >> "$GITHUB_OUTPUT"
+          else 
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-go@v5
+        if: steps.checkimgs.outputs.exist != 'true'
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        if: steps.checkimgs.outputs.exist != 'true'
+        with:
+          version: 1.0.0
+      - name: clean
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          nohup docker rmi `docker images -aq` &
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/node
+          rm -rf /opt/hostedtoolcache/Python
+
       - name: download kind
+        if: steps.checkimgs.outputs.exist != 'true'
         run: |
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
+        if: steps.checkimgs.outputs.exist != 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -124,20 +141,17 @@ jobs:
 
       - name: build kind node
         id: build-kind-node
+        if: steps.checkimgs.outputs.exist != 'true'
         run: |
           IMGTAG=`git describe --tags`
           echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
-          if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "this ID have info:$IMAGE_REGISTRY/$IMAGE:$tag"
-          else 
-            mkdir tmp
-            cd tmp
-            kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
-            cd ..
-            rm -rf tmp
-            docker push ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-          fi
+          mkdir -p tmp
+          cd tmp
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
+          cd ..
+          rm -rf tmp
+          docker push ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
 
   build-k8sbins:
     name: build-k8sbins
@@ -145,19 +159,7 @@ jobs:
       packages: write
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-      - name: clean
-        run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          nohup docker rmi `docker images -aq` &
-          rm -rf /opt/hostedtoolcache/CodeQL
-          rm -rf /opt/hostedtoolcache/node
-          rm -rf /opt/hostedtoolcache/Python
+
       - name: make default value
         id: genoutputs
         env:
@@ -176,10 +178,6 @@ jobs:
               echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           fi
 
-      # - name: checkout code
-      #   run: |
-      #     git clone https://github.com/${{ inputs.repo }}.git
-
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -188,8 +186,41 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.ref }}
 
+      - name: checkimgs
+        id: checkimgs
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          IMGTAG=`git describe --tags`
+          echo "check images for ghcr.io/liangyuanpeng/kubebins:"$IMGTAG
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG | grep mediaType | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist testnode"
+            echo "exist=true" >> "$GITHUB_OUTPUT"
+          else 
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-go@v5
+        if: steps.checkimgs.outputs.exist != 'true'
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        if: steps.checkimgs.outputs.exist != 'true'
+        with:
+          version: 1.0.0
+      - name: clean
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          nohup docker rmi `docker images -aq` &
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/node
+          rm -rf /opt/hostedtoolcache/Python
+
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
+        if: steps.checkimgs.outputs.exist != 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           tool-cache: false
@@ -201,17 +232,14 @@ jobs:
           swap-storage: false
 
       - name: build
+        if: steps.checkimgs.outputs.exist != 'true'
         run: |
           IMGTAG=`git describe --tags`
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG  | grep mediaType | wc -l `
-          if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist bins"
-          else 
-            make
-            cd _output/bin
-            bins=`ls .`
-            oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
-          fi
+          
+          make
+          cd _output/bin
+          bins=`ls .`
+          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
 
   e2e:
     name: e2e
