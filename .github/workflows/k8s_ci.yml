@@ -58,7 +58,7 @@ jobs:
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
-      imgtag: ${{ steps.build-kind-node.outputs.imgtag }}
+      imgtag: ${{ steps.checkimgs.outputs.imgtag }}
     steps:
       - name: make default value
         id: genoutputs
@@ -91,6 +91,7 @@ jobs:
         run: |
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
+          echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
           echo "check images for ghcr.io/liangyuanpeng/kindest/testnode:"$KIND_VERSION-$IMGTAG
 
           IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
@@ -144,7 +145,6 @@ jobs:
         if: steps.checkimgs.outputs.exist != 'true'
         run: |
           IMGTAG=`git describe --tags`
-          echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
           mkdir -p tmp
           cd tmp
           kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
