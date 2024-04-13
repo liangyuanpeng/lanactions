@@ -241,6 +241,7 @@ jobs:
           oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
 
   e2e:
+  #TODO 序列化存储测试 STORAGE_MEDIA_TYPE=application/vnd.kubernetes.protobuf
     name: e2e
     needs:
     - build-kind
@@ -311,6 +312,10 @@ jobs:
           apiVersion: kind.x-k8s.io/v1alpha4
           featureGates:
             "AllAlpha": true
+            "InTreePluginGCEUnregister": false
+            "DisableCloudProviders": true
+            "DisableKubeletCloudCredentialProviders": true
+            "EventedPLEG": false
           networking:
             ipFamily: ipv4
           nodes:
@@ -420,7 +425,13 @@ jobs:
           kind: Cluster
           apiVersion: kind.x-k8s.io/v1alpha4
           featureGates:
+            # test-infra/config/jobs/kubernetes/generated/generated.yaml 
+            # ci-kubernetes-e2e-gce-cos-k8sbeta-alphafeatures
             "AllAlpha": true
+            "InTreePluginGCEUnregister": false
+            "DisableCloudProviders": true
+            "DisableKubeletCloudCredentialProviders": true
+            "EventedPLEG": false
           networking:
             ipFamily: ipv4
           nodes:
