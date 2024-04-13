@@ -410,7 +410,7 @@ jobs:
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: kind_testreport_$JOB_NAME
+          name: kind_testreport_${{ env.JOB_NAME }}
           path: _artifacts/testreport
 
       - name: export logs
@@ -423,7 +423,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kind_test_$JOB_NAME
+          name: kind_test_${{ env.JOB_NAME }}
           path: /tmp/kind/
 
   e2e-with-hydrophone:
