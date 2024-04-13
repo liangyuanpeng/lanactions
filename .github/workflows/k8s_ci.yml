@@ -264,6 +264,8 @@ jobs:
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+      TEST_WHAT: ${{ matrix.tests }}
+      WHICH_ETCD: ${{ matrix.etcd }}
     steps:
       - uses: actions/setup-go@v5
         with:
