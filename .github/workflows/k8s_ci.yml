@@ -395,6 +395,7 @@ jobs:
           # find / -name "*junit"
 
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
         with:
           name: kind_testreport
           path: _artifacts/testreport
@@ -521,6 +522,7 @@ jobs:
           kubectl get pod -A
 
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
         with:
           name: hydrophone_testreport
           path: _artifacts/testreport
