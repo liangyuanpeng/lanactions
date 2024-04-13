@@ -42,6 +42,6 @@ cat kind-ci.yaml
 --name kind           \
 -v7 --wait 4m --retain --config=kind-ci.yaml
 
-mkdir _artifacts
+mkdir -p _artifacts
 cp ~/.kube/config _artifacts/
 mkdir -p _artifacts/testreport
