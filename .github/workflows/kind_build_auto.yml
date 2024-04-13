@@ -88,7 +88,7 @@ jobs:
     needs:
     - gettags
     uses: ./.github/workflows/kind_build_release.yml
-    if: ${{ fromJson(needs.gettags.outputs.tagslength > 0 ) }}
+    if: ${{ needs.gettags.outputs.tagslength > 0 }}
     strategy:
       fail-fast: false
       matrix:
