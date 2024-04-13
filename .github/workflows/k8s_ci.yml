@@ -338,6 +338,7 @@ jobs:
       - name: run test 
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
+          #TODO 测试 StatefulSet
           ginkgo --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
