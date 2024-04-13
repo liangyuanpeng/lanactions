@@ -242,6 +242,7 @@ jobs:
 
   e2e:
   #TODO 序列化存储测试 STORAGE_MEDIA_TYPE=application/vnd.kubernetes.protobuf
+  #TODO 添加etcd 外部支持 1. 使用kubeadm内置部署的etcd 2. 从etcd master/release-3.5 源码进行构建 3. 从xline master 源码进行构建
     name: e2e
     needs:
     - build-kind
@@ -254,6 +255,11 @@ jobs:
         tests:
         - conformance
         - statefulset
+        etcd: 
+        - build-in 
+        - etcd-master
+        - etcd-release3.5
+        - xline
     runs-on: ubuntu-22.04
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
@@ -295,56 +301,48 @@ jobs:
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ inputs.kindVersion }}/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
 
-      # # Free up disk space on Ubuntu
-      # - name: Free Disk Space (Ubuntu)
-      #   uses: jlumbroso/free-disk-space@main
-      #   with:
-      #     # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-      #     tool-cache: false
-      #     # all of these default to true, but feel free to set to "false" if necessary for your workflow
-      #     android: true
-      #     dotnet: true
-      #     haskell: true
-      #     large-packages: false
-      #     docker-images: false
-      #     swap-storage: false
-
-      - name: create cluster with kind 
+      - name: create kubernetes cluster
         run: |
-          cat <<EOF | /usr/local/bin/kind create cluster \
-            --name kind           \
-            -v7 --wait 1m --retain --config=-
-          kind: Cluster
-          apiVersion: kind.x-k8s.io/v1alpha4
-          featureGates:
-            "AllAlpha": true
-            "InTreePluginGCEUnregister": false
-            "DisableCloudProviders": true
-            "DisableKubeletCloudCredentialProviders": true
-            "EventedPLEG": false
-            "StorageVersionAPI": false
-            "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
-          networking:
-            ipFamily: ipv4
-          nodes:
-            - role: control-plane
-              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-              kubeadmConfigPatches:
-              - |
-                kind: ClusterConfiguration
-                apiServer:
-                  extraArgs:
-                    runtime-config: api/all=true 
-                    storage-media-type: application/json
-            - role: worker
-              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-            - role: worker
-              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-          EOF
+          oras pull ghcr.io/liangyuanpeng/files:k8scish
+          chmod +x k8sci.sh 
+          ./k8sci.sh
 
-          mkdir _artifacts
-          cp ~/.kube/config _artifacts/
-          mkdir -p _artifacts/testreport
+      # - name: create cluster with kind 
+      #   run: |
+      #     cat <<EOF | /usr/local/bin/kind create cluster \
+      #       --name kind           \
+      #       -v7 --wait 1m --retain --config=-
+      #     kind: Cluster
+      #     apiVersion: kind.x-k8s.io/v1alpha4
+      #     featureGates:
+      #       "AllAlpha": true
+      #       "InTreePluginGCEUnregister": false
+      #       "DisableCloudProviders": true
+      #       "DisableKubeletCloudCredentialProviders": true
+      #       "EventedPLEG": false
+      #       "StorageVersionAPI": false
+      #       "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+      #     networking:
+      #       ipFamily: ipv4
+      #     nodes:
+      #       - role: control-plane
+      #         image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+      #         kubeadmConfigPatches:
+      #         - |
+      #           kind: ClusterConfiguration
+      #           apiServer:
+      #             extraArgs:
+      #               runtime-config: api/all=true 
+      #               storage-media-type: application/json
+      #       - role: worker
+      #         image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+      #       - role: worker
+      #         image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+      #     EOF
+
+      #     mkdir _artifacts
+      #     cp ~/.kube/config _artifacts/
+      #     mkdir -p _artifacts/testreport
 
       - name: download bins
         run: |
