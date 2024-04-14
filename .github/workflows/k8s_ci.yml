@@ -249,7 +249,7 @@ jobs:
     permissions:
       packages: write
     strategy:
-      max-parallel: 6
+      max-parallel: 3
       fail-fast: false
       matrix:
         tests:
@@ -384,6 +384,9 @@ jobs:
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false
 
+      - name: print result 
+        run: |
+          ls
           ls _artifacts/testreport
           # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
           # find / -name "*junit"
