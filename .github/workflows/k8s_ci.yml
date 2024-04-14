@@ -314,7 +314,7 @@ jobs:
         run: |
           oras pull ghcr.io/liangyuanpeng/files:k8scish
           chmod +x k8sci.sh 
-          ./k8sci.sh
+          STEP_WAHT=deployk8s ./k8sci.sh
 
       - name: waiting for cluster ready 
         run: |
@@ -337,31 +337,24 @@ jobs:
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
           #TODO 测试 StatefulSet
-          ginkgo --nodes=25                \
-          --focus="\[Conformance\]"     \
-          --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
-          /usr/local/bin/e2e.test                       \
-          --                                            \
-          --kubeconfig=${PWD}/_artifacts/config     \
-          --provider=local                              \
-          --dump-logs-on-failure=true                  \
-          --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false
+          STEP_WAHT=runtests TEST_WHAT=conformance ./k8sci.sh
 
-      - name: run statefulset test 
+      - name: run statefulset test
         if: matrix.tests == 'statefulset'
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
           #TODO 测试 StatefulSet
-          ginkgo --nodes=25                \
-          --focus="\[Feature:StatefulSet\]"     \
-          /usr/local/bin/e2e.test                       \
-          --                                            \
-          --kubeconfig=${PWD}/_artifacts/config     \
-          --provider=local                              \
-          --dump-logs-on-failure=true                  \
-          --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false
+          # ginkgo --nodes=25                \
+          # --focus="\[Feature:StatefulSet\]"     \
+          # /usr/local/bin/e2e.test                       \
+          # --                                            \
+          # --kubeconfig=${PWD}/_artifacts/config     \
+          # --provider=local                              \
+          # --dump-logs-on-failure=true                  \
+          # --report-dir=${PWD}/_artifacts/testreport            \
+          # --disable-log-dump=false
+          
+          STEP_WAHT=runtests TEST_WHAT=statefulset ./k8sci.sh
 
       - name: print result 
         if: always()
