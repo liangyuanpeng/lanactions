@@ -316,43 +316,6 @@ jobs:
           chmod +x k8sci.sh 
           ./k8sci.sh
 
-      # - name: create cluster with kind 
-      #   run: |
-      #     cat <<EOF | /usr/local/bin/kind create cluster \
-      #       --name kind           \
-      #       -v7 --wait 1m --retain --config=-
-      #     kind: Cluster
-      #     apiVersion: kind.x-k8s.io/v1alpha4
-      #     featureGates:
-      #       "AllAlpha": true
-      #       "InTreePluginGCEUnregister": false
-      #       "DisableCloudProviders": true
-      #       "DisableKubeletCloudCredentialProviders": true
-      #       "EventedPLEG": false
-      #       "StorageVersionAPI": false
-      #       "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
-      #     networking:
-      #       ipFamily: ipv4
-      #     nodes:
-      #       - role: control-plane
-      #         image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-      #         kubeadmConfigPatches:
-      #         - |
-      #           kind: ClusterConfiguration
-      #           apiServer:
-      #             extraArgs:
-      #               runtime-config: api/all=true 
-      #               storage-media-type: application/json
-      #       - role: worker
-      #         image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-      #       - role: worker
-      #         image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-      #     EOF
-
-      #     mkdir _artifacts
-      #     cp ~/.kube/config _artifacts/
-      #     mkdir -p _artifacts/testreport
-
       - name: waiting for cluster ready 
         run: |
           kubectl get nodes -o wide
@@ -384,13 +347,6 @@ jobs:
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false
 
-      - name: print result 
-        run: |
-          ls
-          ls _artifacts/testreport
-          # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
-          # find / -name "*junit"
-
       - name: run statefulset test 
         if: matrix.tests == 'statefulset'
         run: |
@@ -406,6 +362,9 @@ jobs:
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false
 
+      - name: print result 
+        run: |
+          ls
           ls _artifacts/testreport
           # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
           # find / -name "*junit"
