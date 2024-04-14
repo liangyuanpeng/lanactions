@@ -321,6 +321,7 @@ jobs:
           kubectl get nodes -o wide
           kubectl get pods -A
           kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
+          # TODO 运行一些简单的部署,例如deployment, 等待完成 然后删除 等待完成删除
 
       - name: download bins
         run: |
@@ -363,6 +364,7 @@ jobs:
           --disable-log-dump=false
 
       - name: print result 
+        if: always()
         run: |
           ls
           ls _artifacts/testreport
