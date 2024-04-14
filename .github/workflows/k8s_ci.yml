@@ -261,8 +261,8 @@ jobs:
         - etcd-release3.5
         - xline
         storageMediaType: 
-        - application/vnd.kubernetes.protobuf
-        - application/json
+        - protobuf
+        - json
         # - application/vnd.kubernetes.protobuf
         # - TODO CBOR
     runs-on: ubuntu-22.04
