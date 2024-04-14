@@ -34,34 +34,34 @@ function util::deployk8s(){
     # application/vnd.kubernetes.protobuf
     # application/json
 
-    cat <<EOF> kind-ci.yaml
-    kind: Cluster
-    apiVersion: kind.x-k8s.io/v1alpha4
-    featureGates:
-      "AllAlpha": true
-      "InTreePluginGCEUnregister": false
-      "DisableCloudProviders": true
-      "DisableKubeletCloudCredentialProviders": true
-      "EventedPLEG": false
-      "StorageVersionAPI": false
-      "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
-    networking:
-      ipFamily: ipv4
-    nodes:
-    - role: control-plane
-      image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-      kubeadmConfigPatches:
-      - |
-        kind: ClusterConfiguration
-        apiServer:
-          extraArgs:
-            runtime-config: api/all=true 
-            storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-    - role: worker
-      image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-    - role: worker
-      image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
-    EOF
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+featureGates:
+  "AllAlpha": true
+  "InTreePluginGCEUnregister": false
+  "DisableCloudProviders": true
+  "DisableKubeletCloudCredentialProviders": true
+  "EventedPLEG": false
+  "StorageVersionAPI": false
+  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+networking:
+  ipFamily: ipv4
+nodes:
+- role: control-plane
+  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+EOF
 
     cat kind-ci.yaml
 
