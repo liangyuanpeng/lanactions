@@ -241,7 +241,6 @@ jobs:
           oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
 
   e2e:
-  #TODO 序列化存储测试 STORAGE_MEDIA_TYPE=application/vnd.kubernetes.protobuf
   #TODO 添加etcd 外部支持 1. 使用kubeadm内置部署的etcd 2. 从etcd master/release-3.5 源码进行构建 3. 从xline master 源码进行构建
     name: e2e
     needs:
@@ -250,6 +249,7 @@ jobs:
     permissions:
       packages: write
     strategy:
+      max-parallel: 6
       fail-fast: false
       matrix:
         tests:
@@ -263,7 +263,7 @@ jobs:
         storageMediaType: 
         - protobuf
         - json
-        # - application/vnd.kubernetes.protobuf
+        - yaml
         # - TODO CBOR
     runs-on: ubuntu-22.04
     env:
