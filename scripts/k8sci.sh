@@ -6,9 +6,9 @@ set -o nounset;
 
 
 function util::deployk8s(){
-  STEP_WAHT=${STEP_WAHT:-""}
+  STEP_WHAT=${STEP_WHAT:-""}
    # deployk8s, runtests
-  if [ $STEP_WAHT = "deployk8s" ];then 
+  if [ $STEP_WHAT = "deployk8s" ];then 
     KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
     IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
@@ -76,11 +76,11 @@ EOF
 }
 
 function util::runtests(){
-  STEP_WAHT=${STEP_WAHT:-""}
+  STEP_WHAT=${STEP_WHAT:-""}
   TESTS_WITH=${TESTS_WITH:-"ginkgo"}
   # ginkgo hydrophone
   TEST_WHAT=${TEST_WHAT:-"conformance"}
-  if [ $STEP_WAHT = "runtests" ];then
+  if [ $STEP_WHAT = "runtests" ];then
     if [ $TEST_WHAT = "conformance" ];then
       ginkgo --nodes=25                \
           --focus="\[Conformance\]"     \
