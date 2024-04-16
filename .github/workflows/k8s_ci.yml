@@ -338,14 +338,11 @@ jobs:
         if: matrix.tests == 'conformance'
         run: |
           #TODO 进行更多测试,例如 alpha,beta 功能测试
-          #TODO 测试 StatefulSet
           STEP_WHAT=runtests TEST_WHAT=conformance ./k8sci.sh
 
       - name: run statefulset test
         if: matrix.tests == 'statefulset'
         run: |
-          #TODO 进行更多测试,例如 alpha,beta 功能测试
-          #TODO 测试 StatefulSet
           # ginkgo --nodes=25                \
           # --focus="\[Feature:StatefulSet\]"     \
           # /usr/local/bin/e2e.test                       \
