@@ -6,7 +6,7 @@ set -o nounset;
 
 
 function util::deployk8s(){
-  STEP_WHAT=${STEP_WHAT:-""}
+  STEP_WHAT=${STEP_WHAT:-"none"}
    # deployk8s, runtests
   if [ $STEP_WHAT = "deployk8s" ];then 
     KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
@@ -76,10 +76,10 @@ EOF
 }
 
 function util::runtests(){
-  STEP_WHAT=${STEP_WHAT:-""}
+  STEP_WHAT=${STEP_WHAT:-"none"}
   TESTS_WITH=${TESTS_WITH:-"ginkgo"}
   # ginkgo hydrophone
-  TEST_WHAT=${TEST_WHAT:-"conformance"}
+  TEST_WHAT=${TEST_WHAT:-"none"}
   if [ $STEP_WHAT = "runtests" ];then
     if [ $TEST_WHAT = "conformance" ];then
       ginkgo --nodes=25                \
