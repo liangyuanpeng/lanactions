@@ -259,10 +259,10 @@ jobs:
       fail-fast: false
       matrix:
         #TODO k8s 节点数量? 1 3 5?
-        tests:
-        #TODO feature:CEL ?
-        - conformance
-        - sig-apps
+        # tests:
+        # #TODO feature:CEL ?
+        # - conformance
+        # - sig-apps
         # - statefulset
         etcd: 
         - build-in 
@@ -278,10 +278,12 @@ jobs:
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
-      TEST_WHAT: ${{ matrix.tests }}
+      # TEST_WHAT: ${{ matrix.tests }}
+      TEST_WHAT: ${{ inputs.testname }}
       WHICH_ETCD: ${{ matrix.etcd }}
       STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
-      JON_NAME: e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+      # JON_NAME: e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+      JON_NAME: e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -341,7 +343,7 @@ jobs:
           cd ../..
           mv _output/bin/* /usr/local/bin/
 
-      - name: run tests_${{ matrix.tests }}
+      - name: run tests_${{ inputs.testname }}
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
@@ -377,7 +379,7 @@ jobs:
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: kind_testreport_e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_testreport_e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
       - name: export logs
@@ -390,7 +392,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: kind_test_e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_test_e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: /tmp/kind/
 
   e2e-with-hydrophone:
