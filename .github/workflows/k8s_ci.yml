@@ -335,7 +335,7 @@ jobs:
           cd ../..
           mv _output/bin/* /usr/local/bin/
 
-      - name: run tests 
+      - name: run tests_${{ matrix.tests }}
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
