@@ -53,16 +53,6 @@ jobs:
   #TODO push的话跳过,无法使用 inputs 参数, push的话加一个job手动传递参数
     name: build
     uses: ./.github/workflows/k8s_ci.yml
-    with:
-      repo: ${{ inputs.repo }}
-      ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
-      hydrophone: ${{ inputs.hydrophone }}
-
-  test-conformance:
-  #TODO push的话跳过,无法使用 inputs 参数, push的话加一个job手动传递参数
-    name: test-conformance
-    uses: ./.github/workflows/k8s_ci.yml
     strategy:
       max-parallel: 6
       fail-fast: false
