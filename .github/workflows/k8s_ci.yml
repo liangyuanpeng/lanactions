@@ -43,6 +43,11 @@ on:
         required: false
         default: true
         type: boolean
+      testname:
+        description: 'testname'
+        required: false
+        default: "none"
+        type: string
       #TODO 使用Kind的master 构建kind bin
 
 jobs:
@@ -243,6 +248,7 @@ jobs:
   e2e:
   #TODO 添加etcd 外部支持 1. 使用kubeadm内置部署的etcd 2. 从etcd master/release-3.5 源码进行构建 3. 从xline master 源码进行构建
     name: e2e
+    if: inputs.testname != 'conformance'
     needs:
     - build-kind
     - build-k8sbins
