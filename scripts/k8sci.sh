@@ -94,6 +94,8 @@ function util::runtests(){
           --disable-log-dump=false
     fi
 
+    # [StatefulSetBasic]
+    # StatefulSetStartOrdinal 
     if [ $TEST_WHAT = "statefulset" ];then
       ginkgo --nodes=25                \
           --focus="\[Feature:StatefulSet\]"     \
@@ -105,6 +107,19 @@ function util::runtests(){
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false
     fi
+
+    if [ $TEST_WHAT = "sig-apps" ];then
+      ginkgo --nodes=25                \
+          --focus="\[sig-apps\]|\[sig-api-machinery\]"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
   fi
 }
 
