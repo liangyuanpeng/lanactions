@@ -39,6 +39,7 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 featureGates:
   "AllAlpha": true
+  "AllBeta": true
   "InTreePluginGCEUnregister": false
   "DisableCloudProviders": true
   "DisableKubeletCloudCredentialProviders": true
