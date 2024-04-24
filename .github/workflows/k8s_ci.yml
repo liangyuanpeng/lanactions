@@ -21,38 +21,148 @@ name: k8s_ci
 on:
   push:
     branches: [ k8s_ci ]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       ref:
         description: 'source ref of kubernetes '
-        required: true
+        required: false
         default: "master"
+        type: string
       repo:
         description: 'repo of kubernetes'
         required: false
         default: "kubernetes/kubernetes"
+        type: string
+      kindVersion:
+        description: 'kindVersion'
+        required: false
+        default: "v0.22.0"
+        type: string
+      hydrophone:
+        description: 'hydrophone'
+        required: false
+        default: true
+        type: boolean
+      testname:
+        description: 'testname'
+        required: false
+        default: "none"
+        type: string
+      #TODO 使用Kind的master 构建kind bin
 
 jobs:
 
-  e2e:
-    name: e2e
+#TODO 构建k8s容器镜像
+#TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
+
+  build-kind:
+    name: build-kind
+    permissions:
+      packages: write
     runs-on: ubuntu-22.04
+    env:
+      KIND_VERSION: ${{ inputs.kindVersion }}
+    outputs:
+      imgtag: ${{ steps.checkimgs.outputs.imgtag }}
     steps:
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ github.event.inputs.ref }}
+          REPO: ${{ github.event.inputs.repo }}
+        run: |
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$REPO" = "" ];then
+              echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
+          else
+              echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          # repository: ${{ inputs.repo }}
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: checkimgs
+        id: checkimgs
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          IMGTAG=`git describe --tags`
+          echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
+          echo "check images for ghcr.io/liangyuanpeng/kindest/testnode:"$KIND_VERSION-$IMGTAG
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist testnode"
+            echo "exist=true" >> "$GITHUB_OUTPUT"
+          else 
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/setup-go@v5
+        if: steps.checkimgs.outputs.exist != 'true'
         with:
-          go-version: '1.20'
-
+          go-version: '1.22'
       - uses: oras-project/setup-oras@v1
+        if: steps.checkimgs.outputs.exist != 'true'
         with:
           version: 1.0.0
-
       - name: clean
+        if: steps.checkimgs.outputs.exist != 'true'
         run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+
+      - name: download kind
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
+          chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        if: steps.checkimgs.outputs.exist != 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: true
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: build kind node
+        id: build-kind-node
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          IMGTAG=`git describe --tags`
+          mkdir -p tmp
+          cd tmp
+          kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
+          cd ..
+          rm -rf tmp
+          docker push ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+
+  build-k8sbins:
+    name: build-k8sbins
+    permissions:
+      packages: write
+    runs-on: ubuntu-22.04
+    steps:
 
       - name: make default value
         id: genoutputs
@@ -72,13 +182,341 @@ jobs:
               echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           fi
 
-      # - name: checkout code
-      #   run: |
-      #     git clone https://github.com/${{ steps.genoutputs.outputs.repo }}.git
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          # repository: ${{ inputs.repo }}
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
 
-      - name: run ci
+      - name: checkimgs
+        id: checkimgs
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-linux-amd64
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          IMGTAG=`git describe --tags`
+          echo "check images for ghcr.io/liangyuanpeng/kubebins:"$IMGTAG
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG | grep mediaType | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist testnode"
+            echo "exist=true" >> "$GITHUB_OUTPUT"
+          else 
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-go@v5
+        if: steps.checkimgs.outputs.exist != 'true'
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        if: steps.checkimgs.outputs.exist != 'true'
+        with:
+          version: 1.0.0
+      - name: clean
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          nohup docker rmi `docker images -aq` &
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/node
+          rm -rf /opt/hostedtoolcache/Python
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        if: steps.checkimgs.outputs.exist != 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
+      - name: build
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          IMGTAG=`git describe --tags`
+          
+          make
+          cd _output/bin
+          bins=`ls .`
+          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
+
+  e2e:
+  #TODO 添加etcd 外部支持 1. 使用kubeadm内置部署的etcd 2. 从etcd master/release-3.5 源码进行构建 3. 从xline master 源码进行构建
+    name: e2e
+    needs:
+    - build-kind
+    - build-k8sbins
+    permissions:
+      packages: write
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        #TODO k8s 节点数量? 1 3 5?
+        # tests:
+        # #TODO feature:CEL ?
+        # - conformance
+        # - sig-apps
+        # - statefulset
+        etcd: 
+        - build-in 
+        - etcd-master
+        - etcd-release3.5
+        - xline
+        storageMediaType: 
+        - protobuf
+        - json
+        - yaml
+        # - TODO CBOR
+    runs-on: ubuntu-22.04
+    env:
+      KIND_VERSION: ${{ inputs.kindVersion }}
+      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+      # TEST_WHAT: ${{ matrix.tests }}
+      TEST_WHAT: ${{ inputs.testname }}
+      WHICH_ETCD: ${{ matrix.etcd }}
+      STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
+      # JON_NAME: e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+      JON_NAME: e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: clean
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          nohup docker rmi `docker images -aq` &
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/node
+          rm -rf /opt/hostedtoolcache/Python
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ github.event.inputs.ref }}
+          REPO: ${{ github.event.inputs.repo }}
+        run: |
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$REPO" = "" ];then
+              echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
+          else
+              echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: download kind
+        run: |
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ inputs.kindVersion }}/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
-          kind create cluster
-          kubectl get po -A
+
+      - name: create kubernetes cluster
+        run: |
+          oras pull ghcr.io/liangyuanpeng/files:k8scish
+          chmod +x k8sci.sh 
+          STEP_WHAT=deployk8s ./k8sci.sh
+
+      - name: waiting for cluster ready 
+        run: |
+          kubectl get nodes -o wide
+          kubectl get pods -A
+          kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
+          # TODO 运行一些简单的部署,例如deployment, 等待完成 然后删除 等待完成删除
+
+      - name: download bins
+        run: |
+          mkdir -p _output/bin
+          cd _output/bin
+          oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
+          chmod +x ./*
+          cd ../..
+          mv _output/bin/* /usr/local/bin/
+
+      - name: run tests_${{ inputs.testname }}
+        run: |
+          STEP_WHAT=runtests ./k8sci.sh
+
+      # - name: run conformance test 
+      #   if: matrix.tests == 'conformance'
+      #   run: |
+      #     #TODO 进行更多测试,例如 alpha,beta 功能测试
+      #     STEP_WHAT=runtests TEST_WHAT=conformance ./k8sci.sh
+
+      # - name: run statefulset test
+      #   if: matrix.tests == 'statefulset'
+      #   run: |
+      #     # ginkgo --nodes=25                \
+      #     # --focus="\[Feature:StatefulSet\]"     \
+      #     # /usr/local/bin/e2e.test                       \
+      #     # --                                            \
+      #     # --kubeconfig=${PWD}/_artifacts/config     \
+      #     # --provider=local                              \
+      #     # --dump-logs-on-failure=true                  \
+      #     # --report-dir=${PWD}/_artifacts/testreport            \
+      #     # --disable-log-dump=false
+          
+      #     STEP_WHAT=runtests TEST_WHAT=statefulset ./k8sci.sh
+
+      - name: print result 
+        if: always()
+        run: |
+          ls
+          ls _artifacts/testreport
+          # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
+          # find / -name "*junit"
+
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
+        with:
+          name: kind_testreport_e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          path: _artifacts/testreport
+
+      - name: export logs
+        if: always()
+        run: |
+          kubectl get pod -A
+          kind export logs /tmp/kind
+
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kind_test_e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          path: /tmp/kind/
+
+  e2e-with-hydrophone:
+    name: e2e-with-hydrophone
+    timeout-minutes: 120
+    if: ${{ inputs.hydrophone }}
+    needs:
+    - build-kind
+    - build-k8sbins
+    permissions:
+      packages: write
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+        # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
+        - hydrophone --conformance-image ghcr.io/liangyuanpeng/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
+        # - hydrophone --conformance-image ghcr.io/liangyuanpeng/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+    env:
+      KIND_VERSION: ${{ inputs.kindVersion }}
+      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: clean
+        run: |
+          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          nohup docker rmi `docker images -aq` &
+          rm -rf /opt/hostedtoolcache/CodeQL
+          rm -rf /opt/hostedtoolcache/node
+          rm -rf /opt/hostedtoolcache/Python
+
+      - name: download kind
+        run: |
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ inputs.kindVersion }}/kind-linux-amd64
+          chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+
+      - name: create cluster with kind 
+        run: |
+          cat <<EOF | /usr/local/bin/kind create cluster \
+            --name kind           \
+            -v7 --wait 1m --retain --config=-
+          kind: Cluster
+          apiVersion: kind.x-k8s.io/v1alpha4
+          featureGates:
+            "AllAlpha": true
+            "InTreePluginGCEUnregister": false
+            "DisableCloudProviders": true
+            "DisableKubeletCloudCredentialProviders": true
+            "EventedPLEG": false
+            "StorageVersionAPI": false
+            "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+          networking:
+            ipFamily: ipv4
+          nodes:
+            - role: control-plane
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+              kubeadmConfigPatches:
+              - |
+                kind: ClusterConfiguration
+                apiServer:
+                  extraArgs:
+                    runtime-config: api/all=true 
+                    storage-media-type: application/json
+            - role: worker
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+            - role: worker
+              image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+          EOF
+
+          cd .. 
+          rm -rf kubernetes
+
+      - name: waiting for cluster ready 
+        run: |
+          kubectl get nodes -o wide
+          kubectl get pods -A
+          kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
+
+      - name: build hydrophone
+        run: |
+          pwd
+          git clone https://github.com/kubernetes-sigs/hydrophone.git
+          cd hydrophone
+          go mod tidy
+          make
+          mv bin/hydrophone /usr/local/bin/hydrophone
+          hydrophone -h
+
+      - name: run test 
+        run: |
+          # watch kubectl get pod -A
+          # hydrophone --conformance --parallel 25 --focus sig-apps --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+          export EXTRA_ARGS="--parallel=25"
+          # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+          # hydrophone --conformance --parallel 25
+          # hydrophone --parallel 25 --focus sig-apps
+          # see report 
+          # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
+          ${{ matrix.tests }}
+          ls
+          mkdir -p _artifacts/testreport
+          mv e2e.log _artifacts/testreport/
+          mv junit_01.xml _artifacts/testreport/
+
+      - name: export logs
+        if: always()
+        run: |
+          kind export logs /tmp/kind
+          kubectl get pod -A
+
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
+        with:
+          name: hydrophone_testreport
+          path: _artifacts/testreport
+
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kind_test_hydrophone_${{ needs.build-kind.outputs.imgtag }}
+          path: /tmp/kind/

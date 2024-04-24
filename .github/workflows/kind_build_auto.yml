@@ -21,10 +21,32 @@ name: kind_build_auto
 on:
   push:
     branches: [ kind_build_auto ]
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      k8sMinVersion:
+        description: 'k8sMinVersion'
+        required: false
+        default: "v1.27.0"
+        type: string
+      kindVersion:
+        description: 'kindVersion'
+        required: false
+        default: "v0.22.0"
+        type: string
+      tagWithKind:
+        description: 'is it need to add kind version for tag'
+        required: false
+        default: true
+        type: boolean
+      onceCount:
+        description: 'is it need to add kind version for tag'
+        required: false
+        default: 5
+        type: number
+
   schedule:
-    - cron: '0 3 * * 0,6'
-    # - cron: '0 */1 * * *'
+    - cron: '0 3 * * 0,1,2,3,4,5,6'
+    # - cron: '0 3 * * 0,6'
 
 
 jobs:
@@ -32,8 +54,18 @@ jobs:
   gettags:
     runs-on: ubuntu-22.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     TAG_WITH_KIND: ["0","1"]
+    env:
+      TAG_WITH_KIND: ${{ inputs.tagWithKind }}
+      K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
+      ONCE_COUNT: ${{ inputs.onceCount }}
+      KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
+      tagslength: ${{ steps.gher.outputs.tagslength }}
     steps:
       - uses: oras-project/setup-oras@v1
         with:
@@ -43,16 +75,20 @@ jobs:
         run: |
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
-          ./gher
-          list=$(./gher | jq .tags | jq -c )
+          ./gher > tags.json
+          list=$(cat tags.json | jq .tags | jq -c )
+          tagslength=$(cat tags.json | jq '.tags | length' )
           echo "list:"${list}
+          echo "tagslength:"${tagslength}
+          echo "tagslength=${tagslength}" >> "$GITHUB_OUTPUT"
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
-          # echo "::set-output name=ref::${list}  "  
+          # echo "::set-output name=ref::${list} "  
 
   build:
     needs:
     - gettags
     uses: ./.github/workflows/kind_build_release.yml
+    if: ${{ needs.gettags.outputs.tagslength > 0 }}
     strategy:
       fail-fast: false
       matrix:
@@ -61,3 +97,5 @@ jobs:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
+      tagWithKind: ${{ inputs.tagWithKind }}
+      kindVersion: ${{ inputs.kindVersion }}
