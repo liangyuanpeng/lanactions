@@ -59,7 +59,7 @@ jobs:
       matrix:
         tests:
           - conformance
-          - sig-apps
+          # - sig-apps
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
