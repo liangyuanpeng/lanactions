@@ -67,6 +67,39 @@ jobs:
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
 
+  kind-e2e:
+    name: kind-e2e
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - name: run
+        run: |
+          export FOCUS=.
+          export SKIP=\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
+          export PARALLEL=true
+          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+
 # 构建kubernetes容器镜像
   buildk8s:
     name: buildk8s
