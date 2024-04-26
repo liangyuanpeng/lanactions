@@ -48,6 +48,11 @@ on:
         required: false
         default: "none"
         type: string
+      commitID:
+        description: 'commitID'
+        required: false
+        default: "none"
+        type: string
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
@@ -59,8 +64,39 @@ jobs:
 #TODO 添加etcd重启,然后再跑一遍测试
 # TODO etcd 数据持久化,添加多一个参数? 是否使用持久化的etcd进行测试,是的话 每次测试完成后都将数据存起来,下一次加载继续使用.
 
+  getcommitid:
+    name: getcommitid
+    runs-on: ubuntu-22.04
+    env:
+      INPUT_COMMID_ID: ${{ inputs.commitID }}
+    outputs:
+      commitID: ${{ steps.gencommitid.outputs.commitID }}
+    steps:
+      # - name: checkoutactions
+      #   if: ${{ inputs.commitID == 'none' }}
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes/kubernetes
+      #     # repository: ${{ inputs.repo }}
+      #     fetch-depth: 0
+      #     ref: ${{ inputs.ref }}
+      - name: gen commitID
+        id: gencommitid
+        run: |
+          if [ $INPUT_COMMID_ID != "none" ];then
+            echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+          else
+             git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+             cd kubernetes
+             LATEST_COMMIT=`git rev-parse HEAD`
+             echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
+          fi
+
   build-kind:
     name: build-kind
+    needs: getcommitid
+    env:
+      COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
@@ -94,6 +130,12 @@ jobs:
           # repository: ${{ inputs.repo }}
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+
+      - name: check out to commitid
+        run: |
+          echo "COMMIT_ID:"$COMMIT_ID
+          pwd
+          git reset --hard $COMMIT_ID
 
       - name: checkimgs
         id: checkimgs
@@ -163,6 +205,9 @@ jobs:
 
   build-k8sbins:
     name: build-k8sbins
+    needs: getcommitid
+    env:
+      COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
@@ -193,6 +238,12 @@ jobs:
           # repository: ${{ inputs.repo }}
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+
+      - name: check out to commitid
+        run: |
+          echo "COMMIT_ID:"$COMMIT_ID
+          pwd
+          git reset --hard $COMMIT_ID
 
       - name: checkimgs
         id: checkimgs
