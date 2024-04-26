@@ -20,7 +20,9 @@
 name: etcd_ci
 on:
   push:
-    branches: [ etcd_ci ]
+    branches: 
+    - etcd_ci
+    - pulsar
   workflow_call:
     inputs:
       ref:
@@ -48,3 +50,15 @@ jobs:
           repository: etcd-io/etcd
           fetch-depth: 0
           # ref: ${{ inputs.ref }}
+
+  build:
+    name: build
+    uses: etcd-io/etcd/.github/workflows/robustness-template.yaml@main
+    with:
+      etcdBranch: main
+      count: 12
+      testTimeout: 30m
+      artifactName: main
+      runs-on: "['ubuntu-22.04']"
+      scenario: TestRobustness
+      lazyfsEnabled: false
