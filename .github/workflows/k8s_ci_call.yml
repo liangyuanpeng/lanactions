@@ -60,6 +60,7 @@ jobs:
         tests:
           - conformance
           # - sig-apps
+          # - statefulset
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
