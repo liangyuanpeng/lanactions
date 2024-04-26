@@ -51,8 +51,8 @@ jobs:
           fetch-depth: 0
           # ref: ${{ inputs.ref }}
 
-  build:
-    name: build
+  robustness:
+    name: robustness
     uses: etcd-io/etcd/.github/workflows/robustness-template.yaml@main
     with:
       etcdBranch: main
