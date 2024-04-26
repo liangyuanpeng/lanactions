@@ -57,6 +57,7 @@ jobs:
 #TODO 构建k8s容器镜像
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 #TODO 添加etcd重启,然后再跑一遍测试
+# TODO etcd 数据持久化,添加多一个参数? 是否使用持久化的etcd进行测试,是的话 每次测试完成后都将数据存起来,下一次加载继续使用.
 
   build-kind:
     name: build-kind

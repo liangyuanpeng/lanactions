@@ -104,6 +104,36 @@ jobs:
         run: |
           ls _artifacts
 
+  pull-kubernetes-integration:
+    name: pull-kubernetes-integration
+    runs-on: ubuntu-22.04
+    env:
+      GA_ONLY: true
+      PARALLEL: true
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
   conformance-kind-ga-only-parallel:
     name: conformance-kind-ga-only-parallel
     runs-on: ubuntu-22.04
