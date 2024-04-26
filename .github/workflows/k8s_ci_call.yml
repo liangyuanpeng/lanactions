@@ -71,6 +71,10 @@ jobs:
   kind-e2e:
     name: kind-e2e
     runs-on: ubuntu-22.04
+    env:
+      FOCUS: "."
+      PARALLEL: true 
+      SKIP: "\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -96,14 +100,17 @@ jobs:
           ref: ${{ inputs.ref }}
       - name: run
         run: |
-          export FOCUS=.
-          export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
-          export PARALLEL=true
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
       - name: check artifacts
         if: always()
         run: |
           ls _artifacts
+
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
+        with:
+          name: kind_e2e
+          path: _artifacts
 
   pull-kubernetes-integration:
     name: pull-kubernetes-integration
@@ -172,6 +179,12 @@ jobs:
         run: |
           ls _artifacts
 
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
+        with:
+          name: conformance_kind_ga_only_parallel
+          path: _artifacts
+
   kind-e2e-alpha-features:
     name: kind-e2e-alpha-features
     runs-on: ubuntu-22.04
@@ -211,6 +224,12 @@ jobs:
         if: always()
         run: |
           ls _artifacts
+
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
+        with:
+          name: kind_e2e_alpha_features
+          path: _artifacts
 
 # 构建kubernetes容器镜像
   buildk8s:
