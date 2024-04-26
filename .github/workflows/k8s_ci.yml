@@ -369,7 +369,7 @@ jobs:
         run: |
           oras pull ghcr.io/liangyuanpeng/files:k8scish
           chmod +x k8sci.sh 
-          STEP_WAHT=getbuild ./k8scish
+          STEP_WAHT=getbuild ./k8sci.sh
 
       - name: create kubernetes cluster
         run: |
@@ -482,7 +482,7 @@ jobs:
         run: |
           oras pull ghcr.io/liangyuanpeng/files:k8scish
           chmod +x k8sci.sh 
-          STEP_WAHT=getbuild ./k8scish
+          STEP_WAHT=getbuild ./k8sci.sh
 
       - name: create kubernetes cluster
         run: |
