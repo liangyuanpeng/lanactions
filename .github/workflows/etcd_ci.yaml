@@ -56,7 +56,7 @@ jobs:
     name: robustness
     uses: etcd-io/etcd/.github/workflows/robustness-template.yaml@main
     permissions:
-      id-token: read
+      id-token: write
     with:
       etcdBranch: main
       count: 12
