@@ -65,3 +65,16 @@ jobs:
       runs-on: "['ubuntu-22.04']"
       scenario: TestRobustness
       lazyfsEnabled: false
+
+  robustness-35:
+    name: robustness-35
+    # uses: etcd-io/etcd/.github/workflows/robustness-template.yaml@main
+    uses: ./.github/workflows/robustness-template.yaml
+    with:
+      etcdBranch: release-3.5
+      count: 12
+      testTimeout: 30m
+      artifactName: main
+      runs-on: "['ubuntu-22.04']"
+      scenario: TestRobustness
+      lazyfsEnabled: false
