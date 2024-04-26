@@ -22,7 +22,7 @@ on:
   push:
     branches: 
     - etcd_ci
-    - pulsar
+    # - pulsar
     - main
   workflow_call:
     inputs:
