@@ -95,12 +95,11 @@ jobs:
   build-kind:
     name: build-kind
     needs: getcommitid
-    env:
-      COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
     env:
+      COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
       KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
       imgtag: ${{ steps.checkimgs.outputs.imgtag }}
