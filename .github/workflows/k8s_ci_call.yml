@@ -99,6 +99,10 @@ jobs:
           export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
           export PARALLEL=true
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+      - name: check artifacts
+        if: always()
+        run: |
+          ls _artifacts
 
   conformance-kind-ga-only-parallel:
     name: conformance-kind-ga-only-parallel
@@ -132,6 +136,10 @@ jobs:
       - name: run
         run: |
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+      - name: check artifacts
+        if: always()
+        run: |
+          ls _artifacts
 
   kind-e2e-alpha-features:
     name: kind-e2e-alpha-features
@@ -168,6 +176,10 @@ jobs:
       - name: run
         run: |
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+      - name: check artifacts
+        if: always()
+        run: |
+          ls _artifacts
 
 # 构建kubernetes容器镜像
   buildk8s:
