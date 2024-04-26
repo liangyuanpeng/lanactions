@@ -23,6 +23,7 @@ on:
     branches: 
     - etcd_ci
     - pulsar
+    - main
   workflow_call:
     inputs:
       ref:
@@ -54,6 +55,8 @@ jobs:
   robustness:
     name: robustness
     uses: etcd-io/etcd/.github/workflows/robustness-template.yaml@main
+    permissions:
+      id-token: read
     with:
       etcdBranch: main
       count: 12
