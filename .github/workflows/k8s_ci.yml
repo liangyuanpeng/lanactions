@@ -49,11 +49,14 @@ on:
         default: "none"
         type: string
       #TODO 使用Kind的master 构建kind bin
+      #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
+      #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
 
 jobs:
 
 #TODO 构建k8s容器镜像
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
+#TODO 添加etcd重启,然后再跑一遍测试
 
   build-kind:
     name: build-kind
