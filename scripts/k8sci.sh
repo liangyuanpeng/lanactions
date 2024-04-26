@@ -4,6 +4,15 @@ set -o errexit;
 set -o pipefail;
 set -o nounset;
 
+function util::getbuild(){
+  STEP_WHAT=${STEP_WHAT:-"none"}
+  KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
+  if [ $STEP_WHAT = "getbuild" ];then 
+    wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
+    chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+  fi
+}
+
 # kind create cluster --image ghcr.io/liangyuanpeng/kindest/testnode:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
 function util::deployk8s(){
   STEP_WHAT=${STEP_WHAT:-"none"}
@@ -138,5 +147,6 @@ function util::runtests(){
   fi
 }
 
+util::getbuild
 util::deployk8s
 util::runtests

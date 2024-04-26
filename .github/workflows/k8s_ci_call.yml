@@ -46,7 +46,6 @@ on:
       #TODO 使用Kind的master 构建kind bin
 
 jobs:
-#TODO 构建k8s容器镜像
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 
   build:
@@ -118,6 +117,8 @@ jobs:
     env:
       GA_ONLY: true
       PARALLEL: true
+      KUBE_INTEGRATION_TEST_MAX_CONCURRENCY: "8"
+      KUBE_TIMEOUT: "-timeout=1h30m"
     steps:
       - uses: actions/setup-go@v5
         with:

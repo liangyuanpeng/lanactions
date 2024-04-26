@@ -365,15 +365,14 @@ jobs:
               echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: download kind
-        run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ inputs.kindVersion }}/kind-linux-amd64
-          chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
-
-      - name: create kubernetes cluster
+      - name: get kind
         run: |
           oras pull ghcr.io/liangyuanpeng/files:k8scish
           chmod +x k8sci.sh 
+          STEP_WAHT=getbuild ./k8scish
+
+      - name: create kubernetes cluster
+        run: |
           STEP_WHAT=deployk8s ./k8sci.sh
 
       - name: waiting for cluster ready 
@@ -479,15 +478,14 @@ jobs:
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
 
-      - name: download kind
-        run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ inputs.kindVersion }}/kind-linux-amd64
-          chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
-
-      - name: create kubernetes cluster
+      - name: get kind
         run: |
           oras pull ghcr.io/liangyuanpeng/files:k8scish
           chmod +x k8sci.sh 
+          STEP_WAHT=getbuild ./k8scish
+
+      - name: create kubernetes cluster
+        run: |
           STEP_WHAT=deployk8s ./k8sci.sh
 
       - name: waiting for cluster ready 
