@@ -135,6 +135,7 @@ jobs:
           echo "COMMIT_ID:"$COMMIT_ID
           pwd
           git reset --hard $COMMIT_ID
+          git log --pretty=format:"%s" $COMMIT_ID -1
 
       - name: checkimgs
         id: checkimgs
