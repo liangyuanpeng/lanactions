@@ -59,7 +59,7 @@ jobs:
     uses: ./.github/workflows/robustness-template.yaml
     with:
       etcdBranch: main
-      count: 12
+      count: 13
       testTimeout: 30m
       artifactName: main
       runs-on: "['ubuntu-22.04']"
@@ -72,7 +72,7 @@ jobs:
     uses: ./.github/workflows/robustness-template.yaml
     with:
       etcdBranch: release-3.5
-      count: 12
+      count: 13
       testTimeout: 30m
       artifactName: main
       runs-on: "['ubuntu-22.04']"
