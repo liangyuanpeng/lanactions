@@ -53,6 +53,11 @@ on:
         required: false
         default: "none"
         type: string
+      k8sCPCount:
+        description: 'k8sCPCount'
+        required: false
+        default: 1
+        type: number
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
@@ -63,6 +68,7 @@ jobs:
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 #TODO 添加etcd重启,然后再跑一遍测试
 # TODO etcd 数据持久化,添加多一个参数? 是否使用持久化的etcd进行测试,是的话 每次测试完成后都将数据存起来,下一次加载继续使用.
+#TODO kubeadm 升级测试?
 
   getcommitid:
     name: getcommitid
@@ -325,6 +331,7 @@ jobs:
         # - TODO CBOR
     runs-on: ubuntu-22.04
     env:
+      K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
       # TEST_WHAT: ${{ matrix.tests }}

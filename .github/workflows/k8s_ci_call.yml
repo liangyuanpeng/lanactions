@@ -66,6 +66,7 @@ jobs:
       kindversion: ${{ inputs.kindversion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
+      k8sCPCount: 3
 
   kind-e2e:
     name: kind-e2e

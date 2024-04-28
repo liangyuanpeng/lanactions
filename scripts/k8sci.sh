@@ -21,6 +21,9 @@ function util::deployk8s(){
     KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
     IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
+    KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
+    # k8s master 节点数量,  1master2node  3master2node
+    K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
 
@@ -40,8 +43,7 @@ function util::deployk8s(){
       REALLY_STORAGE_MEDIA_TYPE="application/vnd.kubernetes.protobuf"
     fi
 
-    # application/vnd.kubernetes.protobuf
-    # application/json
+    if [ $K8S_CP_COUNT = "1" ];then
 
 cat <<EOF> kind-ci.yaml
 kind: Cluster
@@ -59,6 +61,57 @@ networking:
   ipFamily: ipv4
 nodes:
 - role: control-plane
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+
+    fi
+
+    if [ $K8S_CP_COUNT = "3" ];then
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+featureGates:
+  "AllAlpha": true
+  "AllBeta": true
+  "InTreePluginGCEUnregister": false
+  "DisableCloudProviders": true
+  "DisableKubeletCloudCredentialProviders": true
+  "EventedPLEG": false
+  "StorageVersionAPI": false
+  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+networking:
+  ipFamily: ipv4
+nodes:
+- role: control-plane
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: control-plane
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: control-plane
   image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
@@ -72,6 +125,7 @@ nodes:
 - role: worker
   image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
 EOF
+    fi
 
     cat kind-ci.yaml
 
