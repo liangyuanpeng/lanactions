@@ -73,6 +73,8 @@ jobs:
              cd kubernetes
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
+             COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
+             echo "commitMsg=$COMMIT_MESSAGE" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Adding markdown
@@ -80,6 +82,7 @@ jobs:
           echo "### 🚀"
           echo '### branch: ${{ inputs.ref }}' >> $GITHUB_STEP_SUMMARY
           echo '### commitID:${{ steps.gencommitid.outputs.commitID }}' >> $GITHUB_STEP_SUMMARY
+          echo "### message: ${{ steps.gencommitid.outputs.commitMsg }}" >> $GITHUB_STEP_SUMMARY
 
   k8scicp3:
     name: k8scicp3
