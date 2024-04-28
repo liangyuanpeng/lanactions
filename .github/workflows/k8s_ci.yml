@@ -536,7 +536,7 @@ jobs:
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: hydrophone_testreport
+          name: hydrophone_testreport_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
       - name: upload kind logs
