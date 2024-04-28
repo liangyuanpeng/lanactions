@@ -165,8 +165,6 @@ jobs:
           path: _artifacts
 
 #TODO pull-kubernetes-node-e2e-containerd
-#TODO pull-kubernetes-unit
-#TODO pull-kubernetes-unit-go-compatibility
 
   pull-kubernetes-integration:
     name: pull-kubernetes-integration
@@ -300,14 +298,20 @@ jobs:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
 
-
   pull-kubernetes-unit:
     name: pull-kubernetes-unit
     runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        goversion:
+          - "1.22"
+          - "1.22.1"
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: ${{ matrix.goversion }}
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
@@ -340,4 +344,3 @@ jobs:
       #   with:
       #     name: kind_e2e_alpha_features
       #     path: _artifacts
-
