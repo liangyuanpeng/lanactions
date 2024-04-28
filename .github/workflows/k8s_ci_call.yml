@@ -43,10 +43,43 @@ on:
         required: false
         default: true
         type: boolean
+      commitID:
+        description: 'commitID'
+        required: false
+        default: "none"
+        type: string
       #TODO 使用Kind的master 构建kind bin
 
 jobs:
+#TODO summary
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
+
+
+  getcommitid:
+    name: getcommitid
+    runs-on: ubuntu-22.04
+    env:
+      INPUT_COMMID_ID: ${{ inputs.commitID }}
+    outputs:
+      commitID: ${{ steps.gencommitid.outputs.commitID }}
+    steps:
+      - name: gen commitID
+        id: gencommitid
+        run: |
+          if [ $INPUT_COMMID_ID != "none" ];then
+            echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+          else
+             git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+             cd kubernetes
+             LATEST_COMMIT=`git rev-parse HEAD`
+             echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Adding markdown
+        run: |
+          echo "### 🚀"
+          echo '### branch: ${{ inputs.ref }}' >> $GITHUB_STEP_SUMMARY
+          echo '### commitID:${{ steps.gencommitid.outputs.commitID }}' >> $GITHUB_STEP_SUMMARY
 
   k8scicp3:
     name: k8scicp3
