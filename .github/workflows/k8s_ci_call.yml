@@ -128,6 +128,10 @@ jobs:
           name: kind_e2e
           path: _artifacts
 
+#TODO pull-kubernetes-node-e2e-containerd
+#TODO pull-kubernetes-unit
+#TODO pull-kubernetes-unit-go-compatibility
+
   pull-kubernetes-integration:
     name: pull-kubernetes-integration
     runs-on: ubuntu-22.04
@@ -256,3 +260,45 @@ jobs:
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
+
+
+  pull-kubernetes-unit:
+    name: pull-kubernetes-unit
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - name: run
+        run: |
+          make test
+      # - name: check artifacts
+      #   if: always()
+      #   run: |
+      #     ls _artifacts
+
+      # - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+      #   if: always()
+      #   with:
+      #     name: kind_e2e_alpha_features
+      #     path: _artifacts
+
