@@ -26,23 +26,18 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'source ref of kubernetes '
+        description: 'source ref of karmada '
         required: false
         default: "master"
       repo:
-        description: 'repo of kubernetes'
+        description: 'repo of karmada'
         required: false
-        default: "kubernetes/kubernetes"
+        default: "karmada-io/karmada"
       kindVersion:
         description: 'kindVersion'
         required: false
         default: "v0.22.0"
         type: string
-      hydrophone:
-        description: 'hydrophone'
-        required: false
-        default: true
-        type: boolean
 
 jobs:
 
@@ -63,113 +58,3 @@ jobs:
       kindversion: ${{ inputs.kindversion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
-
-  kind-e2e:
-    name: kind-e2e
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
-      - name: run
-        run: |
-          export FOCUS=.
-          export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
-          export PARALLEL=true
-          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
-
-  conformance-kind-ga-only-parallel:
-    name: conformance-kind-ga-only-parallel
-    runs-on: ubuntu-22.04
-    env:
-      GA_ONLY: true
-      PARALLEL: true
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
-      - name: run
-        run: |
-          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
-
-  kind-e2e-alpha-features:
-    name: kind-e2e-alpha-features
-    runs-on: ubuntu-22.04
-    env:
-      FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
-      RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
-      FOCUS: "."
-      SKIP: \[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|In-tree.Volumes.\[Driver:.nfs\]|PersistentVolumes.NFS|Network.should.set.TCP.CLOSE_WAIT.timeout|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|should.provide.basic.identity
-      PARALLEL: true
-    steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
-      - name: run
-        run: |
-          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
-
-# 构建kubernetes容器镜像
-  buildk8s:
-    name: buildk8s
-    uses: ./.github/workflows/kubernetes_build.yml
-    with:
-      repo: ${{ inputs.repo }}
-      ref: ${{ inputs.ref }}
