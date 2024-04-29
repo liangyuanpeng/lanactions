@@ -33,11 +33,6 @@ on:
         required: false
         default: "karmada-io/karmada"
         type: string
-      kindVersion:
-        description: 'kindVersion'
-        required: false
-        default: "v0.22.0"
-        type: string
 
 
 jobs:
@@ -47,8 +42,6 @@ jobs:
     permissions:
       packages: write
     runs-on: ubuntu-22.04
-    env:
-      KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
       imgtag: ${{ steps.checkimgs.outputs.imgtag }}
     steps:
@@ -110,12 +103,6 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
-
-      - name: download kind
-        if: steps.checkimgs.outputs.exist != 'true'
-        run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
-          chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
