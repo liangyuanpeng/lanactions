@@ -123,8 +123,16 @@ jobs:
   kind-e2e:
     name: kind-e2e
     runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        parallel:
+        - true
+        - false
     env:
       FOCUS: "."
+      PARALLEL: ${{ matrix.parallel }}
       # PARALLEL: true 
       SKIP: \[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
