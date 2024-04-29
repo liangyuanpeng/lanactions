@@ -56,5 +56,3 @@ jobs:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
       kindversion: ${{ inputs.kindversion }}
-      hydrophone: ${{ inputs.hydrophone }}
-      testname: ${{ matrix.tests }}
