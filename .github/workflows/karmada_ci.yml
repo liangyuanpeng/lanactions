@@ -87,6 +87,21 @@ jobs:
             echo "exist=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        if: steps.checkimgs.outputs.exist != 'true'
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: true
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+          
       - uses: actions/setup-go@v5
         if: steps.checkimgs.outputs.exist != 'true'
         with:
@@ -104,20 +119,6 @@ jobs:
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
 
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        if: steps.checkimgs.outputs.exist != 'true'
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: true
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: true
-          swap-storage: false
 
       - name: build karmada image
         id: build-karmada-image
