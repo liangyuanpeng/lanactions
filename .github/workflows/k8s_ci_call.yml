@@ -310,7 +310,7 @@ jobs:
           - "1.22.1"
     steps:
       - uses: actions/setup-go@v5
-        if: matrix.goversion = 'go.mod'
+        if: matrix.goversion == 'go.mod'
         with:
           go-version-file: go.mod
       - uses: actions/setup-go@v5
