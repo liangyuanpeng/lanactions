@@ -49,6 +49,8 @@ on:
         default: "none"
         type: string
       #TODO 使用Kind的master 构建kind bin
+permissions:
+  packages: write
 
 jobs:
 #TODO summary
