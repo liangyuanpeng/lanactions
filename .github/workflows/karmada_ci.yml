@@ -126,4 +126,8 @@ jobs:
         run: |
           IMGTAG=`git describe --tags`
           make images
+
+      - name: check 
+        run: |
           docker images
+          echo "IMGTAG:$IMGTAG"
