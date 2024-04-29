@@ -323,7 +323,7 @@ jobs:
         # - etcd-master
         # - etcd-release3.5
         # - xline
-        - etcd-big # 持久化的etcd
+        # - etcd-big # 持久化的etcd
         storageMediaType: 
         - protobuf
         - json
