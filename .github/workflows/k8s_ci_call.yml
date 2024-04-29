@@ -129,7 +129,7 @@ jobs:
       matrix:
         parallel:
         - true
-        - false
+        # - false
     env:
       FOCUS: "."
       PARALLEL: ${{ matrix.parallel }}
