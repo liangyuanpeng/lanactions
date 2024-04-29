@@ -101,7 +101,7 @@ jobs:
           large-packages: false
           docker-images: true
           swap-storage: false
-          
+
       - uses: actions/setup-go@v5
         if: steps.checkimgs.outputs.exist != 'true'
         with:
@@ -126,3 +126,4 @@ jobs:
         run: |
           IMGTAG=`git describe --tags`
           make images
+          docker images
