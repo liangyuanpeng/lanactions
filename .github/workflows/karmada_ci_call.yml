@@ -33,11 +33,6 @@ on:
         description: 'repo of karmada'
         required: false
         default: "karmada-io/karmada"
-      kindVersion:
-        description: 'kindVersion'
-        required: false
-        default: "v0.22.0"
-        type: string
 
 jobs:
 
@@ -55,4 +50,3 @@ jobs:
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
