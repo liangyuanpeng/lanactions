@@ -209,6 +209,56 @@ jobs:
           rm -rf tmp
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG
 
+  build-k8sbins-arm:
+    name: build-k8sbins-arm
+    needs: getcommitid
+    env:
+      COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
+    permissions:
+      packages: write
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ github.event.inputs.ref }}
+          REPO: ${{ github.event.inputs.repo }}
+        run: |
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$REPO" = "" ];then
+              echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
+          else
+              echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          # repository: ${{ inputs.repo }}
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: check out to commitid
+        run: |
+          echo "COMMIT_ID:"$COMMIT_ID
+          pwd
+          git reset --hard $COMMIT_ID
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: build 
+        run: |
+          KUBE_BUILD_PLATFORMS=linux/arm64 make all
+          
+
   build-k8sbins:
     name: build-k8sbins
     needs: getcommitid
