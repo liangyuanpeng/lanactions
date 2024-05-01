@@ -146,7 +146,7 @@ jobs:
       - name: checkimgs
         id: checkimgs
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
           echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
           echo "check images for ghcr.io/liangyuanpeng/kindest/testnode:"$KIND_VERSION-$IMGTAG
@@ -170,7 +170,7 @@ jobs:
       - name: clean
         if: steps.checkimgs.outputs.exist != 'true'
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
@@ -254,7 +254,7 @@ jobs:
       - name: checkimgs
         id: checkimgs
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
           echo "check images for ghcr.io/liangyuanpeng/kubebins:"$IMGTAG
 
@@ -277,7 +277,7 @@ jobs:
       - name: clean
         if: steps.checkimgs.outputs.exist != 'true'
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
@@ -349,7 +349,7 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
@@ -479,7 +479,7 @@ jobs:
           version: 1.0.0
       - name: clean
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
