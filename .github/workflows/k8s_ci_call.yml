@@ -315,7 +315,7 @@ jobs:
         - false
         focus:
         - \[sig-storage\]
-        - \[Testpattern: Pre-provisioned PV (default fs)\]
+        - \[LocalVolumeType: blockfs\]
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
