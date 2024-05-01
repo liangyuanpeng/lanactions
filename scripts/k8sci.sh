@@ -13,7 +13,7 @@ function util::getbuild(){
   fi
 }
 
-# kind create cluster --image ghcr.io/liangyuanpeng/kindest/testnode:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
+# kind create cluster --image $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
 function util::deployk8s(){
   STEP_WHAT=${STEP_WHAT:-"none"}
    # deployk8s, runtests
@@ -21,7 +21,9 @@ function util::deployk8s(){
     KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
     IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
-    KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
+    KIND_IMG_REPO=${KIND_IMG_REPO:-"${KIND_IMG_REPO}"}
+    KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
+    KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
     # k8s master 节点数量,  1master2node  3master2node
     K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
 
@@ -61,7 +63,7 @@ networking:
   ipFamily: ipv4
 nodes:
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -70,9 +72,9 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: worker
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
 
     fi
@@ -94,7 +96,7 @@ networking:
   ipFamily: ipv4
 nodes:
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -103,7 +105,7 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -112,7 +114,7 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -121,9 +123,9 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: worker
-  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
-  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
     fi
 
