@@ -229,7 +229,6 @@ jobs:
           OPWD=$PWD
           cd gopath/src/k8s.io/
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
-          cd $OPWD
           cd kubernetes
           export WORKSPACE=$PWD
           hack/jenkins/test-dockerized.sh
