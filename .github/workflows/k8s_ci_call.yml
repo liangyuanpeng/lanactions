@@ -176,6 +176,55 @@ jobs:
 
 #TODO pull-kubernetes-node-e2e-containerd
 
+  pull-kubernetes-e2e-kind-cloud-provider-loadbalancer:
+    name: pull-kubernetes-e2e-kind-cloud-provider-loadbalancer
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      # - name: checkoutactions
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes/kubernetes
+      #     fetch-depth: 0
+      #     ref: ${{ inputs.ref }}
+      # - name: checkoutactions
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes-sigs/cloud-provider-kind
+      #     fetch-depth: 0
+      #     ref: main
+      - name: run
+        run: |
+          mkdir gopath
+          cd gopath
+          export GOPATH=$PWD
+          cd ..
+          mkdir -p gopath/src/k8s.io/
+          OPWD=$PWD
+          cd gopath/src/k8s.io/
+          git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+          cd $OPWD
+          mkdir -p gopath/src/sigs.k8s.io/
+          cd $GOPATH/src/sigs.k8s.io/
+          git clone https://github.com/kubernetes-sigs/cloud-provider-kind
+          cd cloud-provider-kind
+          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
+
   pull-kubernetes-integration:
     name: pull-kubernetes-integration
     runs-on: ubuntu-22.04
