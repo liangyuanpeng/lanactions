@@ -315,7 +315,8 @@ jobs:
         - false
         focus:
         - \[sig-storage\]
-        - \[LocalVolumeType: blockfs\]
+        # - \[LocalVolumeType: blockfs\]
+        - blockfs
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
