@@ -149,9 +149,9 @@ jobs:
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
           echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
-          echo "check images for ghcr.io/liangyuanpeng/kindest/testnode:"$KIND_VERSION-$IMGTAG
+          echo "check images for ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:"$KIND_VERSION-$IMGTAG
 
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist testnode"
             echo "exist=true" >> "$GITHUB_OUTPUT"
@@ -204,10 +204,10 @@ jobs:
           IMGTAG=`git describe --tags`
           mkdir -p tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
+          kind build node-image --image ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
           cd ..
           rm -rf tmp
-          docker push ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG
 
   build-k8sbins:
     name: build-k8sbins
@@ -256,9 +256,9 @@ jobs:
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
-          echo "check images for ghcr.io/liangyuanpeng/kubebins:"$IMGTAG
+          echo "check images for ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:"$IMGTAG
 
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kubebins:$IMGTAG | grep mediaType | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist testnode"
             echo "exist=true" >> "$GITHUB_OUTPUT"
@@ -304,7 +304,7 @@ jobs:
           make
           cd _output/bin
           bins=`ls .`
-          oras push ghcr.io/liangyuanpeng/kubebins:$IMGTAG $bins
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG $bins
 
   e2e:
     name: e2e
@@ -374,7 +374,7 @@ jobs:
 
       - name: get kind
         run: |
-          oras pull ghcr.io/liangyuanpeng/files:k8scish
+          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
           chmod +x k8sci.sh 
           STEP_WAHT=getbuild ./k8sci.sh
 
@@ -393,7 +393,7 @@ jobs:
         run: |
           mkdir -p _output/bin
           cd _output/bin
-          oras pull ghcr.io/liangyuanpeng/kubebins:$IMGTAG
+          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG
           chmod +x ./*
           cd ../..
           mv _output/bin/* /usr/local/bin/
@@ -428,7 +428,7 @@ jobs:
         run: |
           ls
           ls _artifacts/testreport
-          # ghcr.io/liangyuanpeng/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
+          # ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:v1.31.0-alpha.0-24-g9791f0d1f39
           # find / -name "*junit"
 
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
@@ -465,8 +465,8 @@ jobs:
       matrix:
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
-        # - hydrophone --conformance-image ghcr.io/liangyuanpeng/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
-        - hydrophone --conformance-image ghcr.io/liangyuanpeng/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+        # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
+        - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
@@ -487,7 +487,7 @@ jobs:
 
       - name: get kind
         run: |
-          oras pull ghcr.io/liangyuanpeng/files:k8scish
+          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
           chmod +x k8sci.sh 
           STEP_WAHT=getbuild ./k8sci.sh
 

@@ -50,7 +50,7 @@ on:
 
 
 jobs:
-
+# #/kind_build_auto kindVersion=v0.19.0&tagWithKind=true&k8sMinVersion=v1.29.0
   gettags:
     runs-on: ubuntu-22.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' }}

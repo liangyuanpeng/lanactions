@@ -62,7 +62,7 @@ on:
         type: number
 
 jobs:
-
+# #/kind_build
   build:
     uses: ./.github/workflows/kind_build_release.yml
     with:

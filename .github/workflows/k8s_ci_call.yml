@@ -53,6 +53,7 @@ permissions:
   packages: write
 
 jobs:
+# #/k8scicall
 #TODO summary
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 
