@@ -303,6 +303,61 @@ jobs:
           name: conformance_kind_ga_only_parallel
           path: _artifacts
 
+  kind-e2e-alpha-features-sig-storage:
+    name: kind-e2e-alpha-features-sig-storage
+    runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        parallel:
+        - true
+        - false
+    env:
+      FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
+      RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
+      FOCUS: \[sig-storage\]
+      SKIP: \[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|In-tree.Volumes.\[Driver:.nfs\]|PersistentVolumes.NFS|Network.should.set.TCP.CLOSE_WAIT.timeout|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|should.provide.basic.identity
+      # PARALLEL: true
+      PARALLEL: ${{ matrix.parallel }}
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - name: run
+        run: |
+          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+      - name: check artifacts
+        if: always()
+        run: |
+          ls _artifacts
+
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
+        if: always()
+        with:
+          name: kind_e2e_alpha_features_sig_storage_parallel_${{ matrix.parallel }}
+          path: _artifacts
+
+
   kind-e2e-alpha-features:
     name: kind-e2e-alpha-features
     runs-on: ubuntu-22.04
