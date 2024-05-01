@@ -4,7 +4,16 @@ set -o errexit;
 set -o pipefail;
 set -o nounset;
 
+function util::getbuild(){
+  STEP_WHAT=${STEP_WHAT:-"none"}
+  KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
+  if [ $STEP_WHAT = "getbuild" ];then 
+    wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
+    chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+  fi
+}
 
+# kind create cluster --image ghcr.io/liangyuanpeng/kindest/testnode:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
 function util::deployk8s(){
   STEP_WHAT=${STEP_WHAT:-"none"}
    # deployk8s, runtests
@@ -12,6 +21,9 @@ function util::deployk8s(){
     KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
     IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
+    KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
+    # k8s master 节点数量,  1master2node  3master2node
+    K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
 
@@ -31,8 +43,7 @@ function util::deployk8s(){
       REALLY_STORAGE_MEDIA_TYPE="application/vnd.kubernetes.protobuf"
     fi
 
-    # application/vnd.kubernetes.protobuf
-    # application/json
+    if [ $K8S_CP_COUNT = "1" ];then
 
 cat <<EOF> kind-ci.yaml
 kind: Cluster
@@ -50,6 +61,57 @@ networking:
   ipFamily: ipv4
 nodes:
 - role: control-plane
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+
+    fi
+
+    if [ $K8S_CP_COUNT = "3" ];then
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+featureGates:
+  "AllAlpha": true
+  "AllBeta": true
+  "InTreePluginGCEUnregister": false
+  "DisableCloudProviders": true
+  "DisableKubeletCloudCredentialProviders": true
+  "EventedPLEG": false
+  "StorageVersionAPI": false
+  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+networking:
+  ipFamily: ipv4
+nodes:
+- role: control-plane
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: control-plane
+  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: control-plane
   image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
@@ -63,6 +125,7 @@ nodes:
 - role: worker
   image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
 EOF
+    fi
 
     cat kind-ci.yaml
 
@@ -75,6 +138,14 @@ EOF
     mkdir -p _artifacts/testreport
   fi
 }
+
+# Summarizing 3 Failures:
+#   [FAIL] [sig-apps] StatefulSet Deploy clustered applications [Feature:StatefulSet] [Slow] [It] should creating a working redis cluster [sig-apps, Feature:StatefulSet, Slow]
+#   k8s.io/kubernetes/test/e2e/framework/statefulset/rest.go:69
+#   [FAIL] [sig-apps] StatefulSet Deploy clustered applications [Feature:StatefulSet] [Slow] [It] should creating a working mysql cluster [sig-apps, Feature:StatefulSet, Slow]
+#   k8s.io/kubernetes/test/e2e/framework/statefulset/rest.go:69
+#   [FAIL] [sig-apps] StatefulSet Deploy clustered applications [Feature:StatefulSet] [Slow] [It] should creating a working zookeeper cluster [sig-apps, Feature:StatefulSet, Slow]
+#   k8s.io/kubernetes/test/e2e/framework/statefulset/rest.go:69
 
 function util::runtests(){
   STEP_WHAT=${STEP_WHAT:-"none"}
@@ -121,8 +192,15 @@ function util::runtests(){
           --disable-log-dump=false
     fi
 
+    if [ $TEST_WHAT = "kind-e2e" ];then
+      export FOCUS=.
+      
+      curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+    fi
+
   fi
 }
 
+util::getbuild
 util::deployk8s
 util::runtests

@@ -151,3 +151,5 @@ jobs:
           docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
           docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
           docker push ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG
+
+          docker images

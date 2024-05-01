@@ -17,25 +17,36 @@
 # under the License.
 #
 
-name: ci
+name: karmada_ci_call
 on:
   push:
-    paths:
-    - 'scripts/k8sci.sh'
-  
+    branches: [ karmada_ci_call ]
+  # schedule:
+  #   - cron: '0 3 * * 0,1,2,3,4,5,6'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref of karmada '
+        required: false
+        default: "master"
+      repo:
+        description: 'repo of karmada'
+        required: false
+        default: "karmada-io/karmada"
+
 jobs:
 
   build:
+  #TODO push的话跳过,无法使用 inputs 参数, push的话加一个job手动传递参数
     name: build
-    permissions:
-      packages: write
-    runs-on: ubuntu-22.04
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v4
-
-      - name: oras push 
-        run: |
-          cd scripts 
-          oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh 
+    uses: ./.github/workflows/k8s_ci.yml
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        tests:
+          - conformance
+          # - sig-apps
+    with:
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
