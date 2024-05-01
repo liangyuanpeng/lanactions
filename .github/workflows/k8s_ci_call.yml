@@ -188,40 +188,51 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
-  # pull-kubernetes-integration:
-  #   name: pull-kubernetes-integration
-  #   runs-on: ubuntu-22.04
-  #   env:
-  #     GA_ONLY: true
-  #     PARALLEL: true
-  #     KUBE_INTEGRATION_TEST_MAX_CONCURRENCY: "8"
-  #     KUBE_TIMEOUT: "-timeout=1h30m"
-  #   steps:
-  #     - uses: actions/setup-go@v5
-  #       with:
-  #         go-version: '1.22'
-  #     - uses: oras-project/setup-oras@v1
-  #       with:
-  #         version: 1.0.0
-  #     - name: Free Disk Space (Ubuntu)
-  #       uses: jlumbroso/free-disk-space@main
-  #       with:
-  #         tool-cache: true
-  #         android: true
-  #         dotnet: true
-  #         haskell: true
-  #         large-packages: true
-  #         docker-images: true
-  #         swap-storage: true
-  #     - name: checkoutactions
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: kubernetes/kubernetes
-  #         fetch-depth: 0
-  #         ref: ${{ inputs.ref }}
-  #     - name: run
-  #       run: |
-  #         hack/jenkins/test-dockerized.sh
+  pull-kubernetes-integration:
+    name: pull-kubernetes-integration
+    runs-on: ubuntu-22.04
+    env:
+      GA_ONLY: true
+      PARALLEL: true
+      KUBE_INTEGRATION_TEST_MAX_CONCURRENCY: "8"
+      KUBE_TIMEOUT: "-timeout=1h30m"
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      # - name: checkoutactions
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes/kubernetes
+      #     fetch-depth: 0
+      #     ref: ${{ inputs.ref }}
+      - name: run
+        run: |
+          mkdir -p gopath 
+          cd gopath
+          export GOPATH=$PWD
+          cd ..
+          mkdir -p gopath/src/k8s.io/
+          OPWD=$PWD
+          cd gopath/src/k8s.io/
+          git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+          cd $OPWD
+          cd kubernetes
+          export WORKSPACE=$PWD
+          hack/jenkins/test-dockerized.sh
 
   conformance-kind-ga-only-parallel:
     name: conformance-kind-ga-only-parallel
