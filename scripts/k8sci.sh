@@ -21,7 +21,7 @@ function util::deployk8s(){
     KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
     IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
-    KIND_IMG_REPO=${KIND_IMG_REPO:-"${KIND_IMG_REPO}"}
+    KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
     KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
     KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
     # k8s master 节点数量,  1master2node  3master2node

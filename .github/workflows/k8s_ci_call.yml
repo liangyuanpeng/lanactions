@@ -57,6 +57,8 @@ jobs:
 # TODO summary
 # TODO 构建完 k8s 容器镜像后 直接安装 containerd, kubeadm 部署 k8s
 # TODO 将镜像 push 到阿里云容器镜像仓库
+# TODO 添加 controller-runtime 的 CI 测试
+# TODO 添加一个 custom-apiserver/AA 的 CI 测试?
 
   getcommitid:
     name: getcommitid
