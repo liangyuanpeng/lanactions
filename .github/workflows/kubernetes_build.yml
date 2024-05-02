@@ -32,6 +32,9 @@ on:
         default: "kubernetes/kubernetes"
         type: string
 
+permissions:
+  packages: write
+  
 jobs:
 
   release:

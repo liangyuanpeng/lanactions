@@ -33,6 +33,8 @@ on:
         required: false
         default: "kubernetes/kubernetes"
         type: string
+permissions:
+  packages: write
 
 jobs:
   buildk8s:
