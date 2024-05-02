@@ -83,7 +83,8 @@ nodes:
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
-      elif [ $WHICH_ETCD = "xline" ];then
+      fi
+      if [ $WHICH_ETCD = "xline" ];then
 
 cat <<EOF> kind-ci.yaml
 kind: Cluster
@@ -114,7 +115,6 @@ nodes:
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
-
       fi
 
     if [ $K8S_CP_COUNT = "3" ];then
