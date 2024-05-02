@@ -357,9 +357,8 @@ jobs:
           name: kind_e2e_alpha_features_sig_storage_parallel_${{ matrix.parallel }}
           path: _artifacts
 
-
-  kind-e2e-alpha-features:
-    name: kind-e2e-alpha-features
+  pull-kubernetes-e2e-kind-alpha-features:
+    name: pull-kubernetes-e2e-kind-alpha-features
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
