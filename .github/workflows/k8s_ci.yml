@@ -121,6 +121,7 @@ jobs:
   build-kind:
     name: build-kind
     needs: getcommitid
+    if: ${{ needs.getcommitid.outputs.existTestnode != true }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
@@ -284,6 +285,7 @@ jobs:
   build-k8sbins:
     name: build-k8sbins
     needs: getcommitid
+    if: ${{ needs.getcommitid.outputs.existKubebins != true }}
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
     permissions:
