@@ -210,7 +210,7 @@ function util::runtests(){
     if [ $TEST_WHAT = "kind-e2e" ];then
       ginkgo --nodes=25                \
           --focus="."     \
-          --skip="\[Serial\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
+          --skip="\[Serial\]|\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
           /usr/local/bin/e2e.test                       \
           --                                            \
           --prefix=e2e --network=e2e \
