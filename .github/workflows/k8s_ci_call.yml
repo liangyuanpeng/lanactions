@@ -60,6 +60,24 @@ jobs:
 # TODO 添加 controller-runtime 的 CI 测试
 # TODO 添加一个 custom-apiserver/AA 的 CI 测试?
 
+
+  k8scicp3:
+    name: k8scicp3
+    uses: ./.github/workflows/k8s_ci.yml
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        tests:
+          - conformance
+    with:
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
+      kindversion: ${{ inputs.kindversion }}
+      hydrophone: ${{ inputs.hydrophone }}
+      testname: ${{ matrix.tests }}
+      k8sCPCount: 3
+
   getcommitid:
     name: getcommitid
     runs-on: ubuntu-22.04
@@ -455,23 +473,6 @@ jobs:
           name: kind_e2e_alpha_features
           path: _artifacts
 
-
-  k8scicp3:
-    name: k8scicp3
-    uses: ./.github/workflows/k8s_ci.yml
-    strategy:
-      max-parallel: 6
-      fail-fast: false
-      matrix:
-        tests:
-          - conformance
-    with:
-      repo: ${{ inputs.repo }}
-      ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
-      hydrophone: ${{ inputs.hydrophone }}
-      testname: ${{ matrix.tests }}
-      k8sCPCount: 3
 
   k8sci:
   #TODO push的话跳过,无法使用 inputs 参数, push的话加一个job手动传递参数
