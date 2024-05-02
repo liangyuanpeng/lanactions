@@ -77,7 +77,12 @@ jobs:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
     outputs:
       commitID: ${{ steps.gencommitid.outputs.commitID }}
+      existTestnode: ${{ steps.gencommitid.outputs.existTestnode }}
+      existKubebins: ${{ steps.gencommitid.outputs.existKubebins }}
     steps:
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
       # - name: checkoutactions
       #   if: ${{ inputs.commitID == 'none' }}
       #   uses: actions/checkout@v4
@@ -96,6 +101,21 @@ jobs:
              cd kubernetes
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
+
+             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist testnode"
+               echo "existTestnode=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+             fi
+
+             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist kubebins"
+               echo "existKubebins=true" >> "$GITHUB_OUTPUT"
+             fi
+
           fi
 
   build-kind:
@@ -143,6 +163,10 @@ jobs:
           git reset --hard $COMMIT_ID
           git log --pretty=format:"%s" $COMMIT_ID -1
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
       - name: checkimgs
         id: checkimgs
         run: |
@@ -163,10 +187,7 @@ jobs:
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        if: steps.checkimgs.outputs.exist != 'true'
-        with:
-          version: 1.0.0
+
       - name: clean
         if: steps.checkimgs.outputs.exist != 'true'
         run: |
@@ -302,6 +323,10 @@ jobs:
           pwd
           git reset --hard $COMMIT_ID
 
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
+
       - name: checkimgs
         id: checkimgs
         run: |
@@ -321,10 +346,7 @@ jobs:
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        if: steps.checkimgs.outputs.exist != 'true'
-        with:
-          version: 1.0.0
+
       - name: clean
         if: steps.checkimgs.outputs.exist != 'true'
         run: |
