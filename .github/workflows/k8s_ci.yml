@@ -211,6 +211,7 @@ jobs:
 
   build-k8sbins-arm:
     name: build-k8sbins-arm
+    if: ${{ needs.getcommitid.outputs.arm }}
     needs: getcommitid
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
