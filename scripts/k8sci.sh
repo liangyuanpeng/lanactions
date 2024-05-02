@@ -26,6 +26,11 @@ function util::deployk8s(){
     KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
     # k8s master 节点数量,  1master2node  3master2node
     K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
+    WHICH_ETCD=${WHICH_ETCD:-"build-in"}
+
+    if [ $WHICH_ETCD = "xline" ];then 
+      echo "docker run xline"
+    fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
 
@@ -46,6 +51,38 @@ function util::deployk8s(){
     fi
 
     if [ $K8S_CP_COUNT = "1" ];then
+
+      if [ $WHICH_ETCD = "build-in" ];then
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+featureGates:
+  "AllAlpha": true
+  "AllBeta": true
+  "InTreePluginGCEUnregister": false
+  "DisableCloudProviders": true
+  "DisableKubeletCloudCredentialProviders": true
+  "EventedPLEG": false
+  "StorageVersionAPI": false
+  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+networking:
+  ipFamily: ipv4
+nodes:
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+      else if [ $WHICH_ETCD = "xline" ];then
 
 cat <<EOF> kind-ci.yaml
 kind: Cluster
@@ -77,7 +114,7 @@ nodes:
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
 
-    fi
+      fi
 
     if [ $K8S_CP_COUNT = "3" ];then
 cat <<EOF> kind-ci.yaml
@@ -161,6 +198,20 @@ function util::runtests(){
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
           /usr/local/bin/e2e.test                       \
           --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "kind-e2e" ];then
+      ginkgo --nodes=25                \
+          --focus="."     \
+          --skip="\[Serial\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --prefix=e2e --network=e2e \
           --kubeconfig=${PWD}/_artifacts/config     \
           --provider=local                              \
           --dump-logs-on-failure=true                  \

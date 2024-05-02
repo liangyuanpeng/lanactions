@@ -70,6 +70,7 @@ jobs:
       matrix:
         tests:
           - conformance
+          - kind-e2e
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
