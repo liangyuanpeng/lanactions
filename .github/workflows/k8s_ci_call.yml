@@ -107,8 +107,8 @@ jobs:
           echo '### commitID:${{ steps.gencommitid.outputs.commitID }}' >> $GITHUB_STEP_SUMMARY
           echo "### message: ${{ steps.gencommitid.outputs.commitMsg }}" >> $GITHUB_STEP_SUMMARY
 
-  kind-e2e:
-    name: kind-e2e
+  pull-kind-e2e-kubernetes:
+    name: pull-kind-e2e-kubernetes
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
