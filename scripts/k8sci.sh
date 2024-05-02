@@ -116,6 +116,7 @@ nodes:
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
       fi
+    fi
 
     if [ $K8S_CP_COUNT = "3" ];then
 cat <<EOF> kind-ci.yaml
