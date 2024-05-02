@@ -151,7 +151,9 @@ jobs:
       - name: check artifacts
         if: always()
         run: |
+          docker ps -a 
           ls _artifacts
+          docker inspect kind-control-plane
 
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
