@@ -53,6 +53,7 @@ function util::deployk8s(){
     if [ $K8S_CP_COUNT = "1" ];then
 
       if [ $WHICH_ETCD = "build-in" ];then
+
 cat <<EOF> kind-ci.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -82,7 +83,7 @@ nodes:
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
-      else if [ $WHICH_ETCD = "xline" ];then
+      elif [ $WHICH_ETCD = "xline" ];then
 
 cat <<EOF> kind-ci.yaml
 kind: Cluster
