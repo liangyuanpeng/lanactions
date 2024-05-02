@@ -34,7 +34,7 @@ on:
 
 permissions:
   packages: write
-  
+
 jobs:
 
   release:
@@ -69,7 +69,7 @@ jobs:
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
           echo "check images for "$IMGTAG
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist kubeimgs"
             echo "exist=true" >> "$GITHUB_OUTPUT"
@@ -143,16 +143,16 @@ jobs:
           rm -f _output/release-images/amd64/conformance-amd64.tar
           
           docker images
-          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-apiserver-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
-          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
+          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
           
-          docker push ghcr.io/liangyuanpeng/kube-apiserver-amd64:$IMGTAG
-          docker push ghcr.io/liangyuanpeng/kube-controller-manager-amd64:$IMGTAG
-          docker push ghcr.io/liangyuanpeng/kube-proxy-amd64:$IMGTAG
-          docker push ghcr.io/liangyuanpeng/kube-scheduler-amd64:$IMGTAG
-          docker push ghcr.io/liangyuanpeng/conformance-amd64:$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
 
           docker images

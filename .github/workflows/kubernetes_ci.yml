@@ -63,7 +63,7 @@ jobs:
           #go install k8s.io/test-infra/kubetest
           #cd ..
           #rm -rf test-infra
-          nohup oras pull ghcr.io/liangyuanpeng/files:kubetest && chmod +x kubetest && mv kubetest /usr/local/bin/ &
+          nohup oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:kubetest && chmod +x kubetest && mv kubetest /usr/local/bin/ &
           echo "begining kubetest..."
           pwd
           ls
