@@ -117,11 +117,11 @@ jobs:
         parallel:
         - true
         # - false
-    env:
-      FOCUS: "."
-      PARALLEL: ${{ matrix.parallel }}
-      # PARALLEL: true 
-      SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
+    # env:
+    #   FOCUS: "."
+    #   PARALLEL: ${{ matrix.parallel }}
+    #   # PARALLEL: true 
+    #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -147,6 +147,10 @@ jobs:
           ref: ${{ inputs.ref }}
       - name: run
         run: |
+          export FOCUS="."
+          export PARALLEL=${{ matrix.parallel }}
+          export SKIP="\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
+
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
       - name: check artifacts
         if: always()
