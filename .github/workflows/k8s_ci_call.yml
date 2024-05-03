@@ -401,6 +401,9 @@ jobs:
       matrix:
         parallel:
         - true
+        os: 
+        - ubuntu-22.04
+        - ubuntu-latest
         # - false
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
@@ -444,7 +447,7 @@ jobs:
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: kind_e2e_alpha_features_parallel_${{ matrix.parallel }}
+          name: kind_e2e_alpha_features_parallel_${{ matrix.parallel }}_${{ matrix.os }}
           path: _artifacts
 
 # 构建kubernetes容器镜像
