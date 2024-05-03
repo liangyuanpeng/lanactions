@@ -51,7 +51,6 @@ jobs:
           install: |
             apt-get update -q -y
             apt-get install -q -y git make
-            make
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
