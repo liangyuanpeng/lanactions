@@ -28,12 +28,12 @@ jobs:
     # The host should always be Linux
     runs-on: ubuntu-22.04
     steps:
-      # - name: checkoutactions
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: kubernetes/kubernetes
-      #     fetch-depth: 0
-      #     ref: ${{ inputs.ref }}
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
       - uses: uraimo/run-on-arch-action@v2
         name: Run commands
         id: runcmd
