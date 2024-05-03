@@ -17,14 +17,14 @@
 # under the License.
 #
 
-name: testarm
+name: arm
 on:
   push:
 
 jobs:
 
-  testarm:
-    name: testarm 
+  arm:
+    name: arm 
     # The host should always be Linux
     runs-on: ubuntu-22.04
     steps:
@@ -73,5 +73,4 @@ jobs:
           # Set an output parameter `uname` for use in subsequent steps
           run: |
             uname -a
-            make
-            # KUBE_BUILD_PLATFORMS=linux/arm64 make all
+            KUBE_BUILD_PLATFORMS=linux/arm64 make all

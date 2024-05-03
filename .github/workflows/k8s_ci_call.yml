@@ -60,51 +60,6 @@ jobs:
 # TODO 添加 controller-runtime 的 CI 测试
 # TODO 添加一个 custom-apiserver/AA 的 CI 测试?
 
-  testarm:
-    name: testarm 
-    # The host should always be Linux
-    runs-on: ubuntu-22.04
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
-      - uses: uraimo/run-on-arch-action@v2
-        name: Run commands
-        id: runcmd
-        with:
-          arch: armv7
-          distro: ubuntu22.04
-
-          shell: /bin/sh
-
-          # Not required, but speeds up builds by storing container images in
-          # a GitHub package registry.
-          githubToken: ${{ github.token }}
-
-          install: |
-            case "${{ matrix.distro }}" in
-              ubuntu*|jessie|stretch|buster|bullseye)
-                apt-get update -q -y
-                apt-get install -q -y git make
-                ;;
-              fedora*)
-                dnf -y update
-                dnf -y install git which make
-                ;;
-              alpine*)
-                apk update
-                apk add git
-                ;;
-            esac
-
-          # Set an output parameter `uname` for use in subsequent steps
-          run: |
-            uname -a
-            KUBE_BUILD_PLATFORMS=linux/arm64 make all
-
   k8scicp3:
     name: k8scicp3
     uses: ./.github/workflows/k8s_ci.yml
