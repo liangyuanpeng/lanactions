@@ -59,6 +59,7 @@ jobs:
 # TODO 将镜像 push 到阿里云容器镜像仓库
 # TODO 添加 controller-runtime 的 CI 测试
 # TODO 添加一个 custom-apiserver/AA 的 CI 测试?
+# TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 
   k8scicp3:
     name: k8scicp3
