@@ -53,6 +53,7 @@ jobs:
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
                 apt-get install -q -y git make
+                make
                 ;;
               fedora*)
                 dnf -y update
