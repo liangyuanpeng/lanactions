@@ -58,6 +58,16 @@ on:
         required: false
         default: 1
         type: number
+      existTestnode:
+        description: 'existTestnode'
+        required: false
+        default: false
+        type: boolean
+      existKubebins:
+        description: 'existKubebins'
+        required: false
+        default: false
+        type: boolean
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
@@ -75,6 +85,8 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
+      EXIST_TESTNODE: ${{ inputs.existTestnode }}
+      EXIST_KUBEBINS: ${{ inputs.existKubebins }}
     outputs:
       commitID: ${{ steps.gencommitid.outputs.commitID }}
       existTestnode: ${{ steps.gencommitid.outputs.existTestnode }}
@@ -96,6 +108,8 @@ jobs:
         run: |
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+            echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
+            echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
           else
              git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
              cd kubernetes
