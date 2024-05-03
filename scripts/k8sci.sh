@@ -208,6 +208,7 @@ function util::runtests(){
     fi
 
     if [ $TEST_WHAT = "kind-e2e" ];then
+    #TODO 将ginkgo跑在容器里面? 或者继续研究如何才能不丢失日志 (目前在github action 会丢失ginkgo的测试日志,但是使用官方的 e2e-k8s.sh 却不会丢失,奇怪)
     #--prefix=e2e --network=e2e \
       ginkgo --nodes=25                \
           --focus="."     \
