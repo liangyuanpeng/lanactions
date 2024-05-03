@@ -110,6 +110,7 @@ jobs:
 
   pull-kubernetes-e2e-kind:
     name: pull-kubernetes-e2e-kind
+    needs: getcommitid
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
@@ -172,6 +173,7 @@ jobs:
   pull-kubernetes-e2e-kind-cloud-provider-loadbalancer:
     name: pull-kubernetes-e2e-kind-cloud-provider-loadbalancer
     runs-on: ubuntu-22.04
+    needs: getcommitid
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -221,6 +223,7 @@ jobs:
   pull-kubernetes-integration:
     name: pull-kubernetes-integration
     runs-on: ubuntu-22.04
+    needs: getcommitid
     env:
       GA_ONLY: true
       PARALLEL: true
@@ -266,6 +269,7 @@ jobs:
   conformance-kind-ga-only-parallel:
     name: conformance-kind-ga-only-parallel
     runs-on: ubuntu-22.04
+    needs: getcommitid
     env:
       GA_ONLY: true
       PARALLEL: true
@@ -309,6 +313,7 @@ jobs:
   kind-e2e-alpha-features-sig-storage:
     name: kind-e2e-alpha-features-sig-storage
     runs-on: ubuntu-22.04
+    needs: getcommitid
     strategy:
       max-parallel: 6
       fail-fast: false
@@ -368,6 +373,7 @@ jobs:
   pull-kubernetes-e2e-kind-alpha-features:
     name: pull-kubernetes-e2e-kind-alpha-features
     runs-on: ubuntu-22.04
+    needs: getcommitid
     strategy:
       max-parallel: 6
       fail-fast: false
