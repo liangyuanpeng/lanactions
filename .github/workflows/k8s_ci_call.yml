@@ -82,11 +82,25 @@ jobs:
           # a GitHub package registry.
           githubToken: ${{ github.token }}
 
+          install: |
+            case "${{ matrix.distro }}" in
+              ubuntu*|jessie|stretch|buster|bullseye)
+                apt-get update -q -y
+                apt-get install -q -y git make
+                ;;
+              fedora*)
+                dnf -y update
+                dnf -y install git which make
+                ;;
+              alpine*)
+                apk update
+                apk add git
+                ;;
+            esac
+
           # Set an output parameter `uname` for use in subsequent steps
           run: |
             uname -a
-            apt install -y make 
-            docker ps -a
             KUBE_BUILD_PLATFORMS=linux/arm64 make all
 
   k8scicp3:
@@ -538,7 +552,7 @@ jobs:
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: kind_e2e_alpha_features
+          name: pull_kubernetes_unit
           path: _artifacts
 
 

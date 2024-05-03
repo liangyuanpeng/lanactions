@@ -295,7 +295,6 @@ jobs:
         run: |
           KUBE_BUILD_PLATFORMS=linux/arm64 make all
           
-
   build-k8sbins:
     name: build-k8sbins
     needs: getcommitid
