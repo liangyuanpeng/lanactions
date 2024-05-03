@@ -215,7 +215,7 @@ function util::runtests(){
           /usr/local/bin/e2e.test                       \
           --                                            \
           --kubeconfig=${PWD}/_artifacts/config     \
-          --provider=local                              \
+          --provider=skeleton                               \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false
