@@ -612,12 +612,12 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
