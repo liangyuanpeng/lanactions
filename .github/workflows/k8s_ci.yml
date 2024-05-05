@@ -421,6 +421,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
+      KIND_IMG_USER: ${{ github.actor }}
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
       # TEST_WHAT: ${{ matrix.tests }}
