@@ -183,7 +183,7 @@ EOF
     cp ~/.kube/config _artifacts/
 
     pwd
-    kubectl apply -f ./ds.yaml
+    kubectl apply -f artifacts/ds.yaml
     kubectl get node
     kubectl get ds -A
     kubectl get pod -A
