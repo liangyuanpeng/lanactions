@@ -95,14 +95,6 @@ jobs:
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
-      # - name: checkoutactions
-      #   if: ${{ inputs.commitID == 'none' }}
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: kubernetes/kubernetes
-      #     # repository: ${{ inputs.repo }}
-      #     fetch-depth: 0
-      #     ref: ${{ inputs.ref }}
       - name: gen commitID
         id: gencommitid
         run: |
@@ -110,13 +102,33 @@ jobs:
           echo "EXIST_TESTNODE:$EXIST_TESTNODE"
           echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
 
+          git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+          cd kubernetes
+          IMGTAG=`git describe --tags`
+
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
-            echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
-            echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
+            # echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
+            # echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
+
+            IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist testnode"
+               echo "existTestnode=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+             fi
+
+             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist kubebins"
+               echo "existKubebins=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existKubebins=false" >> "$GITHUB_OUTPUT"
+             fi
+
           else
-             git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
-             cd kubernetes
+             
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
 
