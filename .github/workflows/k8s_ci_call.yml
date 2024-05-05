@@ -93,6 +93,7 @@ jobs:
       - name: gen commitID
         id: gencommitid
         run: |
+          echo "INPUT_COMMID_ID:$INPUT_COMMID_ID"
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             echo "existTestnode=false" >> "$GITHUB_OUTPUT"
