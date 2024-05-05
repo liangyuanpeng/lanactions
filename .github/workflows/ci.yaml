@@ -22,6 +22,7 @@ on:
   push:
     paths:
     - 'scripts/k8sci.sh'
+    - 'artifacts'
   
 jobs:
 
@@ -36,6 +37,6 @@ jobs:
 
       - name: oras push 
         run: |
-          cd scripts 
+          cp scripts/k8sci.sh .
           oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts
