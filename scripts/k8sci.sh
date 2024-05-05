@@ -182,6 +182,7 @@ EOF
     mkdir -p _artifacts/testreport
     cp ~/.kube/config _artifacts/
 
+    pwd
     kubectl apply -f ./ds.yaml
     kubectl get node
     kubectl get ds -A
