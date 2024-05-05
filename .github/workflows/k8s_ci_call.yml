@@ -117,7 +117,10 @@ jobs:
              if [ $IMAGE_EXIST -eq 1 ]; then
                echo "exist kubebins"
                echo "existKubebins=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existKubebins=false" >> "$GITHUB_OUTPUT"
              fi
+
           fi
 
       - name: Adding markdown
