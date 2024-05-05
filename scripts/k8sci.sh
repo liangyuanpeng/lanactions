@@ -182,6 +182,7 @@ EOF
     cp ~/.kube/config _artifacts/
 
     pwd
+    ls
     ls artifacts
     kubectl apply -f artifacts/ds.yaml
     kubectl get node
