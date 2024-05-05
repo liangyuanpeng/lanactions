@@ -209,7 +209,7 @@ function util::runtests(){
   TEST_WHAT=${TEST_WHAT:-"none"}
   if [ $STEP_WHAT = "runtests" ];then
     if [ $TEST_WHAT = "conformance" ];then
-      ginkgo --nodes=25                \
+      ginkgo -v --race --trace --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
           /usr/local/bin/e2e.test                       \
@@ -225,7 +225,7 @@ function util::runtests(){
     #TODO 将ginkgo跑在容器里面? 或者继续研究如何才能不丢失日志 (目前在github action 会丢失ginkgo的测试日志,但是使用官方的 e2e-k8s.sh 却不会丢失,奇怪)
     #--provider=skeleton       
     #--prefix=e2e --network=e2e \
-      ginkgo --nodes=25                \
+      ginkgo -v --race --trace --nodes=25                \
           --focus="."     \
           --skip="\[Serial\]|\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
           /usr/local/bin/e2e.test                       \
