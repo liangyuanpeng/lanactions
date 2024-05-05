@@ -106,6 +106,10 @@ jobs:
       - name: gen commitID
         id: gencommitid
         run: |
+          echo "INPUT_COMMID_ID:$INPUT_COMMID_ID"
+          echo "EXIST_TESTNODE:$EXIST_TESTNODE"
+          echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
+
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
