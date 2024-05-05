@@ -61,13 +61,13 @@ on:
       existTestnode:
         description: 'existTestnode'
         required: false
-        default: false
-        type: boolean
+        default: 'false'
+        type: string
       existKubebins:
         description: 'existKubebins'
         required: false
-        default: false
-        type: boolean
+        default: 'false'
+        type: string
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
@@ -137,7 +137,8 @@ jobs:
   build-kind:
     name: build-kind
     needs: getcommitid
-    if: ${{ needs.getcommitid.outputs.existTestnode != true }}
+    # if: ${{ needs.getcommitid.outputs.existTestnode != true }}
+    if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
@@ -300,7 +301,8 @@ jobs:
   build-k8sbins:
     name: build-k8sbins
     needs: getcommitid
-    if: ${{ needs.getcommitid.outputs.existKubebins != true }}
+    # if: ${{ needs.getcommitid.outputs.existKubebins != true }}
+    if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
     permissions:
