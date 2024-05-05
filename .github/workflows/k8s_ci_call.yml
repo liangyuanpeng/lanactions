@@ -222,17 +222,18 @@ jobs:
       #     repository: kubernetes-sigs/cloud-provider-kind
       #     fetch-depth: 0
       #     ref: main
+      - name: clone 
+        run: |
+          git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+          cd kubernetes 
+          git branch
       - name: run
         run: |
           mkdir gopath
-          cd gopath
-          export GOPATH=$PWD
-          cd ..
+          export GOPATH=$PWD/gopath
           mkdir -p gopath/src/k8s.io/
           OPWD=$PWD
-          cd gopath/src/k8s.io/
-          git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
-          cd $OPWD
+          mv kubernetes gopath/src/k8s.io/
           mkdir -p gopath/src/sigs.k8s.io/
           cd $GOPATH/src/sigs.k8s.io/
           git clone https://github.com/kubernetes-sigs/cloud-provider-kind
