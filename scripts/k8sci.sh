@@ -82,6 +82,11 @@ nodes:
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+
 EOF
       fi
       if [ $WHICH_ETCD = "xline" ];then
@@ -174,9 +179,14 @@ EOF
     --name kind           \
     -v7 --wait 4m --retain --config=kind-ci.yaml
 
-    mkdir -p _artifacts
-    cp ~/.kube/config _artifacts/
     mkdir -p _artifacts/testreport
+    cp ~/.kube/config _artifacts/
+
+    kubectl apply -f ./ds.yaml
+    kubectl get node
+    kubectl get ds -A
+    kubectl get pod -A
+
   fi
 }
 
@@ -189,6 +199,8 @@ EOF
 #   k8s.io/kubernetes/test/e2e/framework/statefulset/rest.go:69
 
 function util::runtests(){
+  #TODO 部署一些东西,作为干扰项,例如k8s内部署 etcd 集群. (只是部署,不做其他动作)
+  # 以及部署一个 Daemonset, Deployment
   STEP_WHAT=${STEP_WHAT:-"none"}
   TESTS_WITH=${TESTS_WITH:-"ginkgo"}
   # ginkgo hydrophone

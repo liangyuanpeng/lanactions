@@ -69,6 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         tests:
+        #TODO sig-apps,ValidatingAdmissionPolicy,MutatingAdmissionPolicy
           - conformance
           - kind-e2e
     with:
