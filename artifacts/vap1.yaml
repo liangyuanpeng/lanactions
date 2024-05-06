@@ -1,0 +1,42 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: vap1
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups:   ["apps"]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      resources:   ["deployments","daemonsets","statefulsets"]
+      # resources:   ["statefulsets"]
+  validations:
+    - expression: "object.spec.replicas <= 100"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: vapb1
+spec:
+  policyName: vap1
+  validationActions: [Deny]
+  # matchResources:
+  #   namespaceSelector:
+  #     matchLabels:
+  #       environment: test
+  matchResources:
+    excludeResourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      resources: ["services"]
+    # namespaceSelector:
+    #   matchExpressions:
+    #   - key: environment
+    #     operator: NotIn
+    #     values:
+    #     - test
+    # objectSelector:
+    #   matchLabels: 
+    #     app: tools

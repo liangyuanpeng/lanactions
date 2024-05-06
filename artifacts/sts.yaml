@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: tools
+  name: tools
+spec:
+  selector:
+    matchLabels: 
+      app: tools
+  serviceName: tools-svc
+  replicas: 20
+  template:
+    metadata:
+      labels:
+        app: tools
+    spec:
+      containers:
+        - image: ghcr.io/liangyuanpeng/ubuntu:tools-v1
+          name: tools
+          imagePullPolicy: IfNotPresent
+          command:
+          - sh 
+          - -c 
+          - |
+            sleep 999h

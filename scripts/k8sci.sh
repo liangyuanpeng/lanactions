@@ -184,7 +184,8 @@ EOF
     pwd
     ls
     ls artifacts
-    kubectl apply -f artifacts/ds.yaml
+    #kubectl apply -f artifacts/ds.yaml
+    kubectl apply -f artifacts
     kubectl get node
     kubectl get ds -A
     kubectl get pod -A
