@@ -133,6 +133,9 @@ jobs:
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
 
+             echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG"
+             
+
              IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
                echo "exist testnode"
@@ -141,6 +144,7 @@ jobs:
               echo "existTestnode=false" >> "$GITHUB_OUTPUT"
              fi
 
+             echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG"
              IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
                echo "exist kubebins"
