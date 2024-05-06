@@ -112,8 +112,8 @@ jobs:
 
           if [ ${{ inputs.alwaysrun }} = "true" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
-            echo "commitID=false" >> "$GITHUB_OUTPUT"
-            echo "commitID=false" >> "$GITHUB_OUTPUT"
+            echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+            echo "existKubebins=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -124,8 +124,8 @@ jobs:
 
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
-            # echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
-            # echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
+            # echo "existTestnode=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
+            # echo "existKubebins=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
 
             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
