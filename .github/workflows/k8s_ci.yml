@@ -105,6 +105,7 @@ jobs:
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
           cd kubernetes
           IMGTAG=`git describe --tags`
+          echo "IMGTAG:$IMGTAG"
 
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
