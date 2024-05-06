@@ -533,6 +533,9 @@ jobs:
           - conformance
           # - sig-apps
           # - statefulset
+        alwaysrun:
+          - 'true'
+          - 'false'
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
@@ -542,5 +545,5 @@ jobs:
       commitID: ${{ needs.getcommitid.outputs.commitID }}
       existTestnode: ${{ needs.getcommitid.outputs.existTestnode }}
       existKubebins: ${{ needs.getcommitid.outputs.existKubebins }}
-      alwaysrun: 'true'
+      alwaysrun: ${{ matrix.alwaysrun }}
 
