@@ -171,6 +171,7 @@ jobs:
 
   printouputs:
     name: printouputs
+    runs-on: ubuntu-22.04
     needs: getcommitid
     steps:
       - name: print
