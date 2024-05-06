@@ -72,6 +72,9 @@ on:
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
 
+env:
+  KIND_VERSION: ${{ inputs.kindVersion }}
+
 jobs:
 
 #TODO 构建k8s容器镜像
