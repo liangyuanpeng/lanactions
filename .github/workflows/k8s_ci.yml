@@ -110,7 +110,7 @@ jobs:
           echo "EXIST_TESTNODE:$EXIST_TESTNODE"
           echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
 
-          if [ $alwaysrun = "true" ];then
+          if [ ${{ inputs.alwaysrun }} = "true" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
             echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
