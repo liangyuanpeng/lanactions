@@ -79,7 +79,7 @@ jobs:
         with:
           version: 1.0.0
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           go-version: '1.22'

@@ -103,7 +103,7 @@ jobs:
       # PARALLEL: true 
       SKIP: \[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -155,7 +155,7 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -199,7 +199,7 @@ jobs:
       KUBE_INTEGRATION_TEST_MAX_CONCURRENCY: "8"
       KUBE_TIMEOUT: "-timeout=1h30m"
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -242,7 +242,7 @@ jobs:
       GA_ONLY: true
       PARALLEL: true
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -301,7 +301,7 @@ jobs:
       # PARALLEL: true
       PARALLEL: ${{ matrix.parallel }}
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -356,7 +356,7 @@ jobs:
       # PARALLEL: true
       PARALLEL: ${{ matrix.parallel }}
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -411,7 +411,7 @@ jobs:
           - "go.mod"
           - "1.22.1"
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         if: matrix.goversion != 'go.mod'
         with:
           go-version: ${{ matrix.goversion }}
@@ -434,7 +434,7 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         if: matrix.goversion == 'go.mod'
         with:
           go-version-file: go.mod

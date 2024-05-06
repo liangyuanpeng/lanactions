@@ -159,7 +159,7 @@ jobs:
             echo "exist=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           go-version: '1.22'
@@ -266,7 +266,7 @@ jobs:
             echo "exist=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           go-version: '1.22'
@@ -341,7 +341,7 @@ jobs:
       # JON_NAME: e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
       JON_NAME: e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1
@@ -471,7 +471,7 @@ jobs:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
     steps:
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.22'
       - uses: oras-project/setup-oras@v1

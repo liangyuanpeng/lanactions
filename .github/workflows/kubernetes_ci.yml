@@ -37,7 +37,7 @@ jobs:
       #          fetch-depth: 1
       #          ref: dev_1.28
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.1
         with:
           go-version: '1.20'
 
