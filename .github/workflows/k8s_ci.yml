@@ -230,7 +230,9 @@ jobs:
         run: |
           echo "COMMIT_ID:"$COMMIT_ID
           pwd
-          git reset --hard $COMMIT_ID
+          if [ $COMMIT_ID != "none" ];then
+            git reset --hard $COMMIT_ID
+          fi
           git log --pretty=format:"%s" $COMMIT_ID -1
 
       - uses: oras-project/setup-oras@v1
