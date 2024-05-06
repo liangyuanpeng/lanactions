@@ -112,8 +112,8 @@ jobs:
 
           if [ ${{ inputs.alwaysrun }} = "true" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
-            echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
-            echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
+            echo "commitID=false" >> "$GITHUB_OUTPUT"
+            echo "commitID=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -167,6 +167,22 @@ jobs:
               echo "existKubebins=false" >> "$GITHUB_OUTPUT"
              fi
 
+          fi
+
+  printouputs:
+    name: printouputs
+    needs: getcommitid
+    steps:
+      - name: print
+        run: |
+          echo "existTestnode:"${{ needs.getcommitid.outputs.existTestnode }}
+          echo "existKubebins:"${{ needs.getcommitid.outputs.existKubebins }}
+          if [ ${{ needs.getcommitid.outputs.existTestnode }} = "false" ];then 
+            echo "existTestnode is false"
+          fi
+
+          if [ ${{ needs.getcommitid.outputs.existKubebins }} = "false" ];then 
+            echo "existKubebins is false"
           fi
 
   build-kind:
