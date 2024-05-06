@@ -232,8 +232,11 @@ jobs:
           pwd
           if [ $COMMIT_ID != "none" ];then
             git reset --hard $COMMIT_ID
+            git log --pretty=format:"%s" $COMMIT_ID -1
+            exit 0
           fi
-          git log --pretty=format:"%s" $COMMIT_ID -1
+          LATEST_COMMIT=`git rev-parse HEAD`
+          git log --pretty=format:"%s" $LATEST_COMMIT -1
 
       - uses: oras-project/setup-oras@v1
         with:
