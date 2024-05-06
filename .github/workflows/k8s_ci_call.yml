@@ -542,4 +542,5 @@ jobs:
       commitID: ${{ needs.getcommitid.outputs.commitID }}
       existTestnode: ${{ needs.getcommitid.outputs.existTestnode }}
       existKubebins: ${{ needs.getcommitid.outputs.existKubebins }}
+      alwaysrun: 'true'
 

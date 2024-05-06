@@ -68,6 +68,11 @@ on:
         required: false
         default: 'false'
         type: string
+      alwaysrun:
+        description: 'existKubebins'
+        required: false
+        default: 'true'
+        type: string
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
@@ -105,6 +110,13 @@ jobs:
           echo "EXIST_TESTNODE:$EXIST_TESTNODE"
           echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
 
+          if [ $alwaysrun = "true" ];then
+            echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+            echo "commitID=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
+            echo "commitID=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
           cd kubernetes
           IMGTAG=`git describe --tags`
@@ -138,7 +150,6 @@ jobs:
 
              echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG"
              
-
              IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
                echo "exist testnode"
