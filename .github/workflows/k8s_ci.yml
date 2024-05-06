@@ -111,7 +111,7 @@ jobs:
           echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
 
           if [ ${{ inputs.alwaysrun }} = "true" ];then
-            echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+            echo "commitID=none" >> "$GITHUB_OUTPUT"
             echo "existTestnode=false" >> "$GITHUB_OUTPUT"
             echo "existKubebins=false" >> "$GITHUB_OUTPUT"
             exit 0
