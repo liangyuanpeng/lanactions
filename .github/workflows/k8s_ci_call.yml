@@ -151,6 +151,12 @@ jobs:
         parallel:
         - true
         # - false
+        branch: 
+        - master 
+        - release-1.30
+        - release-1.29
+        - release-1.28 
+        - release-1.27
     # env:
     #   FOCUS: "."
     #   PARALLEL: ${{ matrix.parallel }}
@@ -165,7 +171,8 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 0
-          ref: ${{ inputs.ref }}
+          # ref: ${{ inputs.ref }}
+          ref: ${{ matrix.branch }}
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -199,7 +206,7 @@ jobs:
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: kind_e2e_parallel_${{ matrix.parallel }}
+          name: kind_e2e_parallel_${{ matrix.parallel }}_${{ matrix.brancher }}
           path: _artifacts
 
 #TODO pull-kubernetes-node-e2e-containerd
