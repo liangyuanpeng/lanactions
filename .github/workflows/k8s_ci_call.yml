@@ -54,7 +54,7 @@ permissions:
 
 env:
   KIND_VERSION: ${{ inputs.kindVersion }}
-  
+
 jobs:
 # #/k8scicall
 # TODO summary
@@ -63,6 +63,7 @@ jobs:
 # TODO 添加 controller-runtime 的 CI 测试
 # TODO 添加一个 custom-apiserver/AA 的 CI 测试?
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
+# pull-kubernetes-conformance-kind-ipv6-parallel
 
   k8scicp3:
     name: k8scicp3
@@ -72,9 +73,11 @@ jobs:
       fail-fast: false
       matrix:
         tests:
-        #TODO sig-apps,ValidatingAdmissionPolicy,MutatingAdmissionPolicy
+        #TODO sig-apps
           - conformance
           - kind-e2e
+          - ValidatingAdmissionPolicy
+          - MutatingAdmissionPolicy
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
@@ -151,12 +154,15 @@ jobs:
     #   # PARALLEL: true 
     #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -167,12 +173,10 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - name: checkoutactions
-        uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        if: matrix.goversion == 'go.mod'
         with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
+          go-version-file: go.mod
       - name: run
         run: |
           export FOCUS="."
@@ -340,6 +344,7 @@ jobs:
           name: conformance_kind_ga_only_parallel_${{ matrix.os }}
           path: _artifacts
 
+  # non-blocking
   pull-kubernetes-e2e-kind-alpha-features-sig-storage:
     name: pull-kubernetes-e2e-kind-alpha-features-sig-storage
     runs-on: ubuntu-22.04
@@ -402,9 +407,10 @@ jobs:
           name: kind_e2e_alpha_features_sig_storage_parallel_${{ matrix.parallel }}
           path: _artifacts
 
+  # non-blocking
   pull-kubernetes-e2e-kind-alpha-features:
     name: pull-kubernetes-e2e-kind-alpha-features
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     needs: getcommitid
     strategy:
       max-parallel: 6
@@ -480,6 +486,12 @@ jobs:
           - "go.mod"
           - "1.22.1"
     steps:
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-go@v5
         if: matrix.goversion != 'go.mod'
         with:
@@ -497,12 +509,7 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
+
       - uses: actions/setup-go@v5
         if: matrix.goversion == 'go.mod'
         with:
