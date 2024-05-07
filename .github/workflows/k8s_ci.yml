@@ -176,6 +176,7 @@ jobs:
         run: |
           echo "existTestnode:"${{ needs.getcommitid.outputs.existTestnode }}
           echo "existKubebins:"${{ needs.getcommitid.outputs.existKubebins }}
+          echo "existKubebins:"${{ needs.getcommitid.outputs.imgtag }}
           if [ ${{ needs.getcommitid.outputs.existTestnode }} = "false" ];then 
             echo "existTestnode is false"
           fi
