@@ -497,7 +497,7 @@ jobs:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
       KIND_IMG_USER: ${{ github.actor }}
       KIND_VERSION: ${{ inputs.kindVersion }}
-      IMGTAG: ${{ steps.gencommitid.outputs.imgtag }}
+      IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
       # TEST_WHAT: ${{ matrix.tests }}
       TEST_WHAT: ${{ inputs.testname }}
       WHICH_ETCD: ${{ matrix.etcd }}
