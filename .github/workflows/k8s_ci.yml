@@ -184,8 +184,7 @@ jobs:
   build-kind:
     name: build-kind
     needs: getcommitid
-    # if: ${{ needs.getcommitid.outputs.existTestnode != true }}
-    if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
+    # if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
@@ -214,6 +213,7 @@ jobs:
           fi
 
       - name: checkoutactions
+        if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
         uses: actions/checkout@v4
         with:
           repository: kubernetes/kubernetes
@@ -222,6 +222,7 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: check out to commitid
+        if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
         run: |
           echo "COMMIT_ID:"$COMMIT_ID
           pwd
@@ -238,6 +239,7 @@ jobs:
           version: 1.0.0
 
       - name: checkimgs
+        if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
         id: checkimgs
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
@@ -359,8 +361,7 @@ jobs:
   build-k8sbins:
     name: build-k8sbins
     needs: getcommitid
-    # if: ${{ needs.getcommitid.outputs.existKubebins != true }}
-    if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
+    # if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
     permissions:
@@ -387,6 +388,7 @@ jobs:
           fi
 
       - name: checkoutactions
+        if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
         uses: actions/checkout@v4
         with:
           repository: kubernetes/kubernetes
@@ -395,6 +397,7 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: check out to commitid
+        if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
         run: |
           echo "COMMIT_ID:"$COMMIT_ID
           pwd
@@ -411,6 +414,7 @@ jobs:
           version: 1.0.0
 
       - name: checkimgs
+        if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
         id: checkimgs
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
