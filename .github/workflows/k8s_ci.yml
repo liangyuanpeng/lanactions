@@ -68,11 +68,6 @@ on:
         required: false
         default: 'false'
         type: string
-      alwaysrun:
-        description: 'existKubebins'
-        required: false
-        default: 'true'
-        type: string
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
@@ -110,12 +105,12 @@ jobs:
           echo "EXIST_TESTNODE:$EXIST_TESTNODE"
           echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
 
-          if [ ${{ inputs.alwaysrun }} = "true" ];then
-            echo "commitID=none" >> "$GITHUB_OUTPUT"
-            echo "existTestnode=false" >> "$GITHUB_OUTPUT"
-            echo "existKubebins=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          # if [ ${{ inputs.alwaysrun }} = "true" ];then
+          #   echo "commitID=none" >> "$GITHUB_OUTPUT"
+          #   echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+          #   echo "existKubebins=false" >> "$GITHUB_OUTPUT"
+          #   exit 0
+          # fi
 
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
           cd kubernetes
@@ -600,7 +595,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: kind_testreport_e2e_alwaysrun_${{ inputs.alwaysrun }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_testreport_e2e_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
       - name: export logs
@@ -613,7 +608,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_e2e_alwaysrun_${{ inputs.alwaysrun }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_test_e2e_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: /tmp/kind/
 
   e2e-with-hydrophone:
@@ -702,12 +697,12 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_alwaysrun_${{ inputs.alwaysrun }}_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_alwaysrun_${{ inputs.alwaysrun }}_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/

@@ -543,9 +543,6 @@ jobs:
           - conformance
           # - sig-apps
           # - statefulset
-        alwaysrun:
-          - 'true'
-          - 'false'
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}

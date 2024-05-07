@@ -20,6 +20,8 @@
 name: arm
 on:
   push:
+    paths:
+    - '.github/workflows/arm.yaml'
 
 jobs:
 
