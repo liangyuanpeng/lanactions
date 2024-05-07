@@ -475,6 +475,7 @@ jobs:
     - build-kind
     - build-k8sbins
     - printouputs
+    - getcommitid
     permissions:
       packages: write
     strategy:
@@ -624,6 +625,7 @@ jobs:
     needs:
     - build-kind
     - build-k8sbins
+    - getcommitid
     permissions:
       packages: write
     runs-on: ubuntu-22.04
@@ -636,7 +638,7 @@ jobs:
         - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-556-g82cd82aa15a --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
-      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+      IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -703,12 +705,12 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ inputs.testname }}_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
