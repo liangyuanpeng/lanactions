@@ -67,6 +67,7 @@ jobs:
 
   k8scicp3:
     name: k8scicp3
+    needs: getcommitid
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
       max-parallel: 6
@@ -85,6 +86,7 @@ jobs:
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
       k8sCPCount: 3
+      commitID: ${{ needs.getcommitid.outputs.commitID }}
 
   getcommitid:
     name: getcommitid
