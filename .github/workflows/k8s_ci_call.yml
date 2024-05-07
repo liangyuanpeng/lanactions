@@ -189,6 +189,13 @@ jobs:
       - name: run
         run: |
           #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
+          #TODO kind commit 296749aa2de8577f6865e4db1870d2566a28d14b  support kube-proxy nftables mode 试试这个
+          git clone https://github.com/kubernetes-sigs/kind 
+          cd kind 
+          git reset --hard 296749aa2de8577f6865e4db1870d2566a28d14b
+          make 
+          #hack/ci/e2e-k8s.sh
+          cd ..
           export FOCUS="."
           #export FOCUS="should store data"
           #export PARALLEL=true
