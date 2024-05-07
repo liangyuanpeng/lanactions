@@ -94,6 +94,7 @@ jobs:
       commitID: ${{ steps.gencommitid.outputs.commitID }}
       existTestnode: ${{ steps.gencommitid.outputs.existTestnode }}
       existKubebins: ${{ steps.gencommitid.outputs.existKubebins }}
+      imgtag: ${{ steps.gencommitid.outputs.imgtag }}
     steps:
       - uses: oras-project/setup-oras@v1
         with:
@@ -116,6 +117,7 @@ jobs:
           cd kubernetes
           IMGTAG=`git describe --tags`
           echo "IMGTAG:$IMGTAG"
+          echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
 
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
@@ -142,6 +144,7 @@ jobs:
              
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
+             IMGTAG=`git describe --tags`
 
              echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG"
              
@@ -191,8 +194,6 @@ jobs:
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
       KIND_VERSION: ${{ inputs.kindVersion }}
-    outputs:
-      imgtag: ${{ steps.checkimgs.outputs.imgtag }}
     steps:
       - name: make default value
         id: genoutputs
@@ -496,7 +497,7 @@ jobs:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
       KIND_IMG_USER: ${{ github.actor }}
       KIND_VERSION: ${{ inputs.kindVersion }}
-      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+      IMGTAG: ${{ steps.gencommitid.outputs.imgtag }}
       # TEST_WHAT: ${{ matrix.tests }}
       TEST_WHAT: ${{ inputs.testname }}
       WHICH_ETCD: ${{ matrix.etcd }}
