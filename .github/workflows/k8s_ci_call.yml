@@ -153,10 +153,10 @@ jobs:
         # - false
         branch: 
         - master 
-        # - release-1.30
-        # - release-1.29
-        # - release-1.28 
-        # - release-1.27
+        - release-1.30
+        - release-1.29
+        - release-1.28 
+        - release-1.27
     # env:
     #   FOCUS: "."
     #   PARALLEL: ${{ matrix.parallel }}
@@ -188,7 +188,7 @@ jobs:
           go-version-file: go.mod
       - name: run
         run: |
-          git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
+          #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
           export FOCUS="."
           #export FOCUS="should store data"
           #export PARALLEL=true
@@ -196,7 +196,12 @@ jobs:
           #export SKIP="\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
           export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
 
-          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+          curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/"
+          wget https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
+          chmod +x kind-linux-amd64
+          mv kind-linux-amd64 /usr/local/bin/kind 
+          e2e-k8s.sh
+          #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
       - name: check artifacts
         if: always()
         run: |
