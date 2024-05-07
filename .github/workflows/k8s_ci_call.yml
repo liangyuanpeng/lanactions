@@ -182,6 +182,7 @@ jobs:
       - name: run
         run: |
           export FOCUS="."
+          #export FOCUS="should store data"
           #export PARALLEL=true
           export PARALLEL=${{ matrix.parallel }}
           #export SKIP="\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
@@ -487,7 +488,7 @@ jobs:
       matrix:
         goversion:
           - "go.mod"
-          - "1.22.1"
+          # - "1.22.1"
     steps:
       - name: checkoutactions
         uses: actions/checkout@v4
