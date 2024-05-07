@@ -52,6 +52,9 @@ on:
 permissions:
   packages: write
 
+env:
+  KIND_VERSION: ${{ inputs.kindVersion }}
+  
 jobs:
 # #/k8scicall
 # TODO summary
