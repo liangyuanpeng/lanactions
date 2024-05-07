@@ -224,7 +224,7 @@ function util::runtests(){
 
     if [ $TEST_WHAT = "ValidatingAdmissionPolicy" ];then
       ginkgo -v --race --trace --nodes=25                \
-          --focus="ValidatingAdmissionPolicy     \
+          --focus="ValidatingAdmissionPolicy"     \
           /usr/local/bin/e2e.test                       \
           --                                            \
           --kubeconfig=${PWD}/_artifacts/config     \
@@ -236,7 +236,7 @@ function util::runtests(){
 
     if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
       ginkgo -v --race --trace --nodes=25                \
-          --focus="MutatingAdmissionPolicy     \
+          --focus="MutatingAdmissionPolicy"     \
           /usr/local/bin/e2e.test                       \
           --                                            \
           --kubeconfig=${PWD}/_artifacts/config     \
