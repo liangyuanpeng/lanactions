@@ -188,7 +188,7 @@ jobs:
           go-version-file: go.mod
       - name: run
         run: |
-          git reset --hard 65d67101e72cf703e63491448f38a59dad8fd87c
+          git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
           export FOCUS="."
           #export FOCUS="should store data"
           #export PARALLEL=true
