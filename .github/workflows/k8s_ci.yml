@@ -115,11 +115,13 @@ jobs:
 
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
           cd kubernetes
-          IMGTAG=`git describe --tags`
-          echo "IMGTAG:$IMGTAG"
-          echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
 
           if [ $INPUT_COMMID_ID != "none" ];then
+            git reset --hard $COMMIT_ID
+            IMGTAG=`git describe --tags`
+            echo "have commitID:$COMMIT_ID, IMGTAG:$IMGTAG"
+            git log --pretty=format:"%s" $COMMIT_ID -1
+            echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             # echo "existTestnode=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
             # echo "existKubebins=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
@@ -145,6 +147,9 @@ jobs:
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
              IMGTAG=`git describe --tags`
+             
+             echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
+             git log --pretty=format:"%s" $COMMIT_ID -1
 
              echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG"
              
