@@ -107,6 +107,7 @@ jobs:
           else
              git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
              cd kubernetes
+             IMGTAG=`git describe --tags`
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
              COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
