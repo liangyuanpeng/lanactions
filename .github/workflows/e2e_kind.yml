@@ -27,7 +27,7 @@ jobs:
     name: pull-kubernetes-e2e-kind
     runs-on: ${{ matrix.runasos }}
     strategy:
-      max-parallel: 20
+      max-parallel: 10
       fail-fast: false
       matrix:
         runasos:
@@ -39,6 +39,7 @@ jobs:
         - false
         focus:
         - should store data
+        - "."
         branch: 
         - master 
         - release-1.30
