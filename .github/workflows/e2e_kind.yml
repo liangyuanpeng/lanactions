@@ -36,7 +36,9 @@ jobs:
         - ubuntu-latest
         parallel:
         - true
-        # - false
+        - false
+        focus:
+        - should store data
         branch: 
         - master 
         - release-1.30
@@ -46,9 +48,9 @@ jobs:
         - release-1.26
         - release-1.25
         - release-1.24
-    # env:
-    #   FOCUS: "."
-    #   PARALLEL: ${{ matrix.parallel }}
+    env:
+      FOCUS: "."
+      PARALLEL: ${{ matrix.parallel }}
     #   # PARALLEL: true 
     #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
@@ -95,10 +97,9 @@ jobs:
           #hack/ci/e2e-k8s.sh
           mv hack/ci/e2e-k8s.sh /usr/local/bin/
           cd ../lanactions
-          export FOCUS="."
+          #export FOCUS="."
           #export FOCUS="should store data"
           #export PARALLEL=true
-          export PARALLEL=${{ matrix.parallel }}
           #export SKIP="\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
           export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
 
