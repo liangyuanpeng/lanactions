@@ -84,7 +84,7 @@ jobs:
 
           git clone https://github.com/kubernetes-sigs/kind 
           cd kind 
-          git reset --hard 9228b09c3f57e2302c423acb2b9f59c031acf764
+          git reset --hard 58e30d99be0a826111a415cb2b44062a78d04817
           make 
           mv bin/kind /usr/local/bin/kind
           chmod +x /usr/local/bin/kind
