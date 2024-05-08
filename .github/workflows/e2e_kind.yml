@@ -38,8 +38,8 @@ jobs:
         - true
         - false
         focus:
-        - should store data
-        # - "."
+        # - should store data
+        - "."
         branch: 
         - master 
         - release-1.30
