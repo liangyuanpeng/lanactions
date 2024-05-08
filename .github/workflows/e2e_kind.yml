@@ -27,7 +27,7 @@ jobs:
     name: pull-kubernetes-e2e-kind
     runs-on: ${{ matrix.runasos }}
     strategy:
-      max-parallel: 6
+      max-parallel: 20
       fail-fast: false
       matrix:
         runasos:
