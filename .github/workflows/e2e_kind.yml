@@ -48,6 +48,9 @@ jobs:
         - release-1.26
         - release-1.25
         - release-1.24
+        kindversion:
+        - v0.22.0
+        - 296749aa2de8577f6865e4db1870d2566a28d14b
     env:
       FOCUS: "."
       PARALLEL: ${{ matrix.parallel }}
@@ -77,26 +80,42 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: run
+      - name: get kind
         run: |
-          pwd 
-          ls
-          #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
-          # 9228b09c3f57e2302c423acb2b9f59c031acf764 Bump containerd to 1.7.15
-          #TODO kind commit 296749aa2de8577f6865e4db1870d2566a28d14b  support kube-proxy nftables mode 试试这个
           cd ..
-          pwd 
-          ls
-
           git clone https://github.com/kubernetes-sigs/kind 
           cd kind 
-          git reset --hard 58e30d99be0a826111a415cb2b44062a78d04817
+          prefix="v"
+          if [[ ${{ matrix.kindversion }} =~ ^$prefix ]]; then
+            git reset --hard ${{ matrix.kindversion }}
+          else 
+            git checkout ${{ matrix.kindversion }}
+          fi
+
+          # git reset --hard 58e30d99be0a826111a415cb2b44062a78d04817
           make 
           mv bin/kind /usr/local/bin/kind
           chmod +x /usr/local/bin/kind
           #hack/ci/e2e-k8s.sh
           mv hack/ci/e2e-k8s.sh /usr/local/bin/
-          cd ../lanactions
+          kind version
+
+      - name: run
+        run: |
+          #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
+          # 9228b09c3f57e2302c423acb2b9f59c031acf764 Bump containerd to 1.7.15
+          #TODO kind commit 296749aa2de8577f6865e4db1870d2566a28d14b  support kube-proxy nftables mode 试试这个
+
+          # git clone https://github.com/kubernetes-sigs/kind 
+          # cd kind 
+          # git reset --hard 58e30d99be0a826111a415cb2b44062a78d04817
+          # make 
+          # mv bin/kind /usr/local/bin/kind
+          # chmod +x /usr/local/bin/kind
+          # #hack/ci/e2e-k8s.sh
+          # mv hack/ci/e2e-k8s.sh /usr/local/bin/
+          # cd ../lanactions
+
           #export FOCUS="."
           #export FOCUS="should store data"
           #export PARALLEL=true
@@ -107,7 +126,7 @@ jobs:
           #wget https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
           #chmod +x kind-linux-amd64
           #mv kind-linux-amd64 /usr/local/bin/kind 
-          kind version
+          
           e2e-k8s.sh
           #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
       - name: check artifacts
