@@ -86,7 +86,7 @@ jobs:
           chmod +x /usr/local/bin/kind
           #hack/ci/e2e-k8s.sh
           mv hack/ci/e2e-k8s.sh /usr/local/bin/
-          cd ../kubernetes
+          cd ../lanactions
           export FOCUS="."
           #export FOCUS="should store data"
           #export PARALLEL=true
