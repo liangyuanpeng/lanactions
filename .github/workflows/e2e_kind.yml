@@ -50,7 +50,7 @@ jobs:
         kindversion:
         - v0.22.0
         # - 296749aa2de8577f6865e4db1870d2566a28d14b
-        # - master
+        - master
     env:
       FOCUS: ${{ matrix.focus }}
       PARALLEL: ${{ matrix.parallel }}
