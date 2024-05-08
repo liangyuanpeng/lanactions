@@ -58,9 +58,9 @@ jobs:
     #   # PARALLEL: true 
     #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
-      - uses: oras-project/setup-oras@v1
-        with:
-          version: 1.0.0
+      # - uses: oras-project/setup-oras@v1
+      #   with:
+      #     version: 1.0.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
