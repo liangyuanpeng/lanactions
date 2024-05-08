@@ -321,7 +321,7 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - ubuntu-latest
+          - ubuntu-24.04
     runs-on: ${{ matrix.os }}
     needs: getcommitid
     env:
@@ -440,7 +440,7 @@ jobs:
         - true
         os: 
         - ubuntu-22.04
-        - ubuntu-latest
+        - ubuntu-24.04
         # - false
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
