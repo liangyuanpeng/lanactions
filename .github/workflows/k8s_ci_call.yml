@@ -321,7 +321,8 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - ubuntu-24.04
+          # - ubuntu-24.04
+          - ubuntu-latest
     runs-on: ${{ matrix.os }}
     needs: getcommitid
     env:
@@ -438,10 +439,11 @@ jobs:
       matrix:
         parallel:
         - true
+        # - false
         os: 
         - ubuntu-22.04
-        - ubuntu-24.04
-        # - false
+        # - ubuntu-24.04
+        - ubuntu-latest
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
