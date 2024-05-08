@@ -54,6 +54,7 @@ jobs:
     env:
       FOCUS: ${{ matrix.focus }}
       PARALLEL: ${{ matrix.parallel }}
+      KUBE_TIMEOUT: "-timeout=1h0m"
     #   # PARALLEL: true 
     #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
