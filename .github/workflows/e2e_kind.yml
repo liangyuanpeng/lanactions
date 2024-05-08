@@ -25,7 +25,6 @@ on:
 jobs:
   pull-kubernetes-e2e-kind:
     name: pull-kubernetes-e2e-kind
-    needs: getcommitid
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
