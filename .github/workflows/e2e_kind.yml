@@ -99,6 +99,7 @@ jobs:
           #wget https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
           #chmod +x kind-linux-amd64
           #mv kind-linux-amd64 /usr/local/bin/kind 
+          kind version
           e2e-k8s.sh
           #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
       - name: check artifacts
