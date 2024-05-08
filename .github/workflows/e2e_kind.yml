@@ -36,8 +36,9 @@ jobs:
         - ubuntu-latest
         parallel:
         - true
-        - false
+        # - false
         focus:
+        - \[sig-storage\]
         # - should store data
         - "."
         branch: 
@@ -49,6 +50,7 @@ jobs:
         kindversion:
         - v0.22.0
         - 296749aa2de8577f6865e4db1870d2566a28d14b
+        - master
     env:
       FOCUS: ${{ matrix.focus }}
       PARALLEL: ${{ matrix.parallel }}
@@ -63,7 +65,6 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 0
-          # ref: ${{ inputs.ref }}
           ref: ${{ matrix.branch }}
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -87,7 +88,9 @@ jobs:
           if [[ ${{ matrix.kindversion }} =~ ^$prefix ]]; then
             git reset --hard ${{ matrix.kindversion }}
           else 
-            git checkout ${{ matrix.kindversion }}
+            if [[ ${{ matrix.kindversion }} != "master" ]];then
+              git checkout ${{ matrix.kindversion }}
+            fi
           fi
 
           # git reset --hard 58e30d99be0a826111a415cb2b44062a78d04817
