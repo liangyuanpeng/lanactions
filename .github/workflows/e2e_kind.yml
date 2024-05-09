@@ -139,8 +139,15 @@ jobs:
           ls _artifacts
           # docker inspect kind-control-plane
 
+      - name: Get job info
+        id: my_action
+        uses: daleyjem/gh-job-id@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "pull-kubernetes-e2e-kind"
+
       - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3
         if: always()
         with:
-          name: kind_e2e_parallel_${{ matrix.parallel }}_${{ matrix.branch }}_${{ matrix.kindversion }}_${{ github.run_id }}
+          name: kind_e2e_parallel_${{ matrix.parallel }}_${{ matrix.branch }}_${{ matrix.kindversion }}_${{ github.run_id }}_${{ steps.my_action.outputs.job_id }}
           path: _artifacts
