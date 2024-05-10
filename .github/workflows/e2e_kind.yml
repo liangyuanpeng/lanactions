@@ -127,8 +127,6 @@ jobs:
       - name: run
         run: |
 
-          
-
           cd kubernetes
 
           #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
@@ -162,7 +160,7 @@ jobs:
         if: always()
         run: |
           docker ps -a 
-          ls _artifacts
+          ls kubernetes/_artifacts
           # docker inspect kind-control-plane
 
       # - name: Get job info
@@ -176,4 +174,4 @@ jobs:
         if: always()
         with:
           name: kind_e2e_parallel_${{ matrix.parallel }}_${{ matrix.branch }}_${{ matrix.kindversion }}_${{ github.run_id }}_${{ steps.print.outputs.trackingID }}
-          path: _artifacts
+          path: kubernetes/_artifacts
