@@ -86,9 +86,22 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
+      - name: checkout kubernetes
+        run: |
+          git clone https://github.com/kubernetes/kubernetes
+          cd kubernetes
+
+          prefix="release-"
+          if [[ ${{ matrix.branch }} =~ ^$prefix ]]; then
+            if [[ ${{ matrix.branch }} != "master" ]];then
+              git reset --hard ${{ matrix.branch }}
+            fi
+          else 
+            git checkout ${{ matrix.branch }}
+          fi
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: ${{ github.workspace }}/kubernetes/go.mod
       - name: get kind
         run: |
           cd ..
@@ -114,17 +127,9 @@ jobs:
       - name: run
         run: |
 
-          git clone https://github.com/kubernetes/kubernetes
-          cd kubernetes
+          
 
-          prefix="release-"
-          if [[ ${{ matrix.branch }} =~ ^$prefix ]]; then
-            if [[ ${{ matrix.branch }} != "master" ]];then
-              git reset --hard ${{ matrix.branch }}
-            fi
-          else 
-            git checkout ${{ matrix.branch }}
-          fi
+          cd kubernetes
 
           #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
           # 9228b09c3f57e2302c423acb2b9f59c031acf764 Bump containerd to 1.7.15
