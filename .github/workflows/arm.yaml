@@ -40,6 +40,7 @@ jobs:
       # brew install ./virtualbox.rb
       # rm ./virtualbox.rb
       - name: Set up Virtualbox
+      #报错,安装不了  Error: Cask virtualbox depends on hardware architecture being one of [{:type=>:intel, :bits=>64}], but you are running {:type=>:arm, :bits=>64}.
         run: |
           brew install --cask vagrant
           brew install --cask virtualbox

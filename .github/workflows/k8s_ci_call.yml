@@ -64,6 +64,7 @@ jobs:
 # TODO 添加一个 custom-apiserver/AA 的 CI 测试?
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
+# TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
 
   k8scicp3:
     name: k8scicp3
