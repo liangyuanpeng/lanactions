@@ -44,6 +44,7 @@ jobs:
         - \[sig-network\]
         branch: 
         - master 
+        - 47c92e2ab7ad9076e11772ee130b82dc2cfa1add
         # - release-1.30
         # - release-1.29
         # - release-1.28 
@@ -69,12 +70,12 @@ jobs:
       # - uses: oras-project/setup-oras@v1
       #   with:
       #     version: 1.0.0
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: kubernetes/kubernetes
-          fetch-depth: 0
-          ref: ${{ matrix.branch }}
+      # - name: checkoutactions
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes/kubernetes
+      #     fetch-depth: 0
+      #     ref: ${{ matrix.branch }}
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -112,6 +113,19 @@ jobs:
 
       - name: run
         run: |
+
+          git clone https://github.com/kubernetes/kubernetes
+          cd kubernetes
+
+          prefix="release-"
+          if [[ ${{ matrix.branch }} =~ ^$prefix ]]; then
+            if [[ ${{ matrix.branch }} != "master" ]];then
+              git reset --hard ${{ matrix.branch }}
+            fi
+          else 
+            git checkout ${{ matrix.branch }}
+          fi
+
           #git reset --hard 77dfd63d1dbe24bd96e579a6bea5c4fb3732d81d
           # 9228b09c3f57e2302c423acb2b9f59c031acf764 Bump containerd to 1.7.15
           #TODO kind commit 296749aa2de8577f6865e4db1870d2566a28d14b  support kube-proxy nftables mode 试试这个
