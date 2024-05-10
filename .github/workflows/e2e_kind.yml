@@ -52,6 +52,8 @@ jobs:
         - v0.22.0
         # - 296749aa2de8577f6865e4db1870d2566a28d14b
         - master
+    outputs:
+      trackingID: ${{ steps.print.outputs.trackingID }}
     env:
       FOCUS: ${{ matrix.focus }}
       PARALLEL: ${{ matrix.parallel }}
@@ -60,8 +62,10 @@ jobs:
     #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
       - name: print 
+        id: print
         run: |
           env
+          echo "trackingID=$RUNNER_TRACKING_ID" >> "$GITHUB_OUTPUT"
       # - uses: oras-project/setup-oras@v1
       #   with:
       #     version: 1.0.0
