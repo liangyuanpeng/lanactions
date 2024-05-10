@@ -25,6 +25,14 @@ on:
 
 jobs:
 
+  macosarm:
+    name: macosarm
+    runs-on: macos-14-xlarge
+    steps:
+      - name: run
+        run: |
+          env
+
   arm:
     name: arm 
     # The host should always be Linux
