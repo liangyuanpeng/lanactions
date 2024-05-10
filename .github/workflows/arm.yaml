@@ -27,7 +27,7 @@ jobs:
 
   macosarm:
     name: macosarm
-    runs-on: macos-14-xlarge
+    runs-on: macos-14
     steps:
       - name: run
         run: |
