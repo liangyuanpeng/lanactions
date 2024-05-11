@@ -41,7 +41,7 @@ jobs:
         - \[sig-storage\]
         # - should store data
         - "."
-        - \[sig-network\]
+        # - \[sig-network\]
         branch: 
         - master 
         - 47c92e2ab7ad9076e11772ee130b82dc2cfa1add
