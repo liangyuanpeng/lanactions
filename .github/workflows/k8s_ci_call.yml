@@ -445,12 +445,17 @@ jobs:
         - ubuntu-22.04
         # - ubuntu-24.04
         - ubuntu-latest
+        ref: 
+        - master 
+        - release-1.30
+        - release-1.29
+        - ${{ inputs.ref }}
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
       FOCUS: "."
-      # SKIP: \[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|In-tree.Volumes.\[Driver:.nfs\]|PersistentVolumes.NFS|Network.should.set.TCP.CLOSE_WAIT.timeout|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|should.provide.basic.identity
-      SKIP: \[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|In-tree.Volumes.\[Driver:.nfs\]|PersistentVolumes.NFS|Network.should.set.TCP.CLOSE_WAIT.timeout|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|should.provide.basic.identity
+      SKIP: \[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|In-tree.Volumes.\[Driver:.nfs\]|PersistentVolumes.NFS|Network.should.set.TCP.CLOSE_WAIT.timeout|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|should.provide.basic.identity
+      # SKIP: \[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|In-tree.Volumes.\[Driver:.nfs\]|PersistentVolumes.NFS|Network.should.set.TCP.CLOSE_WAIT.timeout|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|should.provide.basic.identity
       # PARALLEL: true
       PARALLEL: ${{ matrix.parallel }}
     steps:
@@ -475,7 +480,7 @@ jobs:
         with:
           repository: kubernetes/kubernetes
           fetch-depth: 0
-          ref: ${{ inputs.ref }}
+          ref: ${{ matrix.ref }}
       - name: run
         run: |
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
@@ -509,6 +514,16 @@ jobs:
           - "go.mod"
           # - "1.22.1"
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -522,17 +537,6 @@ jobs:
       - uses: oras-project/setup-oras@v1
         with:
           version: 1.0.0
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: true
-
       - uses: actions/setup-go@v5
         if: matrix.goversion == 'go.mod'
         with:
