@@ -33,7 +33,7 @@ on:
         default: "kubernetes/kubernetes"
 
 env:
-  KIND_VERSION: "v0.22.0"
+  KIND_VERSION: "v0.23.0"
 
 jobs:
 
@@ -248,7 +248,7 @@ jobs:
 
       - name: download kind
         run: |
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.22.0/kind-linux-amd64
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/v0.23.0/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
           # kind create cluster
           # kubectl get po -A

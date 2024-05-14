@@ -31,7 +31,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.22.0"
+        default: "v0.23.0"
         type: string
       tagWithKind:
         description: 'is it need to add kind version for tag'
