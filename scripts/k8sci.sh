@@ -32,6 +32,9 @@ function util::deployk8s(){
     fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
+    #TODO 开启以下配置 测试矩阵
+    IPFAMILY=${IPFAMILY:-"ipv4"} #ipv4 ipv6  双栈
+    PROXY_MODE=${PROXY_MODE:-"iptables"} # iptables, ipvs, nftables
 
     if [ $STORAGE_MEDIA_TYPE = "json" ];then 
       REALLY_STORAGE_MEDIA_TYPE="application/json"
@@ -66,7 +69,8 @@ featureGates:
   "StorageVersionAPI": false
   "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
 networking:
-  ipFamily: ipv4
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
 nodes:
 - role: control-plane
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
@@ -103,7 +107,8 @@ featureGates:
   "StorageVersionAPI": false
   "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
 networking:
-  ipFamily: ipv4
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
 nodes:
 - role: control-plane
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
@@ -136,7 +141,8 @@ featureGates:
   "StorageVersionAPI": false
   "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
 networking:
-  ipFamily: ipv4
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
 nodes:
 - role: control-plane
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
