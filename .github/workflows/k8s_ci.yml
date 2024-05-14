@@ -309,6 +309,10 @@ jobs:
           cd ..
           rm -rf tmp
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG
+          if [ "${{ inputs.ref }}" = "master" ];then 
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-latest
+          fi
 
   build-k8sbins-arm:
     name: build-k8sbins-arm
@@ -474,6 +478,12 @@ jobs:
           bins=`ls .`
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG $bins
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e ginkgo e2e.test e2e_node.test
+
+          if [ "ref: ${{ inputs.ref }}" = "master" ];then 
+            oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest $bins
+            oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest-e2e ginkgo e2e.test e2e_node.test
+          fi
+
 
   e2e:
     name: e2e
