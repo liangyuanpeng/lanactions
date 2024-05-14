@@ -192,6 +192,7 @@ jobs:
   build-kind:
   #TODO 上传 kubernetes/hack/ginkgo-e2e.sh?
   #TODO 一起上传 kubebins?
+  # TODO 构建 cross,  make cross
     name: build-kind
     needs: getcommitid
     # if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
