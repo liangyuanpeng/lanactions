@@ -14,6 +14,7 @@ function util::getbuild(){
 
 # kind create cluster --image $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
 function util::deployk8s(){
+  #TODO 支持使用vagrant部署虚拟机,在虚拟机里面跑测试?
   STEP_WHAT=${STEP_WHAT:-"none"}
    # deployk8s, runtests
   if [ $STEP_WHAT = "deployk8s" ];then 
