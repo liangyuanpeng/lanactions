@@ -66,6 +66,29 @@ jobs:
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
 
+  buildkind:
+    name: buildkind
+    permissions:
+      packages: write
+    steps:
+    - uses: oras-project/setup-oras@v1
+      with:
+        version: 1.0.0
+    - name: checkoutactions
+      uses: actions/checkout@v4
+      with:
+        repository: kubernetes-sigs/kind
+        fetch-depth: 0
+    - name: build 
+      run: |
+        make 
+    - name: upload
+      run: |
+        oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+        mv bin/kind kind
+        oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:kind kind
+        oras logout ghcr.io
+
   k8scicp3:
     name: k8scicp3
     needs: getcommitid
