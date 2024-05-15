@@ -21,6 +21,8 @@ name: release_kubernetes_latest
 on:
   push:
     branches: [ build_k8s ]
+  schedule:
+    - cron: '0 3 * * 3'
   workflow_dispatch:
     inputs:
       ref:
