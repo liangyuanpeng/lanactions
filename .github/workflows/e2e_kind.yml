@@ -126,8 +126,8 @@ jobs:
 
       - name: update
         run: |
-          apt-get update
-          apt-get install -y netbase nfs-common=1:1.2.8-9ubuntu12
+          sudo apt-get update
+          sudo apt-get install -y netbase nfs-common=1:1.2.8-9ubuntu12
 
       - name: run
         run: |
