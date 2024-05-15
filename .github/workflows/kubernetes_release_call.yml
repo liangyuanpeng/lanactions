@@ -39,7 +39,7 @@ permissions:
 jobs:
   buildk8s:
     name: buildk8s
-    uses: ./.github/workflows/kubernetes_build.yml
+    uses: ./.github/workflows/kubernetes_release_template.yml
     # with:
     #   repo: ${{ inputs.repo }}
     #   ref: ${{ inputs.ref }}
