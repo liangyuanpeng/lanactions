@@ -67,10 +67,11 @@ jobs:
         run: |
           env
           echo "trackingID=$RUNNER_TRACKING_ID" >> "$GITHUB_OUTPUT"
-      - name: update
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y netbase nfs-common=1:1.2.8-9ubuntu12
+      # - name: update
+      #   run: |
+      #     sudo apt-get update -y
+      #     sudo apt-get install -y netbase nfs-common=1:1.2.8-9ubuntu12
+          
       # - uses: oras-project/setup-oras@v1
       #   with:
       #     version: 1.0.0
