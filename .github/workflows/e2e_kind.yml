@@ -124,6 +124,11 @@ jobs:
           mv hack/ci/e2e-k8s.sh /usr/local/bin/
           kind version
 
+      - name: update
+        run: |
+          apt-get update
+          apt-get install -y netbase nfs-common=1:1.2.8-9ubuntu12
+
       - name: run
         run: |
 
