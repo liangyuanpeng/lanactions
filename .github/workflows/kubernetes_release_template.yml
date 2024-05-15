@@ -155,7 +155,7 @@ jobs:
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
 
-          if [ "ref: ${{ inputs.ref }}" = "master" ];then 
+          if [ "${{ inputs.ref }}" = "master" ];then 
             docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:latest
             docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:latest
             docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:latest
