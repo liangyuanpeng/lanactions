@@ -68,6 +68,7 @@ jobs:
 
   buildkind:
     name: buildkind
+    runs-on: ubuntu-latest
     permissions:
       packages: write
     steps:
