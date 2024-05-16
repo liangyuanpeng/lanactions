@@ -23,6 +23,7 @@ on:
     paths:
     - 'scripts/k8sci.sh'
     - 'artifacts'
+    - '.github/workflows/ci.yaml'
   schedule:
     - cron: '0 3 * * 0,1,2,3,4,5,6'
 
@@ -56,6 +57,7 @@ jobs:
         - master
         - release-1.30
         - release-1.29
+        - release-1.28
     steps:
       - name: checkoutactions
         uses: actions/checkout@v4
