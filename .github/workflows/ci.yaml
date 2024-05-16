@@ -32,7 +32,7 @@ jobs:
     name: build
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: checkoutactions
         uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
     name: update-k8sdepimgs
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 10
       fail-fast: false
