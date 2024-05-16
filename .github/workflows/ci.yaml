@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: kubernetes/kubernetes
-          fetch-depth: 0
+          fetch-depth: 1
           ref: ${{ matrix.branch }}
 
       - name: oras push 
