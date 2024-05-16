@@ -170,5 +170,18 @@ jobs:
 
           fi
 
+          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:${{ inputs.ref }}
+          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:${{ inputs.ref }}
+          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:${{ inputs.ref }}
+          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:${{ inputs.ref }}
+          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }}
+          
+
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:${{ inputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:${{ inputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:${{ inputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:${{ inputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }}
+
           docker images
           docker logout ghcr.io
