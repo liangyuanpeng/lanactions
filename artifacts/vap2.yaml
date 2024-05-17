@@ -26,7 +26,7 @@ spec:
 #TODO 必须为容器配置 limit 和 request
 #TODO messageExpression 和 message 的区别
 #TODO 需要判断 initContainers 是否存在 比如 size>0?
-#TODO 报错了  no such key: initContainers, 跟一下源码看看,序列化时没有initContainers字段所以导致报错了? 不应该为空list吗
+#TODO 报错了  no such key: initContainers, 跟一下源码看看,序列化时没有initContainers字段所以导致报错了? 不应该为空list吗 可以直接查看etcd里面的数据就知道是否有 initContainers 字段, 对于后续的 CBOR 序列化方式是不是就可以知道这个字段的类型了?  目前来说,内置的类型 可以知道这个字段类型吗?
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
