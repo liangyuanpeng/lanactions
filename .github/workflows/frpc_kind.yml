@@ -62,6 +62,11 @@ on:
         description: 'actionkind'
         required: false
         default: ""
+      runos:
+        description: 'runos'
+        required: false
+        default: "ubuntu-22.04"
+        #TODO ubuntu-24.04 default
 
 env:
   ACTION_CUSTOM: ${{ inputs.custom }}
@@ -170,7 +175,7 @@ jobs:
   ghaction-setup:
     if: ${{ !inputs.port }}
     name: ghaction-setup
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runos }}
     timeout-minutes: 180
     outputs:
       valueTag: ${{ steps.ghaction-setup.outputs.valueTag }}
