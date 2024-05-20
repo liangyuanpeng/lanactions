@@ -69,7 +69,7 @@ env:
 jobs:
 
   build_minikube_test_binaries:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ !inputs.valueTag }}
     permissions:
       packages: write
@@ -170,7 +170,7 @@ jobs:
   ghaction-setup:
     if: ${{ !inputs.port }}
     name: ghaction-setup
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 180
     outputs:
       valueTag: ${{ steps.ghaction-setup.outputs.valueTag }}
@@ -213,7 +213,7 @@ jobs:
           elif ${{ inputs.valueTag == 'action-macos-14-xlarge' }}; then
             runos='macos-14-xlarge'
           else
-            runos='ubuntu-22.04'
+            runos='ubuntu-24.04'
           fi
           echo "runos=${runos}" >> "$GITHUB_OUTPUT"
           echo "runos:"${runos}
@@ -229,7 +229,7 @@ jobs:
     # name: ghaction-${{ needs.ghaction-setup.outputs.runos }}-${{ matrix.valueTag }}
     name: ${{ matrix.valueTag }}-${{ needs.ghaction-setup.outputs.runos }}
     if: ${{ !inputs.port }}
-    runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-22.04
+    runs-on: ${{ needs.ghaction-setup.outputs.runos }} # ubuntu-24.04
     timeout-minutes: 360
     needs: ghaction-setup
     permissions:
@@ -372,7 +372,7 @@ jobs:
   frpc:
     name: start_frpc
     if: ${{ inputs.port }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
       TIME_ELAPSED: time
