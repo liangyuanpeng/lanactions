@@ -48,9 +48,9 @@ on:
       password:
         description: "password for oci artifact image tag"
         required: false
-      initimg:
-        description: 'initimg'
-        required: false
+      # initimg:
+      #   description: 'initimg'
+      #   required: false
       ghevent:
         description: 'ghevent'
         required: false
