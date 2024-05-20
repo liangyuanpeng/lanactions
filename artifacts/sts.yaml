@@ -9,7 +9,7 @@ spec:
     matchLabels: 
       app: tools
   serviceName: tools-svc
-  replicas: 20
+  replicas: 21
   template:
     metadata:
       labels:
