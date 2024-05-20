@@ -218,7 +218,7 @@ jobs:
           elif ${{ inputs.valueTag == 'action-macos-14-xlarge' }}; then
             runos='macos-14-xlarge'
           else
-            runos='ubuntu-24.04'
+            runos=${{ inputs.runos }}
           fi
           echo "runos=${runos}" >> "$GITHUB_OUTPUT"
           echo "runos:"${runos}
