@@ -12,9 +12,11 @@ spec:
       # resources:   ["deployments","daemonsets","statefulsets"]
       resources:   ["statefulsets"]
   validations:
-  - expression: "!object.spec.template.spec.containers.exists_one(c, c.image.startsWith('registry.lank8s.cn'))"
+  - expression: "!object.spec.template.spec.containers.exists_one(c, c.image.startsWith('registry.lank8s.cn/'))"
     message: "container image is not approve with start with registry.lank8s.cn"
-  - expression: "size(object.spec.template.spec.initContainers)>0 && !object.spec.template.spec.initContainers.exists_one(c, c.image.startsWith('registry.lank8s.cn'))"
+  - expression: "!has(object.spec.template.spec.initContainers) || !object.spec.template.spec.initContainers.exists_one(c, c.image.startsWith('registry.lank8s.cn/')) "
+  # 判断是否存在参数和判断长度 性能比较? ^^^
+  # - expression: "size(object.spec.template.spec.initContainers)<=0 || !object.spec.template.spec.initContainers.exists_one(c, c.image.startsWith('registry.lank8s.cn/'))"
     message: "initContainers image is not approve with start with registry.lank8s.cn"
   # - expression: "!object.spec.template.spec.containers.exists_one(c, c.imagePullPolicy == 'Always') "
   #   message: "container imagePullPolicy is not approve with start with Always"

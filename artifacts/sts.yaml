@@ -15,6 +15,15 @@ spec:
       labels:
         app: tools
     spec:
+      initContainers:
+        - image: ghcr.io/liangyuanpeng/ubuntu:tools-v1
+          name: init
+          imagePullPolicy: IfNotPresent
+          command:
+          - sh 
+          - -c 
+          - |
+            sleep 999h
       containers:
         - image: ghcr.io/liangyuanpeng/ubuntu:tools-v1
           name: tools

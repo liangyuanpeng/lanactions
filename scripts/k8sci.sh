@@ -5,7 +5,7 @@ set -o nounset;
 
 function util::getbuild(){
   STEP_WHAT=${STEP_WHAT:-"none"}
-  KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
+  KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
   if [ $STEP_WHAT = "getbuild" ];then 
     wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
     chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
@@ -18,8 +18,8 @@ function util::deployk8s(){
   STEP_WHAT=${STEP_WHAT:-"none"}
    # deployk8s, runtests
   if [ $STEP_WHAT = "deployk8s" ];then 
-    KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
-    IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
+    KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
+    IMGTAG=${IMGTAG:-"v1.30.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
     KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
     KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
