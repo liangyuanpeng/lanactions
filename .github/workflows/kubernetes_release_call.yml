@@ -63,7 +63,7 @@ jobs:
       fail-fast: false
       matrix:
         ref: 
-        - cel_dev
+        - vap_dev
         repo:
         - liangyuanpeng/kubernetes
     with:
