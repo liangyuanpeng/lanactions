@@ -17,10 +17,10 @@
 # under the License.
 #
 
-name: kind_build_auto
+name: kindnode_release_schedule
 on:
   push:
-    branches: [ kind_build_auto ]
+    branches: [ kindnode_release_schedule ]
   workflow_dispatch:
     inputs:
       k8sMinVersion:
@@ -88,7 +88,7 @@ jobs:
   build:
     needs:
     - gettags
-    uses: ./.github/workflows/kind_build_release.yml
+    uses: ./.github/workflows/kindnode_release_template.yml
     if: ${{ needs.gettags.outputs.tagslength > 0 }}
     strategy:
       fail-fast: false
