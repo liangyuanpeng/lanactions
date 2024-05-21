@@ -75,8 +75,8 @@ jobs:
           export TAG_WITH_KIND=true
           export KIND_VERSION=${{ inputs.kindVersion }}
           if [ "${{ inputs.kindVersion }}" = "latest" ];then
-              gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'
               KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+              echo $KIND_VERSION
           fi
           echo "=======================kind version============================"
           echo $KIND_VERSION
