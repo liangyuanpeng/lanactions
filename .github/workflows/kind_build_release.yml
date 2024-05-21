@@ -68,7 +68,7 @@ jobs:
 
   saverunid:
     name: saverunid
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
     steps:
@@ -92,7 +92,7 @@ jobs:
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
   release:
     name: release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: saverunid
     permissions:
       packages: write
