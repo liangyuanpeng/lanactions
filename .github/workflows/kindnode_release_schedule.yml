@@ -59,7 +59,7 @@ jobs:
     #   matrix:
     #     TAG_WITH_KIND: ["0","1"]
     env:
-      TAG_WITH_KIND: ${{ inputs.tagWithKind }}
+      # TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
     outputs:
@@ -72,6 +72,7 @@ jobs:
       - name: gher
         id: gher
         run: |
+          export TAG_WITH_KIND=true
           if [ "${{ inputs.kindVersion }}" = "latest" ];then
               KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
           else
@@ -104,5 +105,4 @@ jobs:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
-      tagWithKind: ${{ inputs.tagWithKind }}
       kindVersion: ${{ inputs.kindVersion }}
