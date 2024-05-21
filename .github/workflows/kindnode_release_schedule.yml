@@ -75,15 +75,12 @@ jobs:
         run: |
           export TAG_WITH_KIND=true
           echo "inputs.kindVersion:"${{ inputs.kindVersion }}
-          gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'
           export KIND_VERSION=${{ inputs.kindVersion }}
-          echo $KIND_VERSION
           if [ "${{ inputs.kindVersion }}" = "latest" ];then
-            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
-            cat kind.version
-            KIND_VERSION=`cat kind.version`
-            #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
-            echo $KIND_VERSION
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
           fi
           echo "=======================kind version============================"
           echo $KIND_VERSION

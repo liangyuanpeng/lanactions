@@ -112,11 +112,16 @@ jobs:
           sudo apt install -y tree
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
-          if [ "$KINDVERSION" = "latest" ];then
-              KIND_LATEST_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
-              echo "kindversion=$KIND_LATEST_VERSION" >> "$GITHUB_OUTPUT"
-          else
-              echo "kindversion=$KINDVERSION" >> "$GITHUB_OUTPUT"
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            cat kind.version
+            KIND_VERSION=`cat kind.version`
+            #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
           fi
           if [ "$REF" = "" ];then
               echo "ref=master" >> "$GITHUB_OUTPUT"
@@ -128,6 +133,7 @@ jobs:
           else
               echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
           fi
+          echo "kindVersion=$KIND_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: download kind
         run: |
