@@ -73,6 +73,7 @@ jobs:
         id: gher
         run: |
           export TAG_WITH_KIND=true
+          echo "inputs.kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
           echo $KIND_VERSION
           if [ "${{ inputs.kindVersion }}" = "latest" ];then
