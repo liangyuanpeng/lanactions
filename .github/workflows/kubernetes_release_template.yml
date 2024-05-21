@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: release_kubernetes_latest
+name: kubernetes_release_template
 on:
   workflow_call:
     inputs:
