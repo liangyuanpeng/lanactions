@@ -129,6 +129,14 @@ jobs:
               echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: download kind
+        run: |
+          echo ${{ steps.genoutputs.outputs.kindversion }}
+          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
+          chmod +x kind-linux-amd64
+          mv kind-linux-amd64 /usr/local/bin/kind
+          kind --version
+          kind build node-image -h
 
       - uses: oras-project/setup-oras@v1
         with:
@@ -189,15 +197,6 @@ jobs:
           docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
-
-      - name: download kind
-        run: |
-          echo ${{ steps.genoutputs.outputs.kindversion }}
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
-          chmod +x kind-linux-amd64
-          mv kind-linux-amd64 /usr/local/bin/kind
-          kind --version
-          kind build node-image -h
 
 
       # Free up disk space on Ubuntu
