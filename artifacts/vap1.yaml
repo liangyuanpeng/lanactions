@@ -10,7 +10,7 @@ spec:
       apiVersions: ["v1"]
       operations:  ["CREATE", "UPDATE"]
       # resources:   ["deployments","daemonsets","statefulsets"]
-      resources:   ["statefulsets"]
+      resources:   ["statefulsets2"]
   validations:
     - expression: "object.spec.replicas <= 100"
 ---
