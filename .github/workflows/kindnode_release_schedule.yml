@@ -95,6 +95,7 @@ jobs:
           echo "tagslength=${tagslength}" >> "$GITHUB_OUTPUT"
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
           # echo "::set-output name=ref::${list} "  
+          echo "kindVersion=$KIND_VERSION" >> "$GITHUB_OUTPUT"
 
   build:
     needs:
@@ -105,8 +106,9 @@ jobs:
       fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
+        kindVersion: ${{ fromJson(needs.gettags.outputs.kindVersion) }}
     with:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
-      kindVersion: ${{ inputs.kindVersion }}
+      kindVersion: ${{ matrix.kindVersion }}
