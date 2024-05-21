@@ -62,7 +62,6 @@ jobs:
       TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
-      KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
       tagslength: ${{ steps.gher.outputs.tagslength }}
@@ -73,6 +72,14 @@ jobs:
       - name: gher
         id: gher
         run: |
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+              KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          else
+              KIND_VERSION=${{ inputs.kindVersion }}
+          fi
+          echo "=======================kind version============================"
+          echo $KIND_VERSION
+          echo "=======================kind version============================"
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
           ./gher > tags.json
