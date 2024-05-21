@@ -49,8 +49,8 @@ jobs:
         uses: actions/checkout@v4
         with:
 #          repository: liangyuanpeng/kubernetes
-          repository: kubernetes/kubernetes
-          # repository: ${{ inputs.repo }}
+          # repository: kubernetes/kubernetes
+          repository: ${{ inputs.repo }}
           fetch-depth: 0
 #          ref: v1.27.4-patch #ed18ab54ba9925c835a69dd155b1217af9ab630a #dev_1.28
 #          ref: dev_1.28
@@ -181,6 +181,18 @@ jobs:
             docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:latest
             docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:latest
             docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:latest
+
+            docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:latest
+            docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:latest
+            docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:latest
+            docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:latest
+            docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:latest
+          
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:latest
 
           fi
 

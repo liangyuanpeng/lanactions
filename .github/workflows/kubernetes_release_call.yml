@@ -55,3 +55,17 @@ jobs:
         - release-1.28
     with:
       ref: ${{ matrix.ref }}
+
+  buildk8sdev:
+    name: buildk8s
+    uses: ./.github/workflows/kubernetes_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: 
+        - cel_dev
+        repo:
+        - liangyuanpeng/kubernetes
+    with:
+      ref: ${{ matrix.ref }}
+      repo: ${{ matrix.repo }}
