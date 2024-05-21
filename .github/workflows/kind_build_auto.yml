@@ -53,7 +53,7 @@ on:
 jobs:
 # #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
   gettags:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
     # strategy:
     #   fail-fast: false
@@ -70,7 +70,7 @@ jobs:
     steps:
       - uses: oras-project/setup-oras@v1
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: gher
         id: gher
         run: |
