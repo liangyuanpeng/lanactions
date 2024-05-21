@@ -103,7 +103,7 @@ jobs:
         if: steps.checkimgs.outputs.exist != 'true'
         run: |
 
-          apt install -y tree
+          sudo apt install -y tree
 
           #export KUBE_DOCKER_REGISTRY=ghcr.io
           #export IMGTAG="v1.27.4-patch"
