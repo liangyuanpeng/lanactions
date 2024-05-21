@@ -245,7 +245,10 @@ jobs:
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
             docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
-            docker push ghcr.io/v/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-latest
           fi
           
           #touch /tmp/result.txt

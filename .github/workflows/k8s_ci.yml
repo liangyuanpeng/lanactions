@@ -74,7 +74,8 @@ on:
 
 env:
   KIND_VERSION: ${{ inputs.kindVersion }}
-
+  GH_TOKEN: ${{ github.token }}
+  
 jobs:
 
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s

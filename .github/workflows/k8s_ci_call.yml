@@ -55,6 +55,7 @@ permissions:
 
 env:
   KIND_VERSION: ${{ inputs.kindVersion }}
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
 # #/k8scicall
