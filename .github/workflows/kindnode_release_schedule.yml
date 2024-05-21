@@ -108,8 +108,10 @@ jobs:
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
         #TODO 构建每个分支的latest， 例如 ghcr.io/liangyuanpeng/kindest/node:v0.23.0-v1.29
+        kindVersion:
+        - ${{ needs.gettags.outputs.kindVersion }}
     with:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
-      kindVersion: ${{ needs.gettags.outputs.kindVersion }}
+      kindVersion: ${{ matrix.kindVersion }}
