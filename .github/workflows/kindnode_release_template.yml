@@ -105,6 +105,7 @@ jobs:
           REF: ${{ inputs.ref }}
           MAKETAG: ${{ inputs.maketag }}
         run: |
+          apt install -y tree
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
           if [ "$KINDVERSION" = "latest" ];then
