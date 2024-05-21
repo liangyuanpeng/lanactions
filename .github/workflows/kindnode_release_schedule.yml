@@ -31,8 +31,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        #TODO latest 自动获取最新的release版本
-        default: "v0.23.0"
+        default: "latest"
         type: string
       tagWithKind:
         description: 'is it need to add kind version for tag'

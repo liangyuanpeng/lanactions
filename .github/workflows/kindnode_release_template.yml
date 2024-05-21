@@ -107,9 +107,9 @@ jobs:
         run: |
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
-          if [ "$KINDVERSION" = "" ];then
-              #TODO 根据api获取最新发布的version,而不是手动更新
-              echo "kindversion=v0.23.0" >> "$GITHUB_OUTPUT"
+          if [ "$KINDVERSION" = "latest" ];then
+              KIND_LATEST_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+              echo "kindversion=$KIND_LATEST_VERSION" >> "$GITHUB_OUTPUT"
           else
               echo "kindversion=$KINDVERSION" >> "$GITHUB_OUTPUT"
           fi
