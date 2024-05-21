@@ -29,11 +29,11 @@ on:
         default: "kubernetes/kubernetes"
       ref:
         description: 'source ref of kubernetes '
-        required: true
+        required: false
         default: "master"
       maketag:
         description: 'is it need to make a describe tag'
-        required: true
+        required: false
         default: true
         type: boolean
       tagWithKind:
@@ -62,7 +62,7 @@ on:
         type: number
 
 jobs:
-# #/kind_build
+# #/kindnode_release
   build:
     uses: ./.github/workflows/kindnode_release_template.yml
     with:
