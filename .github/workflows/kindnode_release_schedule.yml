@@ -107,9 +107,8 @@ jobs:
       fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
-        kindVersion: ${{ needs.gettags.outputs.kindVersion }}
     with:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
-      kindVersion: ${{ matrix.kindVersion }}
+      kindVersion: ${{ needs.gettags.outputs.kindVersion }}
