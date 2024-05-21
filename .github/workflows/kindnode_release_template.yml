@@ -44,9 +44,9 @@ on:
         default: true
         type: boolean
       kindVersion:
-        description: 'version of kind,v0.20.0 by default.'
+        description: 'version of kind,latest by default.'
         required: false
-        default: "v0.23.0"
+        default: "latest"
         type: string
       triggerIssueCommentId:
         description: 'triggerIssueCommentId'
