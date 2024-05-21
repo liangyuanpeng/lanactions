@@ -17,10 +17,10 @@
 # under the License.
 #
 
-name: kind_build_release
+name: kindnode_release_template
 on:
   push:
-    branches: [ kind_build_release ]
+    branches: [ kindnode_release_template ]
   workflow_call:
     inputs:
       repo:
