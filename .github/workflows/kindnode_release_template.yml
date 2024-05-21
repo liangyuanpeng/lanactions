@@ -64,6 +64,9 @@ on:
         default: 0
         type: number
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
 
   saverunid:
