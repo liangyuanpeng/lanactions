@@ -436,7 +436,7 @@ jobs:
 
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist testnode"
+            echo "exist kubebins"
             echo "exist=true" >> "$GITHUB_OUTPUT"
           else 
             echo "exist=false" >> "$GITHUB_OUTPUT"
