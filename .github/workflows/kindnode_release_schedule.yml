@@ -73,10 +73,9 @@ jobs:
         id: gher
         run: |
           export TAG_WITH_KIND=true
+          export KIND_VERSION=${{ inputs.kindVersion }}
           if [ "${{ inputs.kindVersion }}" = "latest" ];then
               KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
-          else
-              KIND_VERSION=${{ inputs.kindVersion }}
           fi
           echo "=======================kind version============================"
           echo $KIND_VERSION
