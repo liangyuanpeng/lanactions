@@ -13,7 +13,7 @@ spec:
       resources:   ["statefulsets2"]
   auditAnnotations:
     - key: "high-replica-count"
-      valueExpression: "'StatefulSets spec.replicas set to ' + string(object.spec.replicas)"
+      valueExpression: "'audit StatefulSets spec.replicas set to ' + string(object.spec.replicas)"
   validations:
   - expression: "object.spec.replicas > 20"
     messageExpression: "'StatefulSets spec.replicas set to ' + string(object.spec.replicas)"
