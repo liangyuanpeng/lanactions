@@ -90,6 +90,7 @@ jobs:
 
 
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
+#TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
   release:
     name: release
     runs-on: ubuntu-24.04
@@ -105,7 +106,7 @@ jobs:
           REF: ${{ inputs.ref }}
           MAKETAG: ${{ inputs.maketag }}
         run: |
-          apt install -y tree
+          sudo apt install -y tree
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
           if [ "$KINDVERSION" = "latest" ];then
