@@ -47,7 +47,8 @@ on:
   schedule:
     - cron: '0 3 * * 0,1,2,3,4,5,6'
     # - cron: '0 3 * * 0,6'
-
+env:
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
 # #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
