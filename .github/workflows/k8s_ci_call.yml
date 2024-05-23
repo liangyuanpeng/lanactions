@@ -115,8 +115,15 @@ jobs:
       k8sCPCount: 3
       commitID: ${{ needs.getcommitid.outputs.commitID }}
 
+  build-kindnode:
+    uses: ./.github/workflows/kindnode_release_template.yml
+    with:
+      repo: ${{ inputs.repo }}
+      ref: ${{ inputs.ref }}
+
   getcommitid:
     name: getcommitid
+    needs: build-kindnode
     runs-on: ubuntu-22.04
     env:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
