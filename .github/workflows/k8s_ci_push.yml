@@ -47,6 +47,6 @@ jobs:
         - release-1.29
     with:
       # repo: ${{ matrix.repo }}
-      ref: ${{ inputs.ref }}
+      ref: ${{ matrix.ref }}
       testname: ${{ matrix.tests }}
 
