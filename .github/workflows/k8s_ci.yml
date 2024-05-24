@@ -590,6 +590,22 @@ jobs:
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
+
+      - name: export logs
+        if: always()
+        run: |
+          docker ps -a
+          kubectl get pod -A
+          kind export logs /tmp/kind
+          cp kind-ci.yaml /tmp/kind
+
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kind_test_e2e_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          path: /tmp/kind/
+
       - name: print result 
         if: always()
         run: |
@@ -604,19 +620,6 @@ jobs:
           name: kind_testreport_e2e_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
-      - name: export logs
-        if: always()
-        run: |
-          kubectl get pod -A
-          kind export logs /tmp/kind
-          cp kind-ci.yaml /tmp/kind
-
-      - name: upload kind logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kind_test_e2e_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
-          path: /tmp/kind/
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
