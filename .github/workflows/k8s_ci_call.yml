@@ -406,7 +406,7 @@ jobs:
   # non-blocking
   pull-kubernetes-e2e-kind-alpha-features-sig-storage:
     name: pull-kubernetes-e2e-kind-alpha-features-sig-storage
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: getcommitid
     strategy:
       max-parallel: 6
