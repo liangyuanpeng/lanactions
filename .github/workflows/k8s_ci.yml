@@ -634,6 +634,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        storageMediaType: 
+        - protobuf
+        - json
+        - yaml
+        etcd: 
+        - build-in 
+        - xline
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
@@ -641,6 +648,8 @@ jobs:
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
+      WHICH_ETCD: ${{ matrix.etcd }}
+      STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -711,12 +720,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ inputs.ref }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ inputs.ref }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
