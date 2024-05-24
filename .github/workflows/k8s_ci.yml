@@ -590,14 +590,13 @@ jobs:
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
-
       - name: export logs
         if: always()
         run: |
           docker ps -a
-          kubectl get pod -A
           kind export logs /tmp/kind
           cp kind-ci.yaml /tmp/kind
+          kubectl get pod -A
 
       - name: upload kind logs
         if: always()
