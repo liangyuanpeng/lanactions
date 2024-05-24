@@ -114,16 +114,6 @@ EOF
 cat <<EOF> kind-ci.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
-featureGates:
-  "AllAlpha": true
-  "AllBeta": true
-  "ValidatingAdmissionPolicy": true
-  "InTreePluginGCEUnregister": false
-  "DisableCloudProviders": true
-  "DisableKubeletCloudCredentialProviders": true
-  "EventedPLEG": false
-  "StorageVersionAPI": false
-  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
 networking:
   ipFamily: ${IPFAMILY}
   kubeProxyMode: ${PROXY_MODE}
