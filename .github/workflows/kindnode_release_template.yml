@@ -70,7 +70,7 @@ env:
 jobs:
 
   saverunid:
-    name: saverunid
+    name: saverunid-${{ inputs.repo }}
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -95,7 +95,7 @@ jobs:
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
 #TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
   release:
-    name: release
+    name: release-${{ inputs.ref }}
     runs-on: ubuntu-24.04
     needs: saverunid
     permissions:
