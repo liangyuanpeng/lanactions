@@ -204,12 +204,12 @@ EOF
     fi
 
     cat kind-ci.yaml
+    mkdir -p _artifacts/testreport
 
     /usr/local/bin/kind create cluster \
     --name kind           \
     -v7 --wait 4m --retain --config=kind-ci.yaml
-
-    mkdir -p _artifacts/testreport
+    
     cp ~/.kube/config _artifacts/
 
     pwd
