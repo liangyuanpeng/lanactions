@@ -148,6 +148,10 @@ EOF
     fi
 
     if [ $K8S_CP_COUNT = "3" ];then
+
+      if [ $WHICH_ETCD = "xline" ];then 
+        exit 0
+      fi
 cat <<EOF> kind-ci.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
