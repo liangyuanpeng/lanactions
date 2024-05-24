@@ -590,27 +590,6 @@ jobs:
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
-      # - name: run conformance test 
-      #   if: matrix.tests == 'conformance'
-      #   run: |
-      #     #TODO 进行更多测试,例如 alpha,beta 功能测试
-      #     STEP_WHAT=runtests TEST_WHAT=conformance ./k8sci.sh
-
-      # - name: run statefulset test
-      #   if: matrix.tests == 'statefulset'
-      #   run: |
-      #     # ginkgo --nodes=25                \
-      #     # --focus="\[Feature:StatefulSet\]"     \
-      #     # /usr/local/bin/e2e.test                       \
-      #     # --                                            \
-      #     # --kubeconfig=${PWD}/_artifacts/config     \
-      #     # --provider=local                              \
-      #     # --dump-logs-on-failure=true                  \
-      #     # --report-dir=${PWD}/_artifacts/testreport            \
-      #     # --disable-log-dump=false
-          
-      #     STEP_WHAT=runtests TEST_WHAT=statefulset ./k8sci.sh
-
       - name: print result 
         if: always()
         run: |
@@ -630,6 +609,7 @@ jobs:
         run: |
           kubectl get pod -A
           kind export logs /tmp/kind
+          cp kind-ci.yaml /tmp/kind
 
       - name: upload kind logs
         if: always()
