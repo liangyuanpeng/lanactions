@@ -655,6 +655,7 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+          mkdir -p _artifacts/testreport
 
       - name: get kind
         run: |
@@ -694,7 +695,7 @@ jobs:
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
           ${{ matrix.tests }}
           ls
-          mkdir -p _artifacts/testreport
+          
           mv e2e.log _artifacts/testreport/
           mv junit_01.xml _artifacts/testreport/
 
