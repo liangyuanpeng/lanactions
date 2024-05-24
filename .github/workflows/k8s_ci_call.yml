@@ -115,8 +115,15 @@ jobs:
       k8sCPCount: 3
       commitID: ${{ needs.getcommitid.outputs.commitID }}
 
+  build-kindnode:
+    uses: ./.github/workflows/kindnode_release_template.yml
+    with:
+      repo: kubernetes/kubernetes
+      ref: ${{ inputs.ref }}
+
   getcommitid:
     name: getcommitid
+    needs: build-kindnode
     runs-on: ubuntu-22.04
     env:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
@@ -129,6 +136,7 @@ jobs:
         id: gencommitid
         run: |
           echo "INPUT_COMMID_ID:$INPUT_COMMID_ID"
+          echo "inputs.repo:"${{ inputs.repo }}
           if [ $INPUT_COMMID_ID != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             echo "existTestnode=false" >> "$GITHUB_OUTPUT"

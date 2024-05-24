@@ -513,7 +513,7 @@ jobs:
         - json
         - yaml
         # - TODO CBOR
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
       KIND_IMG_USER: ${{ github.actor }}
