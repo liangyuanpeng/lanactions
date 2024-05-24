@@ -33,6 +33,8 @@ function util::deployk8s(){
     WHICH_ETCD=${WHICH_ETCD:-"build-in"}
     #TODO k8s集群功能分类, 1.默认 2.all alpha=true 3. all beta=true 4. all alpha+beta=true
     ENABLED_WHAT=${ENABLED_WHAT:-"default"}
+    #TODO 1. 开启了apiserver-network-proxy的 k8s集群
+    ADDON_WHAT=${ADDON_WHAT:-"none"}
 
     ETCD_VERSION=${ETCD_VERSION:-"v3.5.13"}
     wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
