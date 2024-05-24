@@ -533,7 +533,7 @@ jobs:
 
 # 构建kubernetes容器镜像
   buildk8s:
-    name: buildk8s
+    name: buildk8s-${{ inputs.repo }}-${{ inputs.ref }}
     uses: ./.github/workflows/kubernetes_release_template.yml
     with:
       repo: ${{ inputs.repo }}
