@@ -415,11 +415,11 @@ jobs:
         - true
         # - false
         focus:
-        # - \[sig-storage\]
+        - \[sig-storage\]
         # # - \[LocalVolumeType: blockfs\]
         # - blockfs
         #TODO 解决完sig-storage测试问题后放开上述注释并且删除下面的Conformance测试(目前只是用来占一个位置)
-        - \[Conformance\]
+        # - \[Conformance\]
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
