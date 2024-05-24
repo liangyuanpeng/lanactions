@@ -616,7 +616,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: kind_testreport_e2e_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_testreport_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
 
@@ -699,7 +699,6 @@ jobs:
           mv e2e.log _artifacts/testreport/
           mv junit_01.xml _artifacts/testreport/
 
-
       - name: export logs
         if: always()
         run: |
@@ -712,12 +711,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.ref }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.ref }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
