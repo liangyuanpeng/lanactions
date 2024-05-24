@@ -682,6 +682,7 @@ jobs:
           kubectl get pods -A
           kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
 
+      #TODO 专门一个job来build hydrophone
       - name: build hydrophone
         run: |
           pwd
