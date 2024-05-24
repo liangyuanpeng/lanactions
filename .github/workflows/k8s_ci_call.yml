@@ -116,6 +116,7 @@ jobs:
       commitID: ${{ needs.getcommitid.outputs.commitID }}
 
   build-kindnode:
+    name: build-kindnode-${{ inputs.ref }}
     uses: ./.github/workflows/kindnode_release_template.yml
     with:
       repo: kubernetes/kubernetes
