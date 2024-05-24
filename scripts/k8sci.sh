@@ -41,8 +41,8 @@ function util::deployk8s(){
       echo "docker run xline"
       docker run -it -d --name xline -p 2379:2379 -p 9100:9100 -p 9090:9090 ghcr.io/liangyuanpeng/xline:latest xline --name node1 --members node1=0.0.0.0:2379 --data-dir /tmp/xline --storage-engine rocksdb --client-listen-urls=http://0.0.0.0:2379 --peer-listen-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 --client-advertise-urls=http://0.0.0.0:2379 --peer-advertise-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 
       docker ps
-      etcdctl put /hello world
-      etcdctl get /hello
+      # etcdctl put /hello world
+      # etcdctl get /hello
     fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
