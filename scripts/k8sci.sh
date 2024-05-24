@@ -31,6 +31,8 @@ function util::deployk8s(){
     # k8s master 节点数量,  1master2node  3master2node
     K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
     WHICH_ETCD=${WHICH_ETCD:-"build-in"}
+    #TODO k8s集群功能分类, 1.默认 2.all alpha=true 3. all beta=true 4. all alpha+beta=true
+    ENABLED_WHAT=${ENABLED_WHAT:-"default"}
 
     ETCD_VERSION=${ETCD_VERSION:-"v3.5.13"}
     wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
