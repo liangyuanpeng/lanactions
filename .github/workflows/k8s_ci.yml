@@ -543,7 +543,8 @@ jobs:
         id: genoutputs
         env:
           REF: ${{ github.event.inputs.ref }}
-          REPO: ${{ github.event.inputs.repo }}
+          REPO: kubernetes/kubernetes
+          # REPO: ${{ github.event.inputs.repo }}
         run: |
           if [ "$REF" = "" ];then
               echo "ref=master" >> "$GITHUB_OUTPUT"
