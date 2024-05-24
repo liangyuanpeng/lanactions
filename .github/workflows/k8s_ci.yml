@@ -699,17 +699,14 @@ jobs:
           mv e2e.log _artifacts/testreport/
           mv junit_01.xml _artifacts/testreport/
 
+
       - name: export logs
         if: always()
         run: |
+          docker ps -a
           kind export logs /tmp/kind
+          cp kind-ci.yaml /tmp/kind/
           kubectl get pod -A
-
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        if: always()
-        with:
-          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
-          path: _artifacts/testreport
 
       - name: upload kind logs
         if: always()
@@ -717,3 +714,10 @@ jobs:
         with:
           name: kind_test_hydrophone_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
+
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: hydrophone_testreport_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          path: _artifacts/testreport
+
