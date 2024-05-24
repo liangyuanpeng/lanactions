@@ -175,6 +175,10 @@ nodes:
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
     apiServer:
       extraArgs:
         runtime-config: api/all=true 
@@ -184,6 +188,10 @@ nodes:
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
     apiServer:
       extraArgs:
         runtime-config: api/all=true 
