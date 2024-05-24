@@ -16,6 +16,10 @@ function util::getbuild(){
 function util::deployk8s(){
   #TODO 支持使用vagrant部署虚拟机,在虚拟机里面跑测试?
   STEP_WHAT=${STEP_WHAT:-"none"}
+
+  #sudo ifconfig eth0:9 192.168.66.2 netmask 255.255.255.0 up
+  #sudo ifconfig eth0:9 up
+
    # deployk8s, runtests
   if [ $STEP_WHAT = "deployk8s" ];then 
     KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
@@ -30,6 +34,7 @@ function util::deployk8s(){
 
     if [ $WHICH_ETCD = "xline" ];then 
       echo "docker run xline"
+      docker run -it -d --name xline -p 2379:2379 -p 9100:9100 -p 9090:9090 ghcr.io/liangyuanpeng/xline:latest xline --name node1 --members node1=0.0.0.0:2379 --data-dir /tmp/xline --storage-engine rocksdb --client-listen-urls=http://0.0.0.0:2379 --peer-listen-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 --client-advertise-urls=http://0.0.0.0:2379 --peer-advertise-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 
     fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
@@ -118,6 +123,10 @@ nodes:
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
     apiServer:
       extraArgs:
         runtime-config: api/all=true 
@@ -153,6 +162,10 @@ nodes:
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
     apiServer:
       extraArgs:
         runtime-config: api/all=true 

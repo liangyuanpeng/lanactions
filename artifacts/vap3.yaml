@@ -4,6 +4,9 @@ metadata:
   name: vap3
 spec:
   failurePolicy: Fail
+  # matchConditions:
+  # - name: hello
+  #   expression: "object.spec.replicas > 20"
   matchConstraints:
     resourceRules:
     - apiGroups:   ["apps"]
