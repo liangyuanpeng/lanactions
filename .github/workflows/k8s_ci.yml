@@ -117,10 +117,10 @@ jobs:
           cd kubernetes
 
           if [ $INPUT_COMMID_ID != "none" ];then
-            git reset --hard $COMMIT_ID
+            git reset --hard $INPUT_COMMID_ID
             IMGTAG=`git describe --tags`
-            echo "have commitID:$COMMIT_ID, IMGTAG:$IMGTAG"
-            git log --pretty=format:"%s" $COMMIT_ID -1
+            echo "have commitID:$INPUT_COMMID_ID, IMGTAG:$IMGTAG"
+            git log --pretty=format:"%s" $INPUT_COMMID_ID -1
             echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             # echo "existTestnode=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
