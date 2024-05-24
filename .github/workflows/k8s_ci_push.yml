@@ -39,6 +39,7 @@ jobs:
       matrix:
         tests:
           - conformance
+          - conformance-lease
           # - sig-apps
           # - statefulset
         ref: 
