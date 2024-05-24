@@ -32,9 +32,17 @@ function util::deployk8s(){
     K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
     WHICH_ETCD=${WHICH_ETCD:-"build-in"}
 
+    ETCD_VERSION=${ETCD_VERSION:-"v3.5.13"}
+    wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
+    tar -xf etcd-${ETCD_VERSION}-linux-amd64.tar.gz && rm -f etcd-${ETCD_VERSION}-linux-amd64.tar.gz
+    mv etcd-${ETCD_VERSION}-linux-amd64/etcd* /usr/local/bin/ && rm -rf etcd-${ETCD_VERSION}-linux-amd64
+
     if [ $WHICH_ETCD = "xline" ];then 
       echo "docker run xline"
       docker run -it -d --name xline -p 2379:2379 -p 9100:9100 -p 9090:9090 ghcr.io/liangyuanpeng/xline:latest xline --name node1 --members node1=0.0.0.0:2379 --data-dir /tmp/xline --storage-engine rocksdb --client-listen-urls=http://0.0.0.0:2379 --peer-listen-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 --client-advertise-urls=http://0.0.0.0:2379 --peer-advertise-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 
+      docker ps
+      etcdctl put /hello world
+      etcdctl get /hello
     fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
