@@ -503,7 +503,7 @@ jobs:
         #TODO k8s 节点数量? 1 3 5?
         #TODO withANP, 部署了ANP的k8s
         etcd: 
-        - build-in 
+        # - build-in 
         # - etcd-master
         # - etcd-release3.5
         - xline
