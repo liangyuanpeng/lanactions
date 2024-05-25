@@ -727,6 +727,9 @@ jobs:
           mv e2e.log _artifacts/testreport/
           mv junit_01.xml _artifacts/testreport/
 
+          pwd
+          ls artifacts
+
           kubectl get pod -A
 
       - name: upload kind logs
