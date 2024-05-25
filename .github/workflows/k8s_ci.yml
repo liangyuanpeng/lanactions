@@ -539,6 +539,13 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+
+          mkdir -p _artifacts/testreport
+          mkdir -p cluster/log-dump
+          git clone https://github.com/kubernetes/test-infra.git --depth=1
+          mv test-infra/logexporter/cluster/* cluster/log-dump/
+          rm -rf test-infra
+
       - name: make default value
         id: genoutputs
         env:
