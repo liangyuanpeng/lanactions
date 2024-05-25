@@ -236,8 +236,18 @@ jobs:
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
+          
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist testnode"
+            exit 0
+          else 
+            echo "have not exist image:$IMGTAG"
+          fi
+
           mkdir tmp
           cd tmp
           kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG --kube-root $PWD/../
