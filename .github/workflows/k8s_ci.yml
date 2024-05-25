@@ -704,10 +704,7 @@ jobs:
           # see report 
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
           ${{ matrix.tests }}
-          ls
           
-          mv e2e.log _artifacts/testreport/
-          mv junit_01.xml _artifacts/testreport/
 
       - name: export logs
         if: always()
@@ -715,6 +712,11 @@ jobs:
           docker ps -a
           kind export logs /tmp/kind
           cp kind-ci.yaml /tmp/kind/
+
+          ls
+          mv e2e.log _artifacts/testreport/
+          mv junit_01.xml _artifacts/testreport/
+
           kubectl get pod -A
 
       - name: upload kind logs
