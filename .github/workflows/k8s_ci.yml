@@ -727,7 +727,8 @@ jobs:
           mv e2e.log _artifacts/testreport/
           mv junit_01.xml _artifacts/testreport/
 
-          pwd
+          mkdir -p artifacts
+          echo "begin ls artifacts ........"
           ls artifacts
 
           kubectl get pod -A
