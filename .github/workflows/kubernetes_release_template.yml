@@ -31,6 +31,7 @@ on:
         required: false
         default: "kubernetes/kubernetes"
         type: string
+      
 
 permissions:
   packages: write
@@ -43,7 +44,6 @@ jobs:
     permissions:
       packages: write
     steps:
-
 
       - name: checkoutactions
         uses: actions/checkout@v4

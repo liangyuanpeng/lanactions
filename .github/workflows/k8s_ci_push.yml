@@ -32,6 +32,7 @@ jobs:
 
   build-kindnode:
     name: build-kindnode-${{ inputs.ref }}
+    #TODO 构建的是 ghcr.io/liangyuanpeng/kindest/node 需要的是 ghcr.io/liangyuanpeng/kindest/testnode
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
       max-parallel: 6
@@ -45,6 +46,7 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
+      imgrepo: kindest/testnode
 
   k8sci:
     name: k8sci

@@ -63,6 +63,11 @@ on:
         required: false
         default: 0
         type: number
+      imgrepo:
+        description: 'kindest/node'
+        required: false
+        default: "kindest/node"
+        type: string
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -240,7 +245,7 @@ jobs:
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
 
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist testnode"
             exit 0
@@ -250,20 +255,20 @@ jobs:
 
           mkdir tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG
-          export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
+          export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
-            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
 
-            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-latest
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-latest
           fi
           
           #touch /tmp/result.txt
@@ -286,7 +291,7 @@ jobs:
           echo "IMGTAG:"$IMGTAG
           #TODO 测试多节点
           #TODO 收集日志,失败的时候可以查看
-          kind create cluster --retain --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          kind create cluster --retain --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
           kubectl run test --image httpd:2
