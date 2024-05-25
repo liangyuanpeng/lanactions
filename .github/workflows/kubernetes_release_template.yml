@@ -80,7 +80,7 @@ jobs:
       - uses: oras-project/setup-oras@v1
         if: steps.checkimgs.outputs.exist != 'true'
         with:
-          version: 1.0.0
+          version: 1.1.0
 
       - uses: actions/setup-go@v5
         if: steps.checkimgs.outputs.exist != 'true'

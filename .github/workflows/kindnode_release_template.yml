@@ -83,7 +83,7 @@ jobs:
 
       - uses: oras-project/setup-oras@v1
         with:
-          version: 1.0.0
+          version: 1.1.0
 
       - name: saverunid 
         run: |
@@ -247,10 +247,10 @@ jobs:
 
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist testnode"
+            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG"
             exit 0
           else 
-            echo "have not exist image:$IMGTAG"
+            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG"
           fi
 
           mkdir tmp
