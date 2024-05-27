@@ -63,6 +63,11 @@ on:
         required: false
         default: 0
         type: number
+      imgrepo:
+        description: 'kindest/node'
+        required: false
+        default: "kindest/node"
+        type: string
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -70,7 +75,7 @@ env:
 jobs:
 
   saverunid:
-    name: saverunid
+    name: saverunid-${{ inputs.repo }}
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -78,7 +83,7 @@ jobs:
 
       - uses: oras-project/setup-oras@v1
         with:
-          version: 1.0.0
+          version: 1.1.0
 
       - name: saverunid 
         run: |
@@ -95,7 +100,7 @@ jobs:
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
 #TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
   release:
-    name: release
+    name: release-${{ inputs.ref }}
     runs-on: ubuntu-24.04
     needs: saverunid
     permissions:
@@ -236,11 +241,21 @@ jobs:
             IMGREF=`git describe --tags`
             IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-$IMGREF
           fi
+          
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG"
+            exit 0
+          else 
+            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG"
+          fi
+
           mkdir tmp
           cd tmp
-          kind build node-image --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG --kube-root $PWD/../
+          kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
@@ -250,13 +265,14 @@ jobs:
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG
           export IMAGE2=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
-            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
 
-            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-latest
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-latest
           fi
           
           #touch /tmp/result.txt
@@ -280,7 +296,7 @@ jobs:
           echo "IMGTAG:"$IMGTAG
           #TODO 测试多节点
           #TODO 收集日志,失败的时候可以查看
-          kind create cluster --retain --image ghcr.io/liangyuanpeng/kindest/node:$IMGTAG
+          kind create cluster --retain --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
           kubectl run test --image httpd:2

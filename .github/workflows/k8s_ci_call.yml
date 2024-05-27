@@ -22,7 +22,7 @@ on:
   push:
     branches: [ k8s_ci_call ]
   schedule:
-    - cron: '0 3 * * 0,1,2,3,4,5,6'
+    - cron: '0 17 * * 0,1,2,3,4,5,6'
   #TODO 定时根据最新的N个(3/5)个release构建 latest 的 kindest node 以及 kuberentes images
   workflow_dispatch:
     inputs:
@@ -238,7 +238,7 @@ jobs:
           export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
 
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/"
-          wget https://github.com/kubernetes-sigs/kind/releases/download/v0.23.0/kind-linux-amd64
+          wget https://github.com/kubernetes-sigs/kind/releases/download/${{inputs.kindVersion}}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind 
           e2e-k8s.sh

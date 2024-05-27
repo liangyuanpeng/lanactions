@@ -117,10 +117,10 @@ jobs:
           cd kubernetes
 
           if [ $INPUT_COMMID_ID != "none" ];then
-            git reset --hard $COMMIT_ID
+            git reset --hard $INPUT_COMMID_ID
             IMGTAG=`git describe --tags`
-            echo "have commitID:$COMMIT_ID, IMGTAG:$IMGTAG"
-            git log --pretty=format:"%s" $COMMIT_ID -1
+            echo "have commitID:$INPUT_COMMID_ID, IMGTAG:$IMGTAG"
+            git log --pretty=format:"%s" $INPUT_COMMID_ID -1
             echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             # echo "existTestnode=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
@@ -539,6 +539,15 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+
+          mkdir -p _artifacts/testreport
+          mkdir -p cluster/log-dump
+          mkdir -p ../../cluster/log-dump
+          git clone https://github.com/kubernetes/test-infra.git --depth=1
+          cp -f test-infra/logexporter/cluster/* cluster/log-dump/
+          cp -f test-infra/logexporter/cluster/* ../../cluster/log-dump
+          rm -rf test-infra
+
       - name: make default value
         id: genoutputs
         env:
@@ -593,6 +602,7 @@ jobs:
       - name: export logs
         if: always()
         run: |
+          ls -allh
           docker ps -a
           kind export logs /tmp/kind
           cp kind-ci.yaml /tmp/kind
@@ -630,10 +640,17 @@ jobs:
     - getcommitid
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
+        storageMediaType: 
+        - protobuf
+        - json
+        - yaml
+        etcd: 
+        - build-in 
+        - xline
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
@@ -641,6 +658,8 @@ jobs:
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
+      WHICH_ETCD: ${{ matrix.etcd }}
+      STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -673,6 +692,7 @@ jobs:
           kubectl get pods -A
           kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
 
+      #TODO 专门一个job来build hydrophone
       - name: build hydrophone
         run: |
           pwd
@@ -694,10 +714,7 @@ jobs:
           # see report 
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
           ${{ matrix.tests }}
-          ls
           
-          mv e2e.log _artifacts/testreport/
-          mv junit_01.xml _artifacts/testreport/
 
       - name: export logs
         if: always()
@@ -705,18 +722,23 @@ jobs:
           docker ps -a
           kind export logs /tmp/kind
           cp kind-ci.yaml /tmp/kind/
+
+          ls
+          mv e2e.log _artifacts/testreport/
+          mv junit_01.xml _artifacts/testreport/
+
           kubectl get pod -A
 
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ inputs.ref }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ inputs.ref }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
