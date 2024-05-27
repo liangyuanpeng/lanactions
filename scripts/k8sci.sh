@@ -273,7 +273,7 @@ function util::runtests(){
 
     if [ $TEST_WHAT = "conformance-lease" ];then
       echo "hello lease API should be available"
-      ginkgo -v --race --trace --nodes=25                \
+      ginkgo --repeat=50 -v --race --trace --nodes=25                \
           --focus="lease API should be available"     \
           /usr/local/bin/e2e.test                       \
           --                                            \
