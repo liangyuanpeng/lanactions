@@ -161,6 +161,7 @@ jobs:
               echo "existTestnode=false" >> "$GITHUB_OUTPUT"
              fi
 
+             # curl -L https://dl.k8s.io/${{ matrix.k8s }}/kubernetes-test-linux-amd64.tar.gz -o ${TMP_DIR}/kubernetes-test-linux-amd64.tar.gz
              echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG"
              IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
@@ -591,6 +592,8 @@ jobs:
           mkdir -p _output/bin
           cd _output/bin
           oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG
+          # dev for e2e.test
+          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:dev
           chmod +x ./*
           cd ../..
           mv _output/bin/* /usr/local/bin/
