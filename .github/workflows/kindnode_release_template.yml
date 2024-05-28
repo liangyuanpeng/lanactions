@@ -260,11 +260,11 @@ jobs:
           cd ../_output
           tree .
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG
-          docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:$IMGTAG
-          export IMAGE2=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/node:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
+          docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
+          export IMAGE2=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
 
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
