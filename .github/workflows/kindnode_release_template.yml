@@ -256,6 +256,7 @@ jobs:
           mkdir tmp
           cd tmp
           #TODO 使用 kind 仓库的 hack/release/build/push-node.sh 来发布镜像, 可以构建 amd64&arm64 的镜像, 然后使用skopeo 来复制镜像到另一个 tag
+          # kind build node-image ../kubernetes
           kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG --kube-root $PWD/../
           docker images
           cd ../_output
