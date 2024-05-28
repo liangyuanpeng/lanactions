@@ -121,6 +121,7 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
+      imgrepo: kindest/testnode
 
   getcommitid:
     name: getcommitid

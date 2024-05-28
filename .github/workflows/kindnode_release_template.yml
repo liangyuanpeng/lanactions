@@ -255,13 +255,18 @@ jobs:
 
           mkdir tmp
           cd tmp
+          #TODO 使用 kind 仓库的 hack/release/build/push-node.sh 来发布镜像, 可以构建 amd64&arm64 的镜像, 然后使用skopeo 来复制镜像到另一个 tag
           kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG --kube-root $PWD/../
           docker images
           cd ../_output
           tree .
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
+          docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
+          export IMAGE2=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
             docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
@@ -273,6 +278,7 @@ jobs:
           
           #touch /tmp/result.txt
           echo "image=$IMAGE" > /tmp/result.txt
+          echo "image2=$IMAGE2" >> /tmp/result.txt
           echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           cat /tmp/result.txt

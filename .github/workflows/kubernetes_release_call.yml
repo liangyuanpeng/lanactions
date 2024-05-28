@@ -65,6 +65,7 @@ jobs:
       matrix:
         ref: 
         - vap_dev
+        - test_log
         repo:
         - liangyuanpeng/kubernetes
     with:
