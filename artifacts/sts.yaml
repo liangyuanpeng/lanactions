@@ -23,7 +23,7 @@ spec:
           - sh 
           - -c 
           - |
-            sleep 999h
+            echo "sleep 999h"
       containers:
         - image: ghcr.io/liangyuanpeng/ubuntu:tools-v1
           name: tools
