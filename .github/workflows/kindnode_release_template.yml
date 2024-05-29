@@ -259,6 +259,17 @@ jobs:
 
           mkdir tmp
           cd tmp
+
+          # git clone https://github.com/kubernetes-sigs/kind
+          # cd kind
+          # export REGISTRY=ghcr.io/liangyuanpeng/kindest
+          # export IMAGE_NAME=testnode
+          # export KUBEROOT=/home/runner/work/lanactions/lanactions/kubernetes
+          # hack/release/build/push-node.sh 
+          # KUBE_VERSION=`cat ../kubernetes/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
+          # 格式 ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}-amd64:$KUBE_VERSION
+          #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}-arm64:$KUBE_VERSION
+
           #TODO 使用 kind 仓库的 hack/release/build/push-node.sh 来发布镜像, 可以构建 amd64&arm64 的镜像, 然后使用skopeo 来复制镜像到另一个 tag
           # kind build node-image ../kubernetes
           kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG --kube-root $PWD/../
