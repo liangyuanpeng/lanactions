@@ -224,6 +224,10 @@ jobs:
           docker-images: false
           swap-storage: false
 
+      - name: build with make
+        run: |
+          make
+
 #TODO docker login action
       - name: build
         id: build
