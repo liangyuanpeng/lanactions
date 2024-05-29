@@ -554,7 +554,6 @@ jobs:
         env:
           REF: ${{ github.event.inputs.ref }}
           REPO: kubernetes/kubernetes
-          # REPO: ${{ github.event.inputs.repo }}
         run: |
           if [ "$REF" = "" ];then
               echo "ref=master" >> "$GITHUB_OUTPUT"
