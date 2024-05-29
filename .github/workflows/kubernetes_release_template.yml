@@ -111,6 +111,7 @@ jobs:
           
           #make quick-release-images
           #make release-images KUBE_BUILD_CONFORMANCE=y
+          export GOFLAGS="-p=2"
           make quick-release-images KUBE_BUILD_CONFORMANCE=y
 
           # 现在默认构建的镜像版本和git describe 不太一样
