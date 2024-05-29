@@ -1,0 +1,63 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: vap2
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups:   ["apps"]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      # resources:   ["deployments","daemonsets","statefulsets"]
+      resources:   ["statefulsets2"]
+  auditAnnotations:
+    - key: "high-replica-count"
+      valueExpression: "'StatefulSets spec.replicas set to ' + string(object.spec.replicas)"
+  validations:
+  - expression: "object.spec.replicas > 20"
+    messageExpression: "'StatefulSets spec.replicas set to ' + string(object.spec.replicas)"
+  - expression: "!object.spec.template.spec.containers.exists_one(c, c.image.startsWith('registry.lank8s.cn/'))"
+    message: "container image is not approve with start with registry.lank8s.cn"
+  - expression: "!has(object.spec.template.spec.initContainers) || !object.spec.template.spec.initContainers.exists_one(c, c.image.startsWith('registry.lank8s.cn/')) "
+  # 判断是否存在参数和判断长度 性能比较? ^^^
+  # - expression: "size(object.spec.template.spec.initContainers)<=0 || !object.spec.template.spec.initContainers.exists_one(c, c.image.startsWith('registry.lank8s.cn/'))"
+    message: "initContainers image is not approve with start with registry.lank8s.cn"
+  # - expression: "!object.spec.template.spec.containers.exists_one(c, c.imagePullPolicy == 'Always') "
+  #   message: "container imagePullPolicy is not approve with start with Always"
+  # - expression: "object.spec.template.spec.initContainers.size()>0 && !object.spec.template.spec.initContainers.exists_one(c, c.imagePullPolicy == 'Always') "
+  #   message: "initContainers imagePullPolicy is not approve with start with Always"
+#TODO ephemeralContainers
+#TODO containers 中必须有一个名字叫做sidecar的容器
+#TODO cel中获取gvk gvr?
+#TODO 必须为容器配置 limit 和 request
+#TODO messageExpression 和 message 的区别
+#TODO 需要判断 initContainers 是否存在 比如 size>0?
+#TODO 报错了  no such key: initContainers, 跟一下源码看看,序列化时没有initContainers字段所以导致报错了? 不应该为空list吗 可以直接查看etcd里面的数据就知道是否有 initContainers 字段, 对于后续的 CBOR 序列化方式是不是就可以知道这个字段的类型了?  目前来说,内置的类型 可以知道这个字段类型吗?
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: vapb2
+spec:
+  policyName: vap2
+  validationActions: [Deny]
+  # matchResources:
+  #   namespaceSelector:
+  #     matchLabels:
+  #       environment: test
+  matchResources:
+    excludeResourceRules:
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations:  ["CREATE", "UPDATE"]
+      resources: ["services"]
+    # namespaceSelector:
+    #   matchExpressions:
+    #   - key: environment
+    #     operator: NotIn
+    #     values:
+    #     - test
+    # objectSelector:
+    #   matchLabels: 
+    #     app: tools

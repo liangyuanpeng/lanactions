@@ -17,11 +17,13 @@
 # under the License.
 #
 
-name: etcd_k8s_ci
+name: release_kubernetes_latest
 on:
   push:
-    branches: [ etcd_k8s_ci ]
-  workflow_call:
+    branches: [ build_k8s ]
+  schedule:
+    - cron: '0 0 * * 0,1,2,3,4,5,6'
+  workflow_dispatch:
     inputs:
       ref:
         description: 'source ref of kubernetes '
@@ -29,35 +31,43 @@ on:
         default: "master"
         type: string
       repo:
-        description: 'repo of kubernetes'
+        description: 'kubernetes/kubernetes'
         required: false
         default: "kubernetes/kubernetes"
         type: string
+        
+permissions:
+  packages: write
 
 jobs:
 
-  build-etcd:
-    name: build-etcd
-    permissions:
-      packages: write
-    runs-on: ubuntu-22.04
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: etcd-io/etcd
-          fetch-depth: 0
-          # ref: ${{ inputs.ref }}
+  #TODO 自动获取最新的3个release branch
 
-  build-kind-k8s:
-    name: build-kind-k8s
-    permissions:
-      packages: write
-    runs-on: ubuntu-22.04
-    steps:
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: etcd-io/etcd
-          fetch-depth: 0
-          # ref: ${{ inputs.ref }}
+  buildk8s:
+    name: buildk8s
+    uses: ./.github/workflows/kubernetes_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: 
+        - master
+        - release-1.30
+        - release-1.29
+        - release-1.28
+    with:
+      ref: ${{ matrix.ref }}
+
+  buildk8sdev:
+    name: buildk8s
+    uses: ./.github/workflows/kubernetes_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: 
+        - vap_dev
+        - test_log
+        repo:
+        - liangyuanpeng/kubernetes
+    with:
+      ref: ${{ matrix.ref }}
+      repo: ${{ matrix.repo }}

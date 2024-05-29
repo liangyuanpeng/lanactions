@@ -22,20 +22,54 @@ on:
   push:
     paths:
     - 'scripts/k8sci.sh'
-  
+    - 'artifacts'
+    - '.github/workflows/ci.yaml'
+  schedule:
+    - cron: '0 3 * * 0,1,2,3,4,5,6'
+
 jobs:
 
   build:
     name: build
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: checkoutactions
         uses: actions/checkout@v4
 
       - name: oras push 
         run: |
-          cd scripts 
+          cp scripts/k8sci.sh .
           oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh 
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts
+
+  update-k8sdepimgs:
+    name: update-k8sdepimgs
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 10
+      fail-fast: false
+      matrix:
+        branch:
+        - master
+        - release-1.30
+        - release-1.29
+        - release-1.28
+    steps:
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 1
+          ref: ${{ matrix.branch }}
+
+      - name: oras push 
+        run: |
+          cd build
+          oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          #TODO 同时上传生成后的拉取镜像脚本
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8sdepimgs-${{ matrix.branch }} dependencies.yaml 
+          oras logout ghcr.io

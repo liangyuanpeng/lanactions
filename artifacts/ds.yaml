@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: test
+spec:
+  selector:
+    matchLabels:
+      name: test
+  template:
+    metadata:
+      labels:
+        name: test
+    spec:
+      containers:
+      - name: test
+        image: ubuntu:latest
+        command:
+        - /bin/bash
+        - -c
+        - "apt-get update && sleep 100000"

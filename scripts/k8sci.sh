@@ -1,31 +1,58 @@
 #!/bin/bash
-
 set -o errexit;
 set -o pipefail;
 set -o nounset;
 
 function util::getbuild(){
   STEP_WHAT=${STEP_WHAT:-"none"}
-  KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
+  KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
   if [ $STEP_WHAT = "getbuild" ];then 
     wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
     chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
   fi
 }
 
-# kind create cluster --image ghcr.io/liangyuanpeng/kindest/testnode:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
+# kind create cluster --image $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
 function util::deployk8s(){
+  #TODO 支持使用vagrant部署虚拟机,在虚拟机里面跑测试?
   STEP_WHAT=${STEP_WHAT:-"none"}
+
    # deployk8s, runtests
   if [ $STEP_WHAT = "deployk8s" ];then 
-    KIND_VERSION=${KIND_VERSION:-"v0.22.0"}
-    IMGTAG=${IMGTAG:-"v1.31.0-alpha.0"}
+    sudo ifconfig eth0:9 192.168.66.2 netmask 255.255.255.0 up
+    sudo ifconfig eth0:9 up
+
+    KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
+    IMGTAG=${IMGTAG:-"v1.30.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
     KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
+    KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
+    KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
     # k8s master 节点数量,  1master2node  3master2node
     K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
+    WHICH_ETCD=${WHICH_ETCD:-"build-in"}
+    #TODO k8s集群功能分类, 1.默认 2.all alpha=true 3. all beta=true 4. all alpha+beta=true
+    ENABLED_WHAT=${ENABLED_WHAT:-"default"}
+    #TODO 1. 开启了apiserver-network-proxy的 k8s集群
+    ADDON_WHAT=${ADDON_WHAT:-"none"}
+
+    ETCD_VERSION=${ETCD_VERSION:-"v3.5.13"}
+    wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
+    tar -xf etcd-${ETCD_VERSION}-linux-amd64.tar.gz && rm -f etcd-${ETCD_VERSION}-linux-amd64.tar.gz
+    mv etcd-${ETCD_VERSION}-linux-amd64/etcd* /usr/local/bin/ && rm -rf etcd-${ETCD_VERSION}-linux-amd64
+
+    if [ $WHICH_ETCD = "xline" ];then 
+      echo "docker run xline"
+      docker run -it -d --name xline -p 2379:2379 -p 9100:9100 -p 9090:9090 ghcr.io/liangyuanpeng/xline:latest xline --name node1 --members node1=0.0.0.0:2379 --data-dir /tmp/xline --storage-engine rocksdb --client-listen-urls=http://0.0.0.0:2379 --peer-listen-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 --client-advertise-urls=http://0.0.0.0:2379 --peer-advertise-urls=http://0.0.0.0:2380,http://0.0.0.0:2381 
+      docker ps
+      # etcdctl put /hello world
+      # etcdctl get /hello
+    fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
+    #TODO 开启以下配置 测试矩阵
+    IPFAMILY=${IPFAMILY:-"ipv4"} #ipv4 ipv6  双栈
+    PROXY_MODE=${PROXY_MODE:-"iptables"} # iptables, ipvs, nftables
 
     if [ $STORAGE_MEDIA_TYPE = "json" ];then 
       REALLY_STORAGE_MEDIA_TYPE="application/json"
@@ -45,12 +72,15 @@ function util::deployk8s(){
 
     if [ $K8S_CP_COUNT = "1" ];then
 
+      if [ $WHICH_ETCD = "build-in" ];then
+
 cat <<EOF> kind-ci.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 featureGates:
   "AllAlpha": true
   "AllBeta": true
+  "ValidatingAdmissionPolicy": true
   "InTreePluginGCEUnregister": false
   "DisableCloudProviders": true
   "DisableKubeletCloudCredentialProviders": true
@@ -58,10 +88,11 @@ featureGates:
   "StorageVersionAPI": false
   "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
 networking:
-  ipFamily: ipv4
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
 nodes:
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -70,20 +101,108 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: worker
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-EOF
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 
+EOF
+      fi
+      if [ $WHICH_ETCD = "xline" ];then
+
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
+nodes:
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+      fi
     fi
 
     if [ $K8S_CP_COUNT = "3" ];then
+
+      if [ $WHICH_ETCD = "xline" ];then 
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
+nodes:
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+      else
 cat <<EOF> kind-ci.yaml
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 featureGates:
   "AllAlpha": true
   "AllBeta": true
+  "ValidatingAdmissionPolicy": true
   "InTreePluginGCEUnregister": false
   "DisableCloudProviders": true
   "DisableKubeletCloudCredentialProviders": true
@@ -91,10 +210,11 @@ featureGates:
   "StorageVersionAPI": false
   "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
 networking:
-  ipFamily: ipv4
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
 nodes:
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -103,7 +223,7 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -112,7 +232,7 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: control-plane
-  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -121,21 +241,31 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: worker
-  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
-  image: ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$IMGTAG
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
+      fi
     fi
 
     cat kind-ci.yaml
+    mkdir -p _artifacts/testreport
 
     /usr/local/bin/kind create cluster \
     --name kind           \
     -v7 --wait 4m --retain --config=kind-ci.yaml
-
-    mkdir -p _artifacts
+    
     cp ~/.kube/config _artifacts/
-    mkdir -p _artifacts/testreport
+
+    pwd
+    ls
+    ls artifacts
+    #kubectl apply -f artifacts/ds.yaml
+    kubectl apply -f artifacts
+    kubectl get node
+    kubectl get ds -A
+    kubectl get pod -A
+
   fi
 }
 
@@ -148,19 +278,74 @@ EOF
 #   k8s.io/kubernetes/test/e2e/framework/statefulset/rest.go:69
 
 function util::runtests(){
+  #TODO 部署一些东西,作为干扰项,例如k8s内部署 etcd 集群. (只是部署,不做其他动作)
+  # 以及部署一个 Daemonset, Deployment
   STEP_WHAT=${STEP_WHAT:-"none"}
   TESTS_WITH=${TESTS_WITH:-"ginkgo"}
   # ginkgo hydrophone
   TEST_WHAT=${TEST_WHAT:-"none"}
   if [ $STEP_WHAT = "runtests" ];then
     if [ $TEST_WHAT = "conformance" ];then
-      ginkgo --nodes=25                \
+      ginkgo -v --race --trace --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
           /usr/local/bin/e2e.test                       \
           --                                            \
           --kubeconfig=${PWD}/_artifacts/config     \
           --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "ValidatingAdmissionPolicy" ];then
+      ginkgo -v --race --trace --nodes=25                \
+          --focus="ValidatingAdmissionPolicy"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
+      ginkgo -v --race --trace --nodes=25                \
+          --focus="MutatingAdmissionPolicy"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "conformance-lease" ];then
+      echo "hello lease API should be available"
+      ginkgo --repeat=50 -v --race --trace --nodes=25                \
+          --focus="lease API should be available"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "kind-e2e" ];then
+    #TODO 将ginkgo跑在容器里面? 或者继续研究如何才能不丢失日志 (目前在github action 会丢失ginkgo的测试日志,但是使用官方的 e2e-k8s.sh 却不会丢失,奇怪)
+    #--provider=skeleton       
+    #--prefix=e2e --network=e2e \
+      ginkgo -v --race --trace --nodes=25                \
+          --focus="."     \
+          --skip="\[Serial\]|\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                               \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false

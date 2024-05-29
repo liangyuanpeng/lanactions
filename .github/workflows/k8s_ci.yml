@@ -36,7 +36,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.22.0"
+        default: "v0.23.0"
         type: string
       hydrophone:
         description: 'hydrophone'
@@ -58,13 +58,26 @@ on:
         required: false
         default: 1
         type: number
+      existTestnode:
+        description: 'existTestnode'
+        required: false
+        default: 'false'
+        type: string
+      existKubebins:
+        description: 'existKubebins'
+        required: false
+        default: 'false'
+        type: string
       #TODO 使用Kind的master 构建kind bin
       #TODO 添加一个job来输出 commit id,后续任务都基于这个commit id 的代码来跑CI
       #TODO 添加github action summary, 显示当前workflow执行的 commit id 以及任务成功失败
 
+env:
+  KIND_VERSION: ${{ inputs.kindVersion }}
+  GH_TOKEN: ${{ github.token }}
+  
 jobs:
 
-#TODO 构建k8s容器镜像
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 #TODO 添加etcd重启,然后再跑一遍测试
 # TODO etcd 数据持久化,添加多一个参数? 是否使用持久化的etcd进行测试,是的话 每次测试完成后都将数据存起来,下一次加载继续使用.
@@ -75,40 +88,122 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
+      EXIST_TESTNODE: ${{ inputs.existTestnode }}
+      EXIST_KUBEBINS: ${{ inputs.existKubebins }}
     outputs:
       commitID: ${{ steps.gencommitid.outputs.commitID }}
+      existTestnode: ${{ steps.gencommitid.outputs.existTestnode }}
+      existKubebins: ${{ steps.gencommitid.outputs.existKubebins }}
+      imgtag: ${{ steps.gencommitid.outputs.imgtag }}
     steps:
-      # - name: checkoutactions
-      #   if: ${{ inputs.commitID == 'none' }}
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: kubernetes/kubernetes
-      #     # repository: ${{ inputs.repo }}
-      #     fetch-depth: 0
-      #     ref: ${{ inputs.ref }}
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
       - name: gen commitID
         id: gencommitid
         run: |
+          echo "INPUT_COMMID_ID:$INPUT_COMMID_ID"
+          echo "EXIST_TESTNODE:$EXIST_TESTNODE"
+          echo "EXIST_KUBEBINS:$EXIST_KUBEBINS"
+
+          # if [ ${{ inputs.alwaysrun }} = "true" ];then
+          #   echo "commitID=none" >> "$GITHUB_OUTPUT"
+          #   echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+          #   echo "existKubebins=false" >> "$GITHUB_OUTPUT"
+          #   exit 0
+          # fi
+
+          git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+          cd kubernetes
+
           if [ $INPUT_COMMID_ID != "none" ];then
+            git reset --hard $INPUT_COMMID_ID
+            IMGTAG=`git describe --tags`
+            echo "have commitID:$INPUT_COMMID_ID, IMGTAG:$IMGTAG"
+            git log --pretty=format:"%s" $INPUT_COMMID_ID -1
+            echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+            # echo "existTestnode=$EXIST_TESTNODE" >> "$GITHUB_OUTPUT"
+            # echo "existKubebins=$EXIST_KUBEBINS" >> "$GITHUB_OUTPUT"
+
+            IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist testnode"
+               echo "existTestnode=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+             fi
+
+             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist kubebins"
+               echo "existKubebins=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existKubebins=false" >> "$GITHUB_OUTPUT"
+             fi
+
           else
-             git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
-             cd kubernetes
+             
              LATEST_COMMIT=`git rev-parse HEAD`
              echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
+             IMGTAG=`git describe --tags`
+             
+             echo "imgtag=$IMGTAG" >> "$GITHUB_OUTPUT"
+             git log --pretty=format:"%s" $COMMIT_ID -1
+
+             echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG"
+             
+             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist testnode"
+               echo "existTestnode=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existTestnode=false" >> "$GITHUB_OUTPUT"
+             fi
+
+             # curl -L https://dl.k8s.io/${{ matrix.k8s }}/kubernetes-test-linux-amd64.tar.gz -o ${TMP_DIR}/kubernetes-test-linux-amd64.tar.gz
+             echo "check image:ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG"
+             IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
+             if [ $IMAGE_EXIST -eq 1 ]; then
+               echo "exist kubebins"
+               echo "existKubebins=true" >> "$GITHUB_OUTPUT"
+             else 
+              echo "existKubebins=false" >> "$GITHUB_OUTPUT"
+             fi
+
+          fi
+
+  printouputs:
+    name: printouputs
+    runs-on: ubuntu-22.04
+    needs: getcommitid
+    steps:
+      - name: print
+        run: |
+          echo "existTestnode:"${{ needs.getcommitid.outputs.existTestnode }}
+          echo "existKubebins:"${{ needs.getcommitid.outputs.existKubebins }}
+          echo "existKubebins:"${{ needs.getcommitid.outputs.imgtag }}
+          if [ ${{ needs.getcommitid.outputs.existTestnode }} = "false" ];then 
+            echo "existTestnode is false"
+          fi
+
+          if [ ${{ needs.getcommitid.outputs.existKubebins }} = "false" ];then 
+            echo "existKubebins is false"
           fi
 
   build-kind:
+  #TODO 上传 kubernetes/hack/ginkgo-e2e.sh?
+  #TODO 一起上传 kubebins?
+  # TODO 构建 cross,  make cross
     name: build-kind
     needs: getcommitid
+    # if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
     permissions:
       packages: write
     runs-on: ubuntu-22.04
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
       KIND_VERSION: ${{ inputs.kindVersion }}
-    outputs:
-      imgtag: ${{ steps.checkimgs.outputs.imgtag }}
     steps:
       - name: make default value
         id: genoutputs
@@ -129,6 +224,7 @@ jobs:
           fi
 
       - name: checkoutactions
+        if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
         uses: actions/checkout@v4
         with:
           repository: kubernetes/kubernetes
@@ -137,13 +233,24 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: check out to commitid
+        if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
         run: |
           echo "COMMIT_ID:"$COMMIT_ID
           pwd
-          git reset --hard $COMMIT_ID
-          git log --pretty=format:"%s" $COMMIT_ID -1
+          if [ $COMMIT_ID != "none" ];then
+            git reset --hard $COMMIT_ID
+            git log --pretty=format:"%s" $COMMIT_ID -1
+            exit 0
+          fi
+          LATEST_COMMIT=`git rev-parse HEAD`
+          git log --pretty=format:"%s" $LATEST_COMMIT -1
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
 
       - name: checkimgs
+        if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
         id: checkimgs
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
@@ -160,15 +267,12 @@ jobs:
           fi
 
       - uses: actions/setup-go@v5
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        if: steps.checkimgs.outputs.exist != 'true'
-        with:
-          version: 1.0.0
+
       - name: clean
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
@@ -177,14 +281,14 @@ jobs:
           rm -rf /opt/hostedtoolcache/Python
 
       - name: download kind
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         run: |
           wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
           chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -199,7 +303,7 @@ jobs:
 
       - name: build kind node
         id: build-kind-node
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         run: |
           IMGTAG=`git describe --tags`
           mkdir -p tmp
@@ -208,9 +312,14 @@ jobs:
           cd ..
           rm -rf tmp
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG
+          if [ "${{ inputs.ref }}" = "master" ];then 
+            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-latest
+            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-latest
+          fi
 
-  build-k8sbins:
-    name: build-k8sbins
+  build-k8sbins-arm:
+    name: build-k8sbins-arm
+    if: ${{ needs.getcommitid.outputs.arm }}
     needs: getcommitid
     env:
       COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
@@ -249,9 +358,78 @@ jobs:
         run: |
           echo "COMMIT_ID:"$COMMIT_ID
           pwd
-          git reset --hard $COMMIT_ID
+          if [ $COMMIT_ID != "none" ];then
+            git reset --hard $COMMIT_ID
+            git log --pretty=format:"%s" $COMMIT_ID -1
+            exit 0
+          fi
+          LATEST_COMMIT=`git rev-parse HEAD`
+          git log --pretty=format:"%s" $LATEST_COMMIT -1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: build 
+        run: |
+          KUBE_BUILD_PLATFORMS=linux/arm64 make all
+          
+  build-k8sbins:
+    name: build-k8sbins
+    needs: getcommitid
+    # if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
+    env:
+      COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
+    permissions:
+      packages: write
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ github.event.inputs.ref }}
+          REPO: ${{ github.event.inputs.repo }}
+        run: |
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$REPO" = "" ];then
+              echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
+          else
+              echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: checkoutactions
+        if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          # repository: ${{ inputs.repo }}
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: check out to commitid
+        if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
+        run: |
+          echo "COMMIT_ID:"$COMMIT_ID
+          pwd
+          if [ $COMMIT_ID != "none" ];then
+            git reset --hard $COMMIT_ID
+            git log --pretty=format:"%s" $COMMIT_ID -1
+            exit 0
+          fi
+          LATEST_COMMIT=`git rev-parse HEAD`
+          git log --pretty=format:"%s" $LATEST_COMMIT -1
+
+      - uses: oras-project/setup-oras@v1
+        with:
+          version: 1.0.0
 
       - name: checkimgs
+        if: ${{ needs.getcommitid.outputs.existKubebins == 'false' }}
         id: checkimgs
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
@@ -260,22 +438,19 @@ jobs:
 
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG | grep mediaType | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist testnode"
+            echo "exist kubebins"
             echo "exist=true" >> "$GITHUB_OUTPUT"
           else 
             echo "exist=false" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/setup-go@v5
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
-        if: steps.checkimgs.outputs.exist != 'true'
-        with:
-          version: 1.0.0
+
       - name: clean
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         run: |
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
@@ -285,7 +460,7 @@ jobs:
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         uses: jlumbroso/free-disk-space@main
         with:
           tool-cache: false
@@ -297,7 +472,7 @@ jobs:
           swap-storage: false
 
       - name: build
-        if: steps.checkimgs.outputs.exist != 'true'
+        if: steps.checkimgs.outputs.exist == 'false'
         run: |
           IMGTAG=`git describe --tags`
           
@@ -305,12 +480,21 @@ jobs:
           cd _output/bin
           bins=`ls .`
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG $bins
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e ginkgo e2e.test e2e_node.test
+
+          if [ "ref: ${{ inputs.ref }}" = "master" ];then 
+            oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest $bins
+            oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest-e2e ginkgo e2e.test e2e_node.test
+          fi
+
 
   e2e:
     name: e2e
     needs:
     - build-kind
     - build-k8sbins
+    - printouputs
+    - getcommitid
     permissions:
       packages: write
     strategy:
@@ -318,22 +502,24 @@ jobs:
       fail-fast: false
       matrix:
         #TODO k8s 节点数量? 1 3 5?
+        #TODO withANP, 部署了ANP的k8s
         etcd: 
         - build-in 
         # - etcd-master
         # - etcd-release3.5
-        # - xline
+        - xline
         # - etcd-big # 持久化的etcd
         storageMediaType: 
         - protobuf
         - json
         - yaml
         # - TODO CBOR
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
+      KIND_IMG_USER: ${{ github.actor }}
       KIND_VERSION: ${{ inputs.kindVersion }}
-      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+      IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
       # TEST_WHAT: ${{ matrix.tests }}
       TEST_WHAT: ${{ inputs.testname }}
       WHICH_ETCD: ${{ matrix.etcd }}
@@ -354,11 +540,20 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+
+          mkdir -p _artifacts/testreport
+          mkdir -p cluster/log-dump
+          mkdir -p ../../cluster/log-dump
+          git clone https://github.com/kubernetes/test-infra.git --depth=1
+          cp -f test-infra/logexporter/cluster/* cluster/log-dump/
+          cp -f test-infra/logexporter/cluster/* ../../cluster/log-dump
+          rm -rf test-infra
+
       - name: make default value
         id: genoutputs
         env:
           REF: ${{ github.event.inputs.ref }}
-          REPO: ${{ github.event.inputs.repo }}
+          REPO: kubernetes/kubernetes
         run: |
           if [ "$REF" = "" ];then
               echo "ref=master" >> "$GITHUB_OUTPUT"
@@ -387,6 +582,8 @@ jobs:
           kubectl get nodes -o wide
           kubectl get pods -A
           kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
+          echo "kube-dns is running..."
+          kubectl get nodes -o wide
           # TODO 运行一些简单的部署,例如deployment, 等待完成 然后删除 等待完成删除
 
       - name: download bins
@@ -394,6 +591,8 @@ jobs:
           mkdir -p _output/bin
           cd _output/bin
           oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG
+          # dev for e2e.test
+          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:dev
           chmod +x ./*
           cd ../..
           mv _output/bin/* /usr/local/bin/
@@ -402,26 +601,21 @@ jobs:
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
-      # - name: run conformance test 
-      #   if: matrix.tests == 'conformance'
-      #   run: |
-      #     #TODO 进行更多测试,例如 alpha,beta 功能测试
-      #     STEP_WHAT=runtests TEST_WHAT=conformance ./k8sci.sh
+      - name: export logs
+        if: always()
+        run: |
+          ls -allh
+          docker ps -a
+          kind export logs /tmp/kind
+          cp kind-ci.yaml /tmp/kind
+          kubectl get pod -A
 
-      # - name: run statefulset test
-      #   if: matrix.tests == 'statefulset'
-      #   run: |
-      #     # ginkgo --nodes=25                \
-      #     # --focus="\[Feature:StatefulSet\]"     \
-      #     # /usr/local/bin/e2e.test                       \
-      #     # --                                            \
-      #     # --kubeconfig=${PWD}/_artifacts/config     \
-      #     # --provider=local                              \
-      #     # --dump-logs-on-failure=true                  \
-      #     # --report-dir=${PWD}/_artifacts/testreport            \
-      #     # --disable-log-dump=false
-          
-      #     STEP_WHAT=runtests TEST_WHAT=statefulset ./k8sci.sh
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kind_test_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          path: /tmp/kind/
 
       - name: print result 
         if: always()
@@ -434,21 +628,9 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: kind_testreport_e2e-${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_testreport_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
-      - name: export logs
-        if: always()
-        run: |
-          kubectl get pod -A
-          kind export logs /tmp/kind
-
-      - name: upload kind logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kind_test_e2e-${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
-          path: /tmp/kind/
 
   e2e-with-hydrophone:
     name: e2e-with-hydrophone
@@ -457,19 +639,30 @@ jobs:
     needs:
     - build-kind
     - build-k8sbins
+    - getcommitid
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
+        storageMediaType: 
+        - protobuf
+        - json
+        - yaml
+        etcd: 
+        - build-in 
+        - xline
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
-        - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+        # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0.941_d309063e35d38d --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+        - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.29.0-alpha.0-5232-gd309063e35d --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
-      IMGTAG: ${{ needs.build-kind.outputs.imgtag }}
+      IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
+      WHICH_ETCD: ${{ matrix.etcd }}
+      STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
     steps:
       - uses: actions/setup-go@v5
         with:
@@ -484,6 +677,7 @@ jobs:
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
+          mkdir -p _artifacts/testreport
 
       - name: get kind
         run: |
@@ -501,6 +695,7 @@ jobs:
           kubectl get pods -A
           kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
 
+      #TODO 专门一个job来build hydrophone
       - name: build hydrophone
         run: |
           pwd
@@ -522,26 +717,35 @@ jobs:
           # see report 
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
           ${{ matrix.tests }}
-          ls
-          mkdir -p _artifacts/testreport
-          mv e2e.log _artifacts/testreport/
-          mv junit_01.xml _artifacts/testreport/
+          
 
       - name: export logs
         if: always()
         run: |
+          docker ps -a
           kind export logs /tmp/kind
-          kubectl get pod -A
+          cp kind-ci.yaml /tmp/kind/
 
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        if: always()
-        with:
-          name: hydrophone_testreport_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
-          path: _artifacts/testreport
+          ls
+          mv e2e.log _artifacts/testreport/
+          mv junit_01.xml _artifacts/testreport/
+
+          echo "==============================================begin cat e2e.log =============================================="
+          cat _artifacts/testreport/e2e.log
+          echo "==============================================done cat e2e.log =============================================="
+
+          kubectl get pod -A
 
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ needs.build-kind.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: kind_test_hydrophone_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
+
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        if: always()
+        with:
+          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          path: _artifacts/testreport
+

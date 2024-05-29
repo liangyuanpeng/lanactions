@@ -17,10 +17,10 @@
 # under the License.
 #
 
-name: kind_build_auto
+name: kindnode_release_schedule
 on:
   push:
-    branches: [ kind_build_auto ]
+    branches: [ kindnode_release_schedule ]
   workflow_dispatch:
     inputs:
       k8sMinVersion:
@@ -31,7 +31,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.22.0"
+        default: "latest"
         type: string
       tagWithKind:
         description: 'is it need to add kind version for tag'
@@ -45,34 +45,47 @@ on:
         type: number
 
   schedule:
-    - cron: '0 3 * * 0,1,2,3,4,5,6'
+    - cron: '0 19 * * 0,1,2,3,4,5,6'
     # - cron: '0 3 * * 0,6'
-
+env:
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
-# #/kind_build_auto kindVersion=v0.19.0&tagWithKind=true&k8sMinVersion=v1.29.0
+# #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
   gettags:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
     # strategy:
     #   fail-fast: false
     #   matrix:
     #     TAG_WITH_KIND: ["0","1"]
     env:
-      TAG_WITH_KIND: ${{ inputs.tagWithKind }}
+      # TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
-      KIND_VERSION: ${{ inputs.kindVersion }}
     outputs:
       ref: ${{ steps.gher.outputs.ref }}
+      kindVersion: ${{ steps.gher.outputs.kindVersion }}
       tagslength: ${{ steps.gher.outputs.tagslength }}
     steps:
       - uses: oras-project/setup-oras@v1
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: gher
         id: gher
         run: |
+          export TAG_WITH_KIND=true
+          echo "inputs.kindVersion:"${{ inputs.kindVersion }}
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+          echo "=======================kind version============================"
+          echo $KIND_VERSION
+          echo "=======================kind version============================"
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
           ./gher > tags.json
@@ -83,19 +96,22 @@ jobs:
           echo "tagslength=${tagslength}" >> "$GITHUB_OUTPUT"
           echo "ref=${list}" >> "$GITHUB_OUTPUT"
           # echo "::set-output name=ref::${list} "  
+          echo "kindVersion=$KIND_VERSION" >> "$GITHUB_OUTPUT"
 
   build:
     needs:
     - gettags
-    uses: ./.github/workflows/kind_build_release.yml
+    uses: ./.github/workflows/kindnode_release_template.yml
     if: ${{ needs.gettags.outputs.tagslength > 0 }}
     strategy:
       fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
+        #TODO 构建每个分支的latest， 例如 ghcr.io/liangyuanpeng/kindest/node:v0.23.0-v1.29
+        kindVersion:
+        - ${{ needs.gettags.outputs.kindVersion }}
     with:
       ref: ${{ matrix.ref }}
       maketag: false
       repo: "kubernetes/kubernetes"
-      tagWithKind: ${{ inputs.tagWithKind }}
-      kindVersion: ${{ inputs.kindVersion }}
+      kindVersion: ${{ matrix.kindVersion }}
