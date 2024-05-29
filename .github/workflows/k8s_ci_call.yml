@@ -97,7 +97,7 @@ jobs:
     needs: getcommitid
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
-      max-parallel: 6
+      max-parallel: 1
       fail-fast: false
       matrix:
         tests:
@@ -473,7 +473,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: getcommitid
     strategy:
-      max-parallel: 6
+      max-parallel: 2
       fail-fast: false
       matrix:
         parallel:
@@ -481,13 +481,12 @@ jobs:
         # - false
         os: 
         - ubuntu-22.04
-        # - ubuntu-24.04
+        - ubuntu-24.04
         - ubuntu-latest
         ref: 
         - master 
         - release-1.30
         - release-1.29
-        # - ${{ inputs.ref }}
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
