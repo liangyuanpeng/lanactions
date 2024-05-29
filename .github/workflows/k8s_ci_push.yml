@@ -35,7 +35,7 @@ jobs:
     #TODO 构建的是 ghcr.io/liangyuanpeng/kindest/node 需要的是 ghcr.io/liangyuanpeng/kindest/testnode
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
-      max-parallel: 2
+      max-parallel: 6
       fail-fast: false
       matrix:
         ref:
@@ -53,7 +53,7 @@ jobs:
     needs: build-kindnode
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
-      max-parallel: 2
+      max-parallel: 6
       fail-fast: false
       matrix:
         tests:

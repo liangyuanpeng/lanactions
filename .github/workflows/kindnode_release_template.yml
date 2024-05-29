@@ -76,7 +76,7 @@ jobs:
 
   saverunid:
     name: saverunid-${{ inputs.repo }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions:
       packages: write
     steps:
@@ -101,7 +101,7 @@ jobs:
 #TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
   release:
     name: release-${{ inputs.ref }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: saverunid
     permissions:
       packages: write
