@@ -85,7 +85,7 @@ jobs:
 #TODO kubeadm 升级测试?
 
   getcommitid:
-    name: getcommitid
+    name: getcommitid-${{ github.event.inputs.ref }}
     runs-on: ubuntu-22.04
     env:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
