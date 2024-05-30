@@ -251,7 +251,8 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version-file: tmp/kind/go.mod
+          go-version-file: go.mod
+          # go-version-file: tmp/kind/go.mod
 
 #TODO docker login action
       - name: build
