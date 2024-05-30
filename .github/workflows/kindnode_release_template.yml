@@ -292,9 +292,9 @@ jobs:
           export REGISTRY=ghcr.io/liangyuanpeng/kindest
           export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}
           export IMAGE_NAME=${{ inputs.imgname }}
-          export KUBEROOT=/home/runner/work/lanactions/lanactions/kubernetes
+          export KUBEROOT=/home/runner/work/lanactions/lanactions
           hack/release/build/push-node.sh 
-          KUBE_VERSION=`cat ../kubernetes/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
+          KUBE_VERSION=`cat ../../.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
           # 格式 ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-arm64:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-amd64:$KUBE_VERSION
