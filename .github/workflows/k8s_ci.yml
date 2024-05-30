@@ -75,6 +75,7 @@ on:
 env:
   KIND_VERSION: ${{ inputs.kindVersion }}
   GH_TOKEN: ${{ github.token }}
+  GOFLAGS: "-p=2"
   
 jobs:
 
