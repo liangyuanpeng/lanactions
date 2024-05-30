@@ -158,6 +158,13 @@ jobs:
         with:
           version: 1.1.0
 
+      # - name: checkout
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes-sigs/kind
+      #     fetch-depth: 0
+      #     ref: ${{ steps.genoutputs.outputs.kindversion }}
+
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -233,6 +240,19 @@ jobs:
       #   run: |
       #     make
 
+      - name: checkout kind 
+        run: |
+          mkdir -p tmp
+          cd tmp
+
+          git clone https://github.com/kubernetes-sigs/kind
+          cd kind
+          git checkout ${{ steps.genoutputs.outputs.kindversion }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: tmp/kind/go.mod
+
 #TODO docker login action
       - name: build
         id: build
@@ -262,12 +282,7 @@ jobs:
             echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG"
           fi
 
-          mkdir tmp
-          cd tmp
-
-          git clone https://github.com/kubernetes-sigs/kind
-          cd kind
-          git checkout ${{ steps.genoutputs.outputs.kindversion }}
+          cd tmp/kind
           export REGISTRY=ghcr.io/lank8scn/kindest
           export REGISTRY=ghcr.io/liangyuanpeng/kindest
           export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}
