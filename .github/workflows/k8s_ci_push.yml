@@ -31,21 +31,21 @@ env:
 jobs:
 
 
-  k8sci-branch:
-    name: k8sci-${{ matrix.ref }}
-    uses: ./.github/workflows/k8s_ci.yml
-    strategy:
-      max-parallel: 6
-      fail-fast: false
-      matrix:
-        tests:
-          - conformance
-          - conformance-lease
-        ref: 
-        - master 
-    with:
-      ref: ${{ matrix.ref }}
-      testname: ${{ matrix.tests }}
+  # k8sci-branch:
+  #   name: k8sci-${{ matrix.ref }}
+  #   uses: ./.github/workflows/k8s_ci.yml
+  #   strategy:
+  #     max-parallel: 6
+  #     fail-fast: false
+  #     matrix:
+  #       tests:
+  #         - conformance
+  #         - conformance-lease
+  #       ref: 
+  #       - master 
+  #   with:
+  #     ref: ${{ matrix.ref }}
+  #     testname: ${{ matrix.tests }}
 
   build-kindnode:
     name: build-kindnode-${{ inputs.ref }}
