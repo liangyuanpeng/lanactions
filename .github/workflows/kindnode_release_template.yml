@@ -290,8 +290,8 @@ jobs:
           export IMAGE_NAME=${{ inputs.imgname }}
           export KUBEROOT=/home/runner/work/lanactions/lanactions
           hack/release/build/push-node.sh 
-          #KUBE_VERSION=`cat ../.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
-          version_line="$(../hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG')"
+          #KUBE_VERSION=`cat ../lanactions/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
+          version_line="$(../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG')"
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           # 格式 ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-arm64:$KUBE_VERSION
