@@ -221,6 +221,23 @@ jobs:
           oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          # go-version-file: tmp/kind/go.mod
+
+      - name: checkout kind 
+        run: |
+          mkdir -p tmp
+          cd tmp
+
+          git clone https://github.com/kubernetes-sigs/kind
+          cd kind
+          git checkout ${{ steps.genoutputs.outputs.kindversion }}
+
+          
+          pwd
+          go version
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
@@ -240,26 +257,11 @@ jobs:
       #   run: |
       #     make
 
-      - name: checkout kind 
-        run: |
-          mkdir -p tmp
-          cd tmp
-
-          git clone https://github.com/kubernetes-sigs/kind
-          cd kind
-          git checkout ${{ steps.genoutputs.outputs.kindversion }}
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          # go-version-file: tmp/kind/go.mod
 
 #TODO docker login action
       - name: build
         id: build
         run: |
-          pwd
-          go version
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           git branch
           git describe
