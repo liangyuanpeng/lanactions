@@ -36,6 +36,9 @@ on:
 permissions:
   packages: write
 
+env:
+  GOFLAGS: "-p=2"
+
 jobs:
 
   release:
