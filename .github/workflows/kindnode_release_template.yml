@@ -299,7 +299,8 @@ jobs:
           ls ../lanactions
           ../lanactions/hack/print-workspace-status.sh
           echo "================================ ls .. ==================================="
-          ls ..
+          cd ../lanactions
+          git status
           # 格式 ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-arm64:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-amd64:$KUBE_VERSION
