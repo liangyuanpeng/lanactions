@@ -199,7 +199,6 @@ jobs:
           echo "input:"${{ inputs.maketag }}
           echo "result:"$IMGTAG
           echo "tagWithKind:"${{ inputs.tagWithKind }}
-          nohup docker rmi `docker images -aq` &
 
       - name: rebuild init message
         run: |
@@ -258,7 +257,7 @@ jobs:
       - name: build
         id: build
         run: |
-          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          
           git branch
           git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
