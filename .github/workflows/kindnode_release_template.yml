@@ -165,6 +165,20 @@ jobs:
       #     fetch-depth: 0
       #     ref: ${{ steps.genoutputs.outputs.kindversion }}
 
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -199,7 +213,10 @@ jobs:
           echo "input:"${{ inputs.maketag }}
           echo "result:"$IMGTAG
           echo "tagWithKind:"${{ inputs.tagWithKind }}
-          nohup docker rmi `docker images -aq` &
+          hack/print-workspace-status.sh
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          echo "KUBE_VERSION:"$KUBE_VERSION
 
       - name: rebuild init message
         run: |
@@ -217,8 +234,8 @@ jobs:
           echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           cp /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
 
       - uses: actions/setup-go@v5
@@ -235,19 +252,6 @@ jobs:
           pwd
           go version
 
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: true
-          swap-storage: false
 
       # - name: build with make
       #   run: |
@@ -258,7 +262,7 @@ jobs:
       - name: build
         id: build
         run: |
-          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          
           git branch
           git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
@@ -289,11 +293,13 @@ jobs:
           export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}
           export IMAGE_NAME=${{ inputs.imgname }}
           export KUBEROOT=/home/runner/work/lanactions/lanactions
+          ../lanactions/hack/print-workspace-status.sh
+          version_line=`../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           hack/release/build/push-node.sh 
           #KUBE_VERSION=`cat ../lanactions/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
           #version_line="$(../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG')"
-          version_line=`../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
-          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          
           echo "==============================get KUBE_VERSION:"$KUBE_VERSION
           echo "================================ ls ../lanactions ==================================="
           ls ../lanactions
