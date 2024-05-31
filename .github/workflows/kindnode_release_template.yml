@@ -306,7 +306,7 @@ jobs:
           export KUBEROOT=/home/runner/work/lanactions/lanactions
           cd ../lanactions
           hack/print-workspace-status.sh
-          version_line=`/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           cd ../kind
           hack/release/build/push-node.sh 
