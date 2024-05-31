@@ -48,7 +48,7 @@ jobs:
   #     testname: ${{ matrix.tests }}
 
   build-kindnode:
-    name: build-kindnode-${{ inputs.ref }}
+    name: build-kindnode-${{ matrix.ref }}
     #TODO 构建的是 ghcr.io/liangyuanpeng/kindest/node 需要的是 ghcr.io/liangyuanpeng/kindest/testnode
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
