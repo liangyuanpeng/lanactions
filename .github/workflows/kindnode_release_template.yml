@@ -316,7 +316,6 @@ jobs:
           echo "==============================get KUBE_VERSION:"$KUBE_VERSION
           echo "================================ ls ../lanactions ==================================="
           ls ../lanactions
-          ../lanactions/hack/print-workspace-status.sh
           echo "================================ ls .. ==================================="
           cd ../lanactions
           git status
