@@ -275,7 +275,7 @@ jobs:
         run: |
           
           git branch
-          git describe
+          #git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind }} == false ];then 
             IMGTAG=${{ steps.genoutputs.outputs.ref }}
