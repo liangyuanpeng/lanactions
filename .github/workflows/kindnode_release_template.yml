@@ -304,9 +304,11 @@ jobs:
           export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}
           export IMAGE_NAME=${{ inputs.imgname }}
           export KUBEROOT=/home/runner/work/lanactions/lanactions
-          ../lanactions/hack/print-workspace-status.sh
-          version_line=`../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          cd ../lanactions
+          hack/print-workspace-status.sh
+          version_line=`/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          cd ../kind
           hack/release/build/push-node.sh 
           #KUBE_VERSION=`cat ../lanactions/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
           #version_line="$(../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG')"
