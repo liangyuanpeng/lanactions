@@ -237,6 +237,10 @@ jobs:
           docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
+          hack/print-workspace-status.sh
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          echo "KUBE_VERSION:"$KUBE_VERSION
 
       - uses: actions/setup-go@v5
         with:
