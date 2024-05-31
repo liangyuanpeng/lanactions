@@ -199,6 +199,10 @@ jobs:
           echo "input:"${{ inputs.maketag }}
           echo "result:"$IMGTAG
           echo "tagWithKind:"${{ inputs.tagWithKind }}
+          hack/print-workspace-status.sh
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          echo "KUBE_VERSION:"$KUBE_VERSION
 
       - name: rebuild init message
         run: |
