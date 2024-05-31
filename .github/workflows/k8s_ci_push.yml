@@ -68,7 +68,7 @@ jobs:
   k8sci:
     name: k8sci
     needs: build-kindnode
-    if: always()
+    # if: always()
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
       max-parallel: 6
