@@ -85,6 +85,12 @@ jobs:
 # TODO etcd 数据持久化,添加多一个参数? 是否使用持久化的etcd进行测试,是的话 每次测试完成后都将数据存起来,下一次加载继续使用.
 #TODO kubeadm 升级测试?
 #TODO pull-kubernetes-integration
+#TODO etcd/xline 扩容测试, 有一个点是扩容的过程是删除kind kubernetes集群吗,还是直接在现有集群扩容etcd/xline集群
+# 1. 第一次k8s一致性测试测试 一个etcd/xline 节点
+# 2. 扩容 etcd/xline 到 3节点
+# 3. 再进行一次k8s一致性测试
+# 4. 再扩容 etcd/xline 到 4节点
+# 5. 再进行一次k8s一致性测试
 
   getcommitid:
     name: getcommitid-${{ github.event.inputs.ref }}
