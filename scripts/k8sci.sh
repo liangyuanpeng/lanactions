@@ -49,6 +49,14 @@ function util::deployk8s(){
       # etcdctl get /hello
     fi
 
+    if [ $WHICH_ETCD = "xline-cluster" ];then 
+      echo "xline cluster"
+    fi
+
+    if [ $WHICH_ETCD = "etcd-cluster" ];then 
+      echo "etcd cluster"
+    fi
+
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
     #TODO 开启以下配置 测试矩阵
     IPFAMILY=${IPFAMILY:-"ipv4"} #ipv4 ipv6  双栈
