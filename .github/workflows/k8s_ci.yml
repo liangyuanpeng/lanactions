@@ -94,7 +94,7 @@ jobs:
 
 
   getcommitid:
-    name: getcommitid-${{ github.event.inputs.ref }}
+    name: getcommitid-${{ inputs.ref }}
     runs-on: ubuntu-22.04
     env:
       INPUT_COMMID_ID: ${{ inputs.commitID }}
