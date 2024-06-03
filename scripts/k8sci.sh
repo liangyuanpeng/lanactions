@@ -289,8 +289,6 @@ function util::runtests(){
   # make WHAT="test/e2e/e2e.test"
   #TODO 部署一些东西,作为干扰项,例如k8s内部署 etcd 集群. (只是部署,不做其他动作)
   # 以及部署一个 Daemonset, Deployment
-  #TODO 将ginkgo用一个k8s pod来跑,完成后就可以收集 e2e 日志了.
-  # 用docker容器跑的话可以收集到日志吗?
   STEP_WHAT=${STEP_WHAT:-"none"}
   TESTS_WITH=${TESTS_WITH:-"ginkgo"}
   # ginkgo hydrophone
