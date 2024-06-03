@@ -96,8 +96,8 @@ jobs:
           echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           mv /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
           echo "cloning repo:"${{ inputs.repo }}
 
