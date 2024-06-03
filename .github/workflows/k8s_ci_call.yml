@@ -68,6 +68,7 @@ jobs:
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
+# 命名规范: pull-kubernetes-  --->  pk-
 
   buildkind:
     name: buildkind
@@ -178,8 +179,8 @@ jobs:
           echo '### commitID:${{ steps.gencommitid.outputs.commitID }}' >> $GITHUB_STEP_SUMMARY
           echo "### message: ${{ steps.gencommitid.outputs.commitMsg }}" >> $GITHUB_STEP_SUMMARY
 
-  pull-kubernetes-e2e-kind:
-    name: pull-kubernetes-e2e-kind
+  pk-e2e-kind:
+    name: pk-e2e-kind
     needs: getcommitid
     # 目前都是报错,暂时这样直接跳过这个CI
     if: ${{ needs.getcommitid.outputs.e2ekind }}
@@ -260,8 +261,8 @@ jobs:
 
 #TODO pull-kubernetes-node-e2e-containerd
 
-  pull-kubernetes-e2e-kind-cloud-provider-loadbalancer:
-    name: pull-kubernetes-e2e-kind-cloud-provider-loadbalancer
+  pk-e2e-kind-cloud-provider-loadbalancer:
+    name: pk-e2e-kind-cloud-provider-loadbalancer
     runs-on: ubuntu-22.04
     needs: getcommitid
     steps:
@@ -311,8 +312,8 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
-  pull-kubernetes-integration:
-    name: pull-kubernetes-integration
+  pk-integration:
+    name: pk-integration
     runs-on: ubuntu-22.04
     needs: getcommitid
     # 目前都是报错,暂时这样直接跳过这个CI
@@ -406,8 +407,8 @@ jobs:
           path: _artifacts
 
   # non-blocking
-  pull-kubernetes-e2e-kind-alpha-features-sig-storage:
-    name: pull-kubernetes-e2e-kind-alpha-features-sig-storage
+  pk-e2e-kind-alpha-features-sig-storage:
+    name: pk-e2e-kind-alpha-features-sig-storage
     runs-on: ubuntu-24.04
     needs: getcommitid
     strategy:
@@ -469,8 +470,8 @@ jobs:
           path: _artifacts
 
   # non-blocking
-  pull-kubernetes-e2e-kind-alpha-features:
-    name: pull-kubernetes-e2e-kind-alpha-features
+  pk-e2e-kind-alpha-features:
+    name: pk-e2e-kind-alpha-features
     runs-on: ${{ matrix.os }}
     needs: getcommitid
     strategy:
@@ -541,8 +542,8 @@ jobs:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
 
-  pull-kubernetes-unit:
-    name: pull-kubernetes-unit
+  pk-unit:
+    name: pk-unit
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
