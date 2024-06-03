@@ -300,7 +300,7 @@ jobs:
 
           cd ../kind
           export REGISTRY=ghcr.io/lank8scn/kindest
-          export REGISTRY=ghcr.io/liangyuanpeng/kindest
+          export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest
           export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}
           export IMAGE_NAME=${{ inputs.imgname }}
           export KUBEROOT=/home/runner/work/lanactions/lanactions
@@ -328,7 +328,7 @@ jobs:
           #TODO 使用 kind 仓库的 hack/release/build/push-node.sh 来发布镜像, 可以构建 amd64&arm64 的镜像, 然后使用skopeo 来复制镜像到另一个 tag
           # kind build node-image ../kubernetes
 
-          # kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG --kube-root $PWD/../
+          # kind build node-image --image ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG --kube-root $PWD/../
           # docker images
           # cd ../_output
           # tree .
@@ -372,7 +372,7 @@ jobs:
           echo "IMGTAG:"$IMGTAG
           #TODO 测试多节点
           #TODO 收集日志,失败的时候可以查看
-          kind create cluster --retain --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+          kind create cluster --retain --image ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
           kubectl run test --image httpd:2
@@ -388,7 +388,7 @@ jobs:
         id: saveoutputs
         run: |
           mv /tmp/result.txt .
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
 
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind }}  == false  ];then 
@@ -402,4 +402,4 @@ jobs:
 
           echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
           echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
