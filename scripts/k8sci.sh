@@ -345,6 +345,47 @@ function util::runtests(){
           --disable-log-dump=false
     fi
 
+    if [ $TEST_WHAT = "conformance-sig-app" ];then
+      echo "[sig-app, Conformance]"
+      ginkgo --repeat=50 -v --race --trace --nodes=25                \
+          --focus="\[sig-app, Conformance\]"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "conformance-sig-node" ];then
+      echo "hello [sig-node, Conformance]"
+      ginkgo --repeat=50 -v --race --trace --nodes=25                \
+          --focus="\[sig-node, Conformance\]"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    if [ $TEST_WHAT = "conformance-sig-storage" ];then
+      echo "hello [sig-storage, Conformance]"
+      ginkgo --repeat=50 -v --race --trace --nodes=25                \
+          --focus="\[sig-storage, Conformance\]"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false
+    fi
+
+    
+
     if [ $TEST_WHAT = "kind-e2e" ];then
     #TODO 将ginkgo跑在容器里面? 或者继续研究如何才能不丢失日志 (目前在github action 会丢失ginkgo的测试日志,但是使用官方的 e2e-k8s.sh 却不会丢失,奇怪)
     #--provider=skeleton       
