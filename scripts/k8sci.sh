@@ -22,6 +22,12 @@ function util::deployk8s(){
     sudo ifconfig eth0:9 192.168.66.2 netmask 255.255.255.0 up
     sudo ifconfig eth0:9 up
 
+    # deploy jaeger 
+    # oras pull ghcr.io/liangyuanpeng/files:docker-compose-jaeger
+    # curl -o /usr/local/bin/docker-compose -fsSL https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-linux-$(uname -m)
+    # chmod +x /usr/local/bin/docker-compose
+    # docker-compose -f docker-compose-jaeger-only.yml up -d 
+
     KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
     IMGTAG=${IMGTAG:-"v1.30.0"}
     STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
@@ -36,7 +42,7 @@ function util::deployk8s(){
     #TODO 1. 开启了apiserver-network-proxy的 k8s集群
     ADDON_WHAT=${ADDON_WHAT:-"none"}
 
-    ETCD_VERSION=${ETCD_VERSION:-"v3.5.13"}
+    ETCD_VERSION=${ETCD_VERSION:-"v3.5.14"}
     wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     tar -xf etcd-${ETCD_VERSION}-linux-amd64.tar.gz && rm -f etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     mv etcd-${ETCD_VERSION}-linux-amd64/etcd* /usr/local/bin/ && rm -rf etcd-${ETCD_VERSION}-linux-amd64
