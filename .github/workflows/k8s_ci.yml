@@ -611,6 +611,11 @@ jobs:
         run: |
           STEP_WHAT=runtests ./k8sci.sh
 
+      - name: cat logs
+        if: always()
+        run: |
+          cat ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+
       - name: export logs
         if: always()
         run: |
