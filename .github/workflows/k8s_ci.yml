@@ -507,7 +507,7 @@ jobs:
   e2e:
     name: e2e
     needs:
-    - build-kindnode
+    - build-kind
     - build-k8sbins
     - printouputs
     - getcommitid
@@ -658,7 +658,7 @@ jobs:
     timeout-minutes: 120
     if: ${{ inputs.hydrophone }}
     needs:
-    - build-kindnode
+    - build-kind
     - build-k8sbins
     - getcommitid
     permissions:
