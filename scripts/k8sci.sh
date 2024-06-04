@@ -371,8 +371,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ./ginkgo-e2e.log
-          mv ginkgo-e2e.log ${PWD}/_artifacts/testreport/
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-node" ];then
@@ -385,8 +384,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ./ginkgo-e2e.log
-          mv ginkgo-e2e.log ${PWD}/_artifacts/testreport/
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-storage" ];then
@@ -399,8 +397,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ./ginkgo-e2e.log
-          mv ginkgo-e2e.log ${PWD}/_artifacts/testreport/
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     
@@ -418,8 +415,7 @@ function util::runtests(){
           --provider=local                               \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ./ginkgo-e2e.log
-          mv ginkgo-e2e.log ${PWD}/_artifacts/testreport/
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     # [StatefulSetBasic]
@@ -433,8 +429,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ./ginkgo-e2e.log
-          mv ginkgo-e2e.log ${PWD}/_artifacts/testreport/
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "sig-apps" ];then
@@ -446,8 +441,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ./ginkgo-e2e.log
-          mv ginkgo-e2e.log ${PWD}/_artifacts/testreport/
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "kind-e2e" ];then
