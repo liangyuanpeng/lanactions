@@ -268,6 +268,7 @@ EOF
     pwd
     ls
     ls artifacts
+    kubectl taint nodes --all  node-role.kubernetes.io/control-plane-
     #kubectl apply -f artifacts/ds.yaml
     kubectl apply -f artifacts
     kubectl get node
@@ -399,6 +400,21 @@ function util::runtests(){
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
+
+    if [ $TEST_WHAT = "conformance-aggregator" ];then
+      echo "hello Should be able to support the 1.17 Sample API Server using the current Aggregator"
+      ginkgo --repeat=50 -v --race --trace --nodes=25                \
+          --focus="Should be able to support the 1.17 Sample API Server using the current Aggregator"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+    fi
+
+    
 
     
 
