@@ -78,6 +78,7 @@ jobs:
           - conformance
           - conformance-lease
           - conformance-sig-app
+          - conformance-sig-node
           # - sig-apps
           # - statefulset
         ref: 
