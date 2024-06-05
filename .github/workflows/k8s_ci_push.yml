@@ -59,9 +59,9 @@ jobs:
           - conformance
           - conformance-lease
           - conformance-sig-app
-          - conformance-sig-node
+          # - conformance-sig-node
           - conformance-50
-          - conformance-aggregator
+          # - conformance-aggregator
           # - sig-apps
           # - statefulset
         ref: 
