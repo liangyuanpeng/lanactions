@@ -294,7 +294,7 @@ EOF
     pwd
     ls
     ls artifacts
-    kubectl taint nodes --all  node-role.kubernetes.io/control-plane-
+    nohup kubectl taint nodes --all  node-role.kubernetes.io/control-plane- &
     #kubectl apply -f artifacts/ds.yaml
     kubectl apply -f artifacts
     kubectl get node
