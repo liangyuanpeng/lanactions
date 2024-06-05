@@ -68,7 +68,7 @@ jobs:
       kindVersion: ${{ steps.gher.outputs.kindVersion }}
       tagslength: ${{ steps.gher.outputs.tagslength }}
     steps:
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
       - name: gher

@@ -106,7 +106,7 @@ jobs:
       existKubebins: ${{ steps.gencommitid.outputs.existKubebins }}
       imgtag: ${{ steps.gencommitid.outputs.imgtag }}
     steps:
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
       - name: gen commitID
@@ -265,7 +265,7 @@ jobs:
   #         LATEST_COMMIT=`git rev-parse HEAD`
   #         git log --pretty=format:"%s" $LATEST_COMMIT -1
 
-  #     - uses: oras-project/setup-oras@v1
+  #     - uses: oras-project/setup-oras@main
   #       with:
   #         version: 1.2.0
 
@@ -440,7 +440,7 @@ jobs:
           LATEST_COMMIT=`git rev-parse HEAD`
           git log --pretty=format:"%s" $LATEST_COMMIT -1
 
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
 
@@ -546,7 +546,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
       - name: clean
@@ -689,7 +689,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
       - name: clean
