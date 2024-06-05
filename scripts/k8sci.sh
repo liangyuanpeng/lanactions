@@ -117,6 +117,8 @@ nodes:
       extraArgs:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+        audit-log-path: /var/log/audit/kube-apiserver-audit.log
+        audit-policy-file: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
       extraVolumes:
         - name: "audit-logs"
           hostPath: /var/log/audit
@@ -160,6 +162,8 @@ nodes:
       extraArgs:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+        audit-log-path: /var/log/audit/kube-apiserver-audit.log
+        audit-policy-file: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
       extraVolumes:
         - name: "audit-logs"
           hostPath: /var/log/audit
