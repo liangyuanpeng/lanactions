@@ -498,6 +498,7 @@ function util::runtests(){
   fi
 }
 
+#TODO run wirh azure pipeline
 util::getbuild
 util::deployk8s
 util::runtests
