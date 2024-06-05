@@ -44,7 +44,7 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
-      imgrepo: kindest/testnode
+      imgname: testnode
 
   k8sci:
     name: k8sci
