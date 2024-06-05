@@ -608,7 +608,7 @@ jobs:
           cd _output/bin
           oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG
           # dev for e2e.test
-          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:dev
+          #oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:dev
           chmod +x ./*
           cd ../..
           mv _output/bin/* /usr/local/bin/
