@@ -308,6 +308,7 @@ jobs:
           hack/print-workspace-status.sh
           version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          GIT_KUBE_VERSION=`git describe --tags `
           cd ../kind
           hack/release/build/push-node.sh 
           #KUBE_VERSION=`cat ../lanactions/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
@@ -322,6 +323,8 @@ jobs:
           # 格式 ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-arm64:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-amd64:$KUBE_VERSION
+          
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
 
