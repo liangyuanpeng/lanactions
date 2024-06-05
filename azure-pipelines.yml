@@ -26,12 +26,13 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- script: |
+    docker images
+    go version
+    free -mh
+  displayName: "check env"
 
 - script: |
-    echo "TODO"
-    go version
     git clone https://github.com/kubernetes/kubernetes
     export KUBEROOT=$PWD/kubernetes
     git clone https://github.com/kubernetes-sigs/kind
