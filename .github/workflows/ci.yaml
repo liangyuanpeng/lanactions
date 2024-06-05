@@ -42,8 +42,7 @@ jobs:
       - name: oras push 
         run: |
           cp scripts/k8sci.sh .
-          oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts config
+          oras push -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts config
 
   update-k8sdepimgs:
     name: update-k8sdepimgs
