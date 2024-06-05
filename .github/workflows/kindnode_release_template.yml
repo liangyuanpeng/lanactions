@@ -48,40 +48,45 @@ on:
         required: false
         default: "latest"
         type: string
-      triggerIssueCommentId:
-        description: 'triggerIssueCommentId'
-        required: false
-        default: 0
-        type: number
-      triggerDiscussionCommentId:
-        description: 'triggerDiscussionCommentId'
-        required: false
-        default: 0
-        type: number
-      discussionId:
-        description: 'discussionId'
-        required: false
-        default: 0
-        type: number
+      # triggerIssueCommentId:
+      #   description: 'triggerIssueCommentId'
+      #   required: false
+      #   default: 0
+      #   type: number
+      # triggerDiscussionCommentId:
+      #   description: 'triggerDiscussionCommentId'
+      #   required: false
+      #   default: 0
+      #   type: number
+      # discussionId:
+      #   description: 'discussionId'
+      #   required: false
+      #   default: 0
+      #   type: number
       imgrepo:
-        description: 'kindest/node'
+        description: 'kindest'
         required: false
-        default: "kindest/node"
+        default: "kindest"
+        type: string
+      imgname:
+        description: 'node'
+        required: false
+        default: "node"
         type: string
 
 env:
   GH_TOKEN: ${{ github.token }}
-
+  GOFLAGS: "-p=2"
 jobs:
 
   saverunid:
     name: saverunid-${{ inputs.repo }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     permissions:
       packages: write
     steps:
 
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.1.0
 
@@ -91,8 +96,8 @@ jobs:
           echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           mv /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
+          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
           echo "cloning repo:"${{ inputs.repo }}
 
@@ -101,7 +106,7 @@ jobs:
 #TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
   release:
     name: release-${{ inputs.ref }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: saverunid
     permissions:
       packages: write
@@ -149,9 +154,30 @@ jobs:
           kind --version
           kind build node-image -h
 
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
           version: 1.1.0
+
+      # - name: checkout
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: kubernetes-sigs/kind
+      #     fetch-depth: 0
+      #     ref: ${{ steps.genoutputs.outputs.kindversion }}
+
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
 
       - name: checkoutactions
         uses: actions/checkout@v4
@@ -187,7 +213,17 @@ jobs:
           echo "input:"${{ inputs.maketag }}
           echo "result:"$IMGTAG
           echo "tagWithKind:"${{ inputs.tagWithKind }}
-          nohup docker rmi `docker images -aq` &
+          hack/print-workspace-status.sh
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          echo "KUBE_VERSION:"$KUBE_VERSION
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: rebuild init message
         run: |
@@ -205,24 +241,33 @@ jobs:
           echo "discussionCommentId=${{ inputs.triggerDiscussionCommentId }}" >> /tmp/result.txt
           echo "discussionId=${{ inputs.discussionId }}" >> /tmp/result.txt
           cp /tmp/result.txt .
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
+          #docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
+          hack/print-workspace-status.sh
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          echo "KUBE_VERSION:"$KUBE_VERSION
 
-
-      # Free up disk space on Ubuntu
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
+      - uses: actions/setup-go@v5
         with:
-          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-          tool-cache: false
-          # all of these default to true, but feel free to set to "false" if necessary for your workflow
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: false
-          swap-storage: false
+          go-version-file: go.mod
+          # go-version-file: tmp/kind/go.mod
+
+      - name: checkout kind 
+        run: |
+          cd ..
+          git clone https://github.com/kubernetes-sigs/kind
+          cd kind
+          git checkout ${{ steps.genoutputs.outputs.kindversion }}
+          pwd
+          go version
+
+
+      # - name: build with make
+      #   run: |
+      #     make
+
 
 #TODO docker login action
       - name: build
@@ -230,7 +275,7 @@ jobs:
         run: |
           
           git branch
-          git describe
+          #git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind }} == false ];then 
             IMGTAG=${{ steps.genoutputs.outputs.ref }}
@@ -245,36 +290,68 @@ jobs:
           echo "maketag:"${{ steps.genoutputs.outputs.maketag }}
           echo "IMGTAG:"$IMGTAG
 
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG"
+            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG"
             exit 0
           else 
-            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG"
+            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG"
           fi
 
-          mkdir tmp
-          cd tmp
+          cd ../kind
+          export REGISTRY=ghcr.io/lank8scn/kindest
+          export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest
+          export REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}
+          export IMAGE_NAME=${{ inputs.imgname }}
+          export KUBEROOT=/home/runner/work/lanactions/lanactions
+          cd ../lanactions
+          hack/print-workspace-status.sh
+          version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
+          KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
+          GIT_KUBE_VERSION=`git describe --tags `
+          cd ../kind
+          hack/release/build/push-node.sh 
+          #KUBE_VERSION=`cat ../lanactions/.dockerized-kube-version-defs | grep KUBE_GIT_VERSION |  cut -d'=' -f2 | sed "s/'//g" | sed "s/+/_/g"`
+          #version_line="$(../lanactions/hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG')"
+          
+          echo "==============================get KUBE_VERSION:"$KUBE_VERSION
+          echo "================================ ls ../lanactions ==================================="
+          ls ../lanactions
+          echo "================================ ls .. ==================================="
+          cd ../lanactions
+          git status
+          # 格式 ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
+          #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-arm64:$KUBE_VERSION
+          #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-amd64:$KUBE_VERSION
+          
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+
           #TODO 使用 kind 仓库的 hack/release/build/push-node.sh 来发布镜像, 可以构建 amd64&arm64 的镜像, 然后使用skopeo 来复制镜像到另一个 tag
           # kind build node-image ../kubernetes
-          kind build node-image --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG --kube-root $PWD/../
-          docker images
-          cd ../_output
-          tree .
-          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
-          docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG
-          export IMAGE2=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+
+          # kind build node-image --image ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG --kube-root $PWD/../
+          # docker images
+          # cd ../_output
+          # tree .
+          
+          # docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+          # docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          # docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          export IMAGE=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+          export IMAGE2=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
 
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
-            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            echo "this is master"
+            skopeo copy --dest-authfile $HOME/.docker/config.json docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
 
-            docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}:${{ steps.genoutputs.outputs.kindversion }}-latest
+            # docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            # docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+
+            # docker tag ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-latest
+            # docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-latest
           fi
           
           #touch /tmp/result.txt
@@ -298,7 +375,7 @@ jobs:
           echo "IMGTAG:"$IMGTAG
           #TODO 测试多节点
           #TODO 收集日志,失败的时候可以查看
-          kind create cluster --retain --image ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}:$IMGTAG
+          kind create cluster --retain --image ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
           kubectl get po -A
           kubectl wait node --all --for condition=ready
           kubectl run test --image httpd:2
@@ -314,7 +391,7 @@ jobs:
         id: saveoutputs
         run: |
           mv /tmp/result.txt .
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind:${{ github.run_id }} result.txt
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
 
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind }}  == false  ];then 
@@ -328,4 +405,4 @@ jobs:
 
           echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
           echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
-          oras push ghcr.io/liangyuanpeng/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt

@@ -29,10 +29,8 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
-
   build-kindnode:
-    name: build-kindnode-${{ inputs.ref }}
-    #TODO 构建的是 ghcr.io/liangyuanpeng/kindest/node 需要的是 ghcr.io/liangyuanpeng/kindest/testnode
+    name: build-kindnode-${{ matrix.ref }}
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
       max-parallel: 6
@@ -46,11 +44,12 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
-      imgrepo: kindest/testnode
+      imgname: testnode
 
   k8sci:
     name: k8sci
     needs: build-kindnode
+    # if: always()
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
       max-parallel: 6
@@ -59,6 +58,10 @@ jobs:
         tests:
           - conformance
           - conformance-lease
+          - conformance-sig-app
+          # - conformance-sig-node
+          - conformance-50
+          # - conformance-aggregator
           # - sig-apps
           # - statefulset
         ref: 

@@ -23,6 +23,7 @@ on:
     paths:
     - 'scripts/k8sci.sh'
     - 'artifacts'
+    - 'config'
     - '.github/workflows/ci.yaml'
   schedule:
     - cron: '0 3 * * 0,1,2,3,4,5,6'
@@ -41,8 +42,7 @@ jobs:
       - name: oras push 
         run: |
           cp scripts/k8sci.sh .
-          oras login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts
+          oras push -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts config
 
   update-k8sdepimgs:
     name: update-k8sdepimgs

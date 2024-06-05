@@ -56,6 +56,7 @@ permissions:
 env:
   KIND_VERSION: ${{ inputs.kindVersion }}
   GH_TOKEN: ${{ github.token }}
+  GOFLAGS: "-p=2"
 
 jobs:
 # #/k8scicall
@@ -67,6 +68,7 @@ jobs:
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
+# 命名规范: pull-kubernetes-  --->  pk-
 
   buildkind:
     name: buildkind
@@ -74,9 +76,9 @@ jobs:
     permissions:
       packages: write
     steps:
-    - uses: oras-project/setup-oras@v1
+    - uses: oras-project/setup-oras@main
       with:
-        version: 1.0.0
+        version: 1.1.0
     - name: checkoutactions
       uses: actions/checkout@v4
       with:
@@ -97,7 +99,7 @@ jobs:
     needs: getcommitid
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
-      max-parallel: 6
+      max-parallel: 1
       fail-fast: false
       matrix:
         tests:
@@ -121,7 +123,7 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
-      imgrepo: kindest/testnode
+      imgname: testnode
 
   getcommitid:
     name: getcommitid
@@ -177,8 +179,8 @@ jobs:
           echo '### commitID:${{ steps.gencommitid.outputs.commitID }}' >> $GITHUB_STEP_SUMMARY
           echo "### message: ${{ steps.gencommitid.outputs.commitMsg }}" >> $GITHUB_STEP_SUMMARY
 
-  pull-kubernetes-e2e-kind:
-    name: pull-kubernetes-e2e-kind
+  pk-e2e-kind:
+    name: pk-e2e-kind
     needs: getcommitid
     # 目前都是报错,暂时这样直接跳过这个CI
     if: ${{ needs.getcommitid.outputs.e2ekind }}
@@ -198,9 +200,9 @@ jobs:
     #   # PARALLEL: true 
     #   SKIP: \[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist
     steps:
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -259,8 +261,8 @@ jobs:
 
 #TODO pull-kubernetes-node-e2e-containerd
 
-  pull-kubernetes-e2e-kind-cloud-provider-loadbalancer:
-    name: pull-kubernetes-e2e-kind-cloud-provider-loadbalancer
+  pk-e2e-kind-cloud-provider-loadbalancer:
+    name: pk-e2e-kind-cloud-provider-loadbalancer
     runs-on: ubuntu-22.04
     needs: getcommitid
     steps:
@@ -277,9 +279,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       # - name: checkoutactions
       #   uses: actions/checkout@v4
       #   with:
@@ -310,8 +312,8 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
-  pull-kubernetes-integration:
-    name: pull-kubernetes-integration
+  pk-integration:
+    name: pk-integration
     runs-on: ubuntu-22.04
     needs: getcommitid
     # 目前都是报错,暂时这样直接跳过这个CI
@@ -325,9 +327,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -371,9 +373,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -405,8 +407,8 @@ jobs:
           path: _artifacts
 
   # non-blocking
-  pull-kubernetes-e2e-kind-alpha-features-sig-storage:
-    name: pull-kubernetes-e2e-kind-alpha-features-sig-storage
+  pk-e2e-kind-alpha-features-sig-storage:
+    name: pk-e2e-kind-alpha-features-sig-storage
     runs-on: ubuntu-24.04
     needs: getcommitid
     strategy:
@@ -434,9 +436,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -468,12 +470,12 @@ jobs:
           path: _artifacts
 
   # non-blocking
-  pull-kubernetes-e2e-kind-alpha-features:
-    name: pull-kubernetes-e2e-kind-alpha-features
+  pk-e2e-kind-alpha-features:
+    name: pk-e2e-kind-alpha-features
     runs-on: ${{ matrix.os }}
     needs: getcommitid
     strategy:
-      max-parallel: 6
+      max-parallel: 2
       fail-fast: false
       matrix:
         parallel:
@@ -481,13 +483,12 @@ jobs:
         # - false
         os: 
         - ubuntu-22.04
-        # - ubuntu-24.04
+        - ubuntu-24.04
         - ubuntu-latest
         ref: 
         - master 
         - release-1.30
         - release-1.29
-        # - ${{ inputs.ref }}
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
@@ -507,9 +508,9 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -541,8 +542,8 @@ jobs:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
 
-  pull-kubernetes-unit:
-    name: pull-kubernetes-unit
+  pk-unit:
+    name: pk-unit
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
@@ -572,9 +573,9 @@ jobs:
         if: matrix.goversion != 'go.mod'
         with:
           go-version: ${{ matrix.goversion }}
-      - uses: oras-project/setup-oras@v1
+      - uses: oras-project/setup-oras@main
         with:
-          version: 1.0.0
+          version: 1.1.0
       - uses: actions/setup-go@v5
         if: matrix.goversion == 'go.mod'
         with:
