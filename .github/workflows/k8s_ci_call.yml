@@ -123,7 +123,7 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
-      imgrepo: kindest/testnode
+      imgname: testnode
 
   getcommitid:
     name: getcommitid
