@@ -36,6 +36,8 @@ steps:
     rm -rf /opt/hostedtoolcache/Python
     docker rmi `docker images -aq`
     df -h
+    pwd 
+    ls
   displayName: "check env"
 
 - script: |
