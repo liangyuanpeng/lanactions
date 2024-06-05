@@ -30,6 +30,10 @@ steps:
     docker images
     go version
     free -mh
+    df -h 
+    rm -rf /opt/hostedtoolcache/CodeQL
+    rm -rf /opt/hostedtoolcache/node
+    rm -rf /opt/hostedtoolcache/Python
     docker rmi `docker images -aq`
     df -h
   displayName: "check env"
