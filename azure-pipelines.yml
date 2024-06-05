@@ -30,8 +30,8 @@ steps:
     docker images
     go version
     free -mh
-    df -h
     docker rmi `docker images -aq`
+    df -h
   displayName: "check env"
 
 - script: |
