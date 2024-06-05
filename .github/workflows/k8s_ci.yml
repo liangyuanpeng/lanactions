@@ -686,6 +686,10 @@ jobs:
       WHICH_ETCD: ${{ matrix.etcd }}
       STORAGE_MEDIA_TYPE: ${{ matrix.storageMediaType }}
     steps:
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
