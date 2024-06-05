@@ -209,7 +209,7 @@ jobs:
     with:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
-      imgrepo: kindest/testnode
+      imgrepo: testnode
 
   # build-kind:
   # #TODO 上传 kubernetes/hack/ginkgo-e2e.sh?
