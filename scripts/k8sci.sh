@@ -107,6 +107,9 @@ networking:
 nodes:
 - role: control-plane
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
+      containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -114,6 +117,13 @@ nodes:
       extraArgs:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+      extraVolumes:
+        - name: "audit-logs"
+          hostPath: /var/log/audit
+          mountPath: /var/log/audit
+        - name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy
+          mountPath: /etc/kubernetes/audit-policy
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
@@ -136,6 +146,9 @@ networking:
 nodes:
 - role: control-plane
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
+      containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
@@ -147,6 +160,13 @@ nodes:
       extraArgs:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+      extraVolumes:
+        - name: "audit-logs"
+          hostPath: /var/log/audit
+          mountPath: /var/log/audit
+        - name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy
+          mountPath: /etc/kubernetes/audit-policy
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
