@@ -100,8 +100,8 @@ rules:
   # so only log at the Metadata level.
   - level: Metadata
     resources:
-      - group: "" # core
-        resources: ["secrets", "configmaps"]
+      # - group: "" # core
+      #   resources: ["secrets", "configmaps"]
       - group: authentication.k8s.io
         resources: ["tokenreviews"]
     omitStages:
@@ -129,6 +129,12 @@ rules:
       - group: "storage.k8s.io"
     omitStages:
       - "RequestReceived"
+  # detail message for secrets and configmap
+  - level: RequestResponse
+    verbs: ["get", "list", "watch","delete"]
+    resources:
+      - group: "" # core
+        resources: ["secrets", "configmaps"]
   # Default level for known APIs
   - level: RequestResponse
     resources:
