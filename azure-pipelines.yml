@@ -94,6 +94,7 @@ stages:
         rm -rf /opt/hostedtoolcache/node
         rm -rf /opt/hostedtoolcache/Python
         docker rmi `docker images -aq`
+        sudo rm -rf /usr/local/lib/android || true
         df -h
         pwd 
         ls
