@@ -635,7 +635,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_logs_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: /tmp/kind/
 
       - name: print result 
@@ -649,7 +649,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: kind_testreport_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_testreport_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
 
@@ -766,12 +766,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_logs_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 
