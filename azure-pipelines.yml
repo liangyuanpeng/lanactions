@@ -42,14 +42,6 @@ stages:
           ref: 'release-1.28'
     steps:
     - script: |
-        docker images
-        go version
-        free -mh
-        df -h 
-        rm -rf /opt/hostedtoolcache/CodeQL
-        rm -rf /opt/hostedtoolcache/node
-        rm -rf /opt/hostedtoolcache/Python
-        docker rmi `docker images -aq`
         sudo rm -rf /usr/local/lib/android || true
 
         sudo apt-get remove -y '^aspnetcore-.*' || echo "::warning::The command [sudo apt-get remove -y '^aspnetcore-.*'] failed to complete successfully. Proceeding..."
@@ -63,7 +55,18 @@ stages:
         sudo apt-get remove -y google-cloud-cli --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-cli --fix-missing] failed to complete successfully. Proceeding..."
         sudo apt-get autoremove -y || echo "::warning::The command [sudo apt-get autoremove -y] failed to complete successfully. Proceeding..."
         sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
+      displayName: "clean packages"
 
+    - script: |
+        docker images
+        go version
+        free -mh
+        df -h 
+        rm -rf /opt/hostedtoolcache/CodeQL
+        rm -rf /opt/hostedtoolcache/node
+        rm -rf /opt/hostedtoolcache/Python
+        docker rmi `docker images -aq`
+        
         df -h
         pwd 
         ls
@@ -98,14 +101,6 @@ stages:
             ref: 'release-1.28'
     steps:
     - script: |
-        docker images
-        go version
-        free -mh
-        df -h 
-        rm -rf /opt/hostedtoolcache/CodeQL
-        rm -rf /opt/hostedtoolcache/node
-        rm -rf /opt/hostedtoolcache/Python
-        docker rmi `docker images -aq`
         sudo rm -rf /usr/local/lib/android || true
 
         sudo apt-get remove -y '^aspnetcore-.*' || echo "::warning::The command [sudo apt-get remove -y '^aspnetcore-.*'] failed to complete successfully. Proceeding..."
@@ -119,7 +114,18 @@ stages:
         sudo apt-get remove -y google-cloud-cli --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-cli --fix-missing] failed to complete successfully. Proceeding..."
         sudo apt-get autoremove -y || echo "::warning::The command [sudo apt-get autoremove -y] failed to complete successfully. Proceeding..."
         sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
+      displayName: "clean packages"
 
+    - script: |
+        docker images
+        go version
+        free -mh
+        df -h 
+        rm -rf /opt/hostedtoolcache/CodeQL
+        rm -rf /opt/hostedtoolcache/node
+        rm -rf /opt/hostedtoolcache/Python
+        docker rmi `docker images -aq`
+        
         df -h
         pwd 
         ls
