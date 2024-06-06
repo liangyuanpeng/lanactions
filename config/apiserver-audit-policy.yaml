@@ -131,10 +131,12 @@ rules:
       - "RequestReceived"
   # detail message for secrets and configmap
   - level: RequestResponse
-    verbs: ["get", "list", "watch","delete"]
+    verbs: ["get", "list", "watch","delete","create","update"]
     resources:
       - group: "" # core
         resources: ["secrets", "configmaps"]
+    omitStages:
+      - "RequestReceived"
   # Default level for known APIs
   - level: RequestResponse
     resources:
