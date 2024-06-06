@@ -305,6 +305,7 @@ jobs:
           export IMAGE_NAME=${{ inputs.imgname }}
           export KUBEROOT=/home/runner/work/lanactions/lanactions
           cd ../lanactions
+          COMMIT_ID=`git rev-parse HEAD`
           hack/print-workspace-status.sh
           version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
@@ -327,6 +328,7 @@ jobs:
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
 
           #TODO 使用 kind 仓库的 hack/release/build/push-node.sh 来发布镜像, 可以构建 amd64&arm64 的镜像, 然后使用skopeo 来复制镜像到另一个 tag
           # kind build node-image ../kubernetes

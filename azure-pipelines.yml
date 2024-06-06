@@ -83,6 +83,14 @@ stages:
           echo "download oras finished!"
           oras version
         fi
+
+        # if [ -f /usr/local/bin/skopeo ];
+        # then
+        #   echo "exist skopeo!"
+        #   oras version
+        # else
+        #   skopeo
+        # fi
       displayName: "check env"
 
     - script: |
@@ -90,13 +98,26 @@ stages:
         git clone https://github.com/kubernetes/kubernetes
         cd kubernetes 
         git checkout $(ref)
+
+        export KIND_VERSION=v0.23.0
+
+        COMMIT_ID=`git rev-parse HEAD`
+        IMAGE_EXIST=`oras manifest fetch ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$COMMIT_ID  | grep schemaVersion | wc -l `
+        if [ $IMAGE_EXIST -eq 1 ]; then
+          echo "exist image of ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$COMMIT_ID"
+          exit 0
+        else 
+          echo "have not exist image of ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$COMMIT_ID"
+        fi
+
         cd ..
         export KUBEROOT=$PWD/kubernetes
         git clone https://github.com/kubernetes-sigs/kind
         cd kind
         #TODO 自动使用最新的tag
-        git checkout v0.23.0
+        git checkout $KIND_VERSION
         hack/release/build/push-node.sh 
+        #skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/liangyuanpeng/kindest/testnode:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/kindest/testnode:$KIND_VERSION-$COMMIT_ID
         docker images
         df -h
       displayName: "build kind node"
