@@ -67,6 +67,8 @@ stages:
         export KUBEROOT=$PWD/kubernetes
         git clone https://github.com/kubernetes-sigs/kind
         cd kind
+        #TODO 自动使用最新的tag
+        git checkout v0.23.0
         hack/release/build/push-node.sh 
         docker images
         df -h
