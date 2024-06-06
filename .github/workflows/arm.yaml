@@ -25,6 +25,18 @@ on:
 
 jobs:
 
+  linuxarm:
+    runs-on: arm-ubuntu-22
+    steps:
+      - name: run
+        run: |
+          env
+          free -mh
+          df -h
+
+      - name: check 
+          docker ps
+
   macosarm:
     name: macosarm
     runs-on: macos-14
