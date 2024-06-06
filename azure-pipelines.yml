@@ -55,6 +55,7 @@ stages:
         df -h
         pwd 
         ls
+        uname -a
       displayName: "check env"
 
     - script: |
@@ -70,8 +71,41 @@ stages:
         docker images
       displayName: "build kind node"
   - job: BuildKubernetes
+    strategy:
+        matrix:
+          master:
+            ref: 'master'
+          # release-1.30:
+          #   ref: 'release-1.30'
+          # release-1.29:
+          #   ref: 'release-1.29'
+          # release-1.28:
+          #   ref: 'release-1.28'
     steps:
-    - script: echo BuildKubernetes!
+    - script: |
+        docker images
+        go version
+        free -mh
+        df -h 
+        rm -rf /opt/hostedtoolcache/CodeQL
+        rm -rf /opt/hostedtoolcache/node
+        rm -rf /opt/hostedtoolcache/Python
+        docker rmi `docker images -aq`
+        df -h
+        pwd 
+        ls
+        uname -a
+      displayName: "check env"
+
+    - script: |
+        export GOFLAGS="-p=2"
+        git clone https://github.com/kubernetes/kubernetes
+        cd kubernetes 
+        git checkout $(ref)
+        make cross
+        mkdir -p _output
+        du -h _output
+      displayName: "build kubernetes"
 
 
 
