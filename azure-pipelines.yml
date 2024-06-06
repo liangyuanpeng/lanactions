@@ -20,13 +20,10 @@ schedules:
     branches:
       include:
       - main
-      - pulsar
+      # - pulsar
 
 pool:
   vmImage: ubuntu-latest
-
-
-
 
 stages:
 - stage: Build 
@@ -34,6 +31,7 @@ stages:
   - job: BuildKindNode
     strategy:
       matrix:
+      #TODO 机器人自动化提PR更新下面的列表
         master:
           ref: 'master'
         release-1.30:
