@@ -69,6 +69,7 @@ stages:
         cd kind
         hack/release/build/push-node.sh 
         docker images
+        df -h
       displayName: "build kind node"
   - job: BuildKubernetes
     strategy:
@@ -102,9 +103,10 @@ stages:
         git clone https://github.com/kubernetes/kubernetes
         cd kubernetes 
         git checkout $(ref)
-        make cross
+        KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
         mkdir -p _output
         du -h _output
+        df -h
       displayName: "build kubernetes"
 
 
