@@ -58,6 +58,7 @@ jobs:
       matrix:
         tests:
           - conformance
+          - conformance-nodes1
           - conformance-lease
           - conformance-sig-app
           # - conformance-sig-node

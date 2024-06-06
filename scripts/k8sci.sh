@@ -326,8 +326,22 @@ function util::runtests(){
   # ginkgo hydrophone
   TEST_WHAT=${TEST_WHAT:-"none"}
   if [ $STEP_WHAT = "runtests" ];then
-    if [ $TEST_WHAT = "conformance" ];then
+
+    if [ $TEST_WHAT = "conformance-nodes1" ];then
       ginkgo -v --race --trace --nodes=1                \
+          --focus="\[Conformance\]"     \
+          --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+    fi
+
+    if [ $TEST_WHAT = "conformance" ];then
+      ginkgo -v --race --trace --nodes=25                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
           /usr/local/bin/e2e.test                       \
