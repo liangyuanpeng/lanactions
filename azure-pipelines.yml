@@ -71,6 +71,18 @@ stages:
         pwd 
         ls
         uname -a
+        ORAS_VERSION=${ORAS_VERSION:-"1.2.0"}
+        if [ -f /usr/local/bin/oras ];
+        then
+          echo "exist oras!"
+          oras version
+        else
+          wget -q https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz
+          tar -xf oras_${ORAS_VERSION}_linux_amd64.tar.gz && rm -f oras_${ORAS_VERSION}_linux_amd64.tar.gz
+          mv oras /usr/local/bin/
+          echo "download oras finished!"
+          oras version
+        fi
       displayName: "check env"
 
     - script: |
