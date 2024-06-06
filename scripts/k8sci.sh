@@ -327,7 +327,7 @@ function util::runtests(){
   TEST_WHAT=${TEST_WHAT:-"none"}
   if [ $STEP_WHAT = "runtests" ];then
     if [ $TEST_WHAT = "conformance" ];then
-      ginkgo -v --race --trace --nodes=25                \
+      ginkgo -v --race --trace --nodes=1                \
           --focus="\[Conformance\]"     \
           --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
           /usr/local/bin/e2e.test                       \
