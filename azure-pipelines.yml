@@ -106,9 +106,32 @@ stages:
         cd kubernetes 
         git checkout $(ref)
         KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
-        mkdir -p _output
-        du -h _output
+        mkdir -p _output/release-images
+        du -h _output/release-images
         df -h
+
+        docker load -i _output/release-images/amd64/kube-apiserver.tar
+        rm -f _output/release-images/amd64/kube-apiserver.tar
+        docker load -i _output/release-images/amd64/kube-controller-manager.tar
+        rm -f _output/release-images/amd64/kube-controller-manager.tar
+        docker load -i _output/release-images/amd64/kube-proxy.tar
+        rm -f _output/release-images/amd64/kube-proxy.tar
+        docker load -i _output/release-images/amd64/kube-scheduler.tar
+        rm -f _output/release-images/amd64/kube-scheduler.tar
+        docker load -i _output/release-images/amd64/conformance-amd64.tar
+        rm -f _output/release-images/amd64/conformance-amd64.tar
+
+        docker load -i _output/release-images/arm64/kube-apiserver.tar
+        rm -f _output/release-images/arm64/kube-apiserver.tar
+        docker load -i _output/release-images/arm64/kube-controller-manager.tar
+        rm -f _output/release-images/arm64/kube-controller-manager.tar
+        docker load -i _output/release-images/arm64/kube-proxy.tar
+        rm -f _output/release-images/arm64/kube-proxy.tar
+        docker load -i _output/release-images/arm64/kube-scheduler.tar
+        rm -f _output/release-images/arm64/kube-scheduler.tar
+        docker load -i _output/release-images/arm64/conformance-arm64.tar
+        rm -f _output/release-images/arm64/conformance-arm64.tar
+
       displayName: "build kubernetes"
 
 
