@@ -76,12 +76,12 @@ stages:
         matrix:
           master:
             ref: 'master'
-          # release-1.30:
-          #   ref: 'release-1.30'
-          # release-1.29:
-          #   ref: 'release-1.29'
-          # release-1.28:
-          #   ref: 'release-1.28'
+          release-1.30:
+            ref: 'release-1.30'
+          release-1.29:
+            ref: 'release-1.29'
+          release-1.28:
+            ref: 'release-1.28'
     steps:
     - script: |
         docker images
