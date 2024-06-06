@@ -26,6 +26,8 @@ on:
 jobs:
 
   linuxarm:
+  #https://github.com/actions/partner-runner-images/blob/main/images/arm-ubuntu-22-image.md
+    if: ${{ needs.getcommitid.outputs.linuxarm }}
     runs-on: arm-ubuntu-22
     steps:
       - name: run
