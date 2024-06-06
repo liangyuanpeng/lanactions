@@ -21,6 +21,7 @@ name: k8s_ci_push
 on:
   push:
     branches: [ k8s_ci_push ]
+  workflow_dispatch:
 
 permissions:
   packages: write
