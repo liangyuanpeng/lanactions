@@ -263,13 +263,6 @@ jobs:
           pwd
           go version
 
-
-      # - name: build with make
-      #   run: |
-      #     make
-
-
-#TODO docker login action
       - name: build
         id: build
         run: |
