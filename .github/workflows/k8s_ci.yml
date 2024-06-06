@@ -513,6 +513,7 @@ jobs:
     - getcommitid
     permissions:
       packages: write
+    timeout-minutes: 360
     strategy:
       max-parallel: 6
       fail-fast: false
