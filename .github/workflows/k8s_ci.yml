@@ -544,10 +544,10 @@ jobs:
       # JON_NAME: e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
       JON_NAME: e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
     steps:
-    - name: checkoutactions
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
