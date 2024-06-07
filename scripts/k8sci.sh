@@ -352,7 +352,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance" ];then
@@ -365,7 +365,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-50" ];then
@@ -378,7 +378,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "ValidatingAdmissionPolicy" ];then
@@ -390,7 +390,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
@@ -402,7 +402,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-lease" ];then
@@ -415,7 +415,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-app" ];then
@@ -428,7 +428,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-node" ];then
@@ -441,7 +441,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-storage" ];then
@@ -454,7 +454,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-aggregator" ];then
@@ -467,7 +467,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     
@@ -487,7 +487,7 @@ function util::runtests(){
           --provider=local                               \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     # [StatefulSetBasic]
@@ -501,7 +501,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "sig-apps" ];then
@@ -513,7 +513,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "kind-e2e" ];then
