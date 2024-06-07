@@ -22,7 +22,8 @@ on:
   push:
     branches: [ build_k8s ]
   schedule:
-    - cron: '0 0 * * 0,1,2,3,4,5,6'
+    # - cron: '0 0 * * 0,1,2,3,4,5,6'
+    - cron: '0 19 * * 6'
   workflow_dispatch:
     inputs:
       ref:

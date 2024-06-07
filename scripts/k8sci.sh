@@ -190,7 +190,12 @@ networking:
   ipFamily: ${IPFAMILY}
   kubeProxyMode: ${PROXY_MODE}
 nodes:
+lan
+
 - role: control-plane
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
+      containerPath: /etc/kubernetes/pki/etcd/ca.crt
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
@@ -204,6 +209,9 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: control-plane
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
+      containerPath: /etc/kubernetes/pki/etcd/ca.crt
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
@@ -217,6 +225,9 @@ nodes:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
 - role: control-plane
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
+      containerPath: /etc/kubernetes/pki/etcd/ca.crt
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
