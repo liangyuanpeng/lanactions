@@ -194,6 +194,8 @@ nodes:
   extraMounts:
     - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
       containerPath: /etc/kubernetes/pki/etcd/ca.crt
+    - hostPath: /home/runner/work/lanactions/lanactions/config/ca.key
+      containerPath: /etc/kubernetes/pki/etcd/ca.key
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
@@ -210,6 +212,8 @@ nodes:
   extraMounts:
     - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
       containerPath: /etc/kubernetes/pki/etcd/ca.crt
+    - hostPath: /home/runner/work/lanactions/lanactions/config/ca.key
+      containerPath: /etc/kubernetes/pki/etcd/ca.key
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
@@ -226,6 +230,8 @@ nodes:
   extraMounts:
     - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
       containerPath: /etc/kubernetes/pki/etcd/ca.crt
+    - hostPath: /home/runner/work/lanactions/lanactions/config/ca.key
+      containerPath: /etc/kubernetes/pki/etcd/ca.key
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
   kubeadmConfigPatches:
   - |
