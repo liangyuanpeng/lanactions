@@ -122,85 +122,85 @@ stages:
         docker images
         df -h
       displayName: "build kind node"
-  - job: BuildKubernetes
-    strategy:
-        matrix:
-          master:
-            ref: 'master'
-          release-1.30:
-            ref: 'release-1.30'
-          release-1.29:
-            ref: 'release-1.29'
-          release-1.28:
-            ref: 'release-1.28'
-    steps:
-    - script: |
-        sudo rm -rf /usr/local/lib/android || true
+  # - job: BuildKubernetes
+  #   strategy:
+  #       matrix:
+  #         master:
+  #           ref: 'master'
+  #         release-1.30:
+  #           ref: 'release-1.30'
+  #         release-1.29:
+  #           ref: 'release-1.29'
+  #         release-1.28:
+  #           ref: 'release-1.28'
+  #   steps:
+  #   - script: |
+  #       sudo rm -rf /usr/local/lib/android || true
 
-        sudo apt-get remove -y '^aspnetcore-.*' || echo "::warning::The command [sudo apt-get remove -y '^aspnetcore-.*'] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^dotnet-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^dotnet-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^llvm-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^llvm-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y 'php.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y 'php.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^mongodb-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^mongodb-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y '^mysql-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^mysql-.*' --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri --fix-missing || echo "::warning::The command [sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y google-cloud-sdk --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-sdk --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get remove -y google-cloud-cli --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-cli --fix-missing] failed to complete successfully. Proceeding..."
-        sudo apt-get autoremove -y || echo "::warning::The command [sudo apt-get autoremove -y] failed to complete successfully. Proceeding..."
-        sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
-      displayName: "clean packages"
+  #       sudo apt-get remove -y '^aspnetcore-.*' || echo "::warning::The command [sudo apt-get remove -y '^aspnetcore-.*'] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y '^dotnet-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^dotnet-.*' --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y '^llvm-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^llvm-.*' --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y 'php.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y 'php.*' --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y '^mongodb-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^mongodb-.*' --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y '^mysql-.*' --fix-missing || echo "::warning::The command [sudo apt-get remove -y '^mysql-.*' --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri --fix-missing || echo "::warning::The command [sudo apt-get remove -y azure-cli google-chrome-stable firefox powershell mono-devel libgl1-mesa-dri --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y google-cloud-sdk --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-sdk --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get remove -y google-cloud-cli --fix-missing || echo "::debug::The command [sudo apt-get remove -y google-cloud-cli --fix-missing] failed to complete successfully. Proceeding..."
+  #       sudo apt-get autoremove -y || echo "::warning::The command [sudo apt-get autoremove -y] failed to complete successfully. Proceeding..."
+  #       sudo apt-get clean || echo "::warning::The command [sudo apt-get clean] failed to complete successfully. Proceeding..."
+  #     displayName: "clean packages"
 
-    - script: |
-        docker images
-        go version
-        free -mh
-        df -h 
-        rm -rf /opt/hostedtoolcache/CodeQL
-        rm -rf /opt/hostedtoolcache/node
-        rm -rf /opt/hostedtoolcache/Python
-        docker rmi `docker images -aq`
+  #   - script: |
+  #       docker images
+  #       go version
+  #       free -mh
+  #       df -h 
+  #       rm -rf /opt/hostedtoolcache/CodeQL
+  #       rm -rf /opt/hostedtoolcache/node
+  #       rm -rf /opt/hostedtoolcache/Python
+  #       docker rmi `docker images -aq`
         
-        df -h
-        pwd 
-        ls
-        uname -a
-      displayName: "check env"
+  #       df -h
+  #       pwd 
+  #       ls
+  #       uname -a
+  #     displayName: "check env"
 
-    - script: |
-        export GOFLAGS="-p=2"
-        git clone https://github.com/kubernetes/kubernetes
-        cd kubernetes 
-        git checkout $(ref)
-        KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
-        mkdir -p _output/release-images
-        du -h _output/release-images
-        df -h
+  #   - script: |
+  #       export GOFLAGS="-p=2"
+  #       git clone https://github.com/kubernetes/kubernetes
+  #       cd kubernetes 
+  #       git checkout $(ref)
+  #       KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
+  #       mkdir -p _output/release-images
+  #       du -h _output/release-images
+  #       df -h
 
-        docker load -i _output/release-images/amd64/kube-apiserver.tar
-        rm -f _output/release-images/amd64/kube-apiserver.tar
-        docker load -i _output/release-images/amd64/kube-controller-manager.tar
-        rm -f _output/release-images/amd64/kube-controller-manager.tar
-        docker load -i _output/release-images/amd64/kube-proxy.tar
-        rm -f _output/release-images/amd64/kube-proxy.tar
-        docker load -i _output/release-images/amd64/kube-scheduler.tar
-        rm -f _output/release-images/amd64/kube-scheduler.tar
-        docker load -i _output/release-images/amd64/conformance-amd64.tar
-        rm -f _output/release-images/amd64/conformance-amd64.tar
+  #       docker load -i _output/release-images/amd64/kube-apiserver.tar
+  #       rm -f _output/release-images/amd64/kube-apiserver.tar
+  #       docker load -i _output/release-images/amd64/kube-controller-manager.tar
+  #       rm -f _output/release-images/amd64/kube-controller-manager.tar
+  #       docker load -i _output/release-images/amd64/kube-proxy.tar
+  #       rm -f _output/release-images/amd64/kube-proxy.tar
+  #       docker load -i _output/release-images/amd64/kube-scheduler.tar
+  #       rm -f _output/release-images/amd64/kube-scheduler.tar
+  #       docker load -i _output/release-images/amd64/conformance-amd64.tar
+  #       rm -f _output/release-images/amd64/conformance-amd64.tar
 
-        docker load -i _output/release-images/arm64/kube-apiserver.tar
-        rm -f _output/release-images/arm64/kube-apiserver.tar
-        docker load -i _output/release-images/arm64/kube-controller-manager.tar
-        rm -f _output/release-images/arm64/kube-controller-manager.tar
-        docker load -i _output/release-images/arm64/kube-proxy.tar
-        rm -f _output/release-images/arm64/kube-proxy.tar
-        docker load -i _output/release-images/arm64/kube-scheduler.tar
-        rm -f _output/release-images/arm64/kube-scheduler.tar
-        docker load -i _output/release-images/arm64/conformance-arm64.tar
-        rm -f _output/release-images/arm64/conformance-arm64.tar
+  #       docker load -i _output/release-images/arm64/kube-apiserver.tar
+  #       rm -f _output/release-images/arm64/kube-apiserver.tar
+  #       docker load -i _output/release-images/arm64/kube-controller-manager.tar
+  #       rm -f _output/release-images/arm64/kube-controller-manager.tar
+  #       docker load -i _output/release-images/arm64/kube-proxy.tar
+  #       rm -f _output/release-images/arm64/kube-proxy.tar
+  #       docker load -i _output/release-images/arm64/kube-scheduler.tar
+  #       rm -f _output/release-images/arm64/kube-scheduler.tar
+  #       docker load -i _output/release-images/arm64/conformance-arm64.tar
+  #       rm -f _output/release-images/arm64/conformance-arm64.tar
 
-        docker images
+  #       docker images
 
-      displayName: "build kubernetes"
+  #     displayName: "build kubernetes"
 
 
 
