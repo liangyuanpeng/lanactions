@@ -190,8 +190,6 @@ networking:
   ipFamily: ${IPFAMILY}
   kubeProxyMode: ${PROXY_MODE}
 nodes:
-lan
-
 - role: control-plane
   extraMounts:
     - hostPath: /home/runner/work/lanactions/lanactions/config/ca.crt
