@@ -754,7 +754,7 @@ jobs:
           # see report 
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
           
-          if [ $inputs.testname = "conformance-nodes1" ];then
+          if [ $${{ inputs.testname }} = "conformance-nodes1" ];then
             export EXTRA_ARGS="--parallel=1"
           else
             export EXTRA_ARGS="--parallel=25"
