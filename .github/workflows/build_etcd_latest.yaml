@@ -45,15 +45,33 @@ jobs:
     name: build
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
           repository: liangyuanpeng/kubernetes
           fetch-depth: 0
           ref: build_etcd_latest
+      - name: etcd 
+        run: |
+          cd ..
+          git clone https://github.com/etcd-io/etcd
+          cd etcd
+          make
+          cd bin
+          tar -czvf etcd.tar.gz etcd  etcdctl  etcdutl
       - name: run 
         run: |
+          mv ../etcd/bin/etcd.tar.gz cluster/images/etcd/
           cd cluster/images/etcd
-          make
+          REGISTRY=ghcr.io/liangyuanpeng ARCH=amd64  make
+          docker images
+          # docker push ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+          #REGISTRY=ghcr.io/liangyuanpeng ARCH=arm64  make
