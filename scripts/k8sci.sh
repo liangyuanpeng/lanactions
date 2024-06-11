@@ -60,8 +60,9 @@ function util::deployk8s(){
       echo "xline cluster"
     fi
 
-    if [ $WHICH_ETCD = "etcd-cluster" ];then 
+    if [ $WHICH_ETCD = "etcd-master-cluster" ];then 
       echo "etcd cluster"
+      docker-compose -f config/docker-compose-etcd.yml up -d
     fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
