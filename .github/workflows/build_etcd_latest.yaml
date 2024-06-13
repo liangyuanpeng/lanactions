@@ -73,5 +73,5 @@ jobs:
           cd cluster/images/etcd
           REGISTRY=ghcr.io/liangyuanpeng ARCH=amd64  make
           docker images
-          # docker push ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
-          #REGISTRY=ghcr.io/liangyuanpeng ARCH=arm64  make
+          docker push ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+          REGISTRY=ghcr.io/liangyuanpeng ARCH=arm64  make

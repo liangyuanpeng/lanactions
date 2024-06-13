@@ -524,7 +524,7 @@ jobs:
         - build-in 
         # - etcd-master
         # - etcd-release3.5
-        - xline
+        # - xline
         # - etcd-big # 持久化的etcd
         storageMediaType: 
         - protobuf
@@ -681,7 +681,7 @@ jobs:
         - yaml
         etcd: 
         - build-in 
-        - xline
+        # - xline
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
