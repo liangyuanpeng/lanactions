@@ -1,12 +1,4 @@
-kind = "Cluster"
-apiVersion = "kind.x-k8s.io/v1alpha4"
-networking = {
-     #https://kcl-lang.io/docs/user_docs/support/faq-kcl#39-how-to-set-default-value-for-option-function-in-kcl
-    apiServerAddress = option("apiaddress",default="0.0.0.0")
-    ipFamily = option("ipFamily",default="ipv4")
-    kubeProxyMode = option("kubeProxyMode",default="iptables")
-}
-nodes=[{
+_nodes=[{
         role = "control-plane",
         image = option("kindimage",default="kindest/node:v1.30.0")
         extraMounts = [
@@ -36,22 +28,50 @@ apiServer:
       mountPath: /etc/kubernetes/audit-policy
 """
         ]
-},{
-    role = "worker"
-    image = option("kindimage",default="kindest/node:v1.30.0")
-},{
-    role = "worker"
-    image = option("kindimage",default="kindest/node:v1.30.0")
 }
 
-#TODO 如何添加更多?
-#if option("conn",default="conn") == "conn"
-#,{
-#    role = "worker"
-#    image = option("kindimage",default="kindest/node:v1.30.0")
-#},{
-#    role = "worker"
-#    image = option("kindimage",default="kindest/node:v1.30.0")
-#}
-
 ]
+
+
+_count = option("count",default="default")
+if _count == 3:
+    print("The value of a is", _count)
+    _nodes+=[{
+        role = "worker"
+        image = option("kindimage",default="kindest/node:v1.30.0")
+    }
+    ]
+elif _count == 5:
+    _nodes+=[
+        {
+        role = "worker"
+        image = option("kindimage",default="kindest/node:v1.30.0")
+    },{
+        role = "worker"
+        image = option("kindimage",default="kindest/node:v1.30.0")
+    },{
+        role = "worker"
+        image = option("kindimage",default="kindest/node:v1.30.0")
+    },{
+        role = "worker"
+        image = option("kindimage",default="kindest/node:v1.30.0")
+    },{
+        role = "worker"
+        image = option("kindimage",default="kindest/node:v1.30.0")
+    }
+    ]
+
+#print("The value of a is", _count)
+#print(_count==3)
+#print(_count==5)
+
+
+kind = "Cluster"
+apiVersion = "kind.x-k8s.io/v1alpha4"
+networking = {
+     #https://kcl-lang.io/docs/user_docs/support/faq-kcl#39-how-to-set-default-value-for-option-function-in-kcl
+    apiServerAddress = option("apiaddress",default="0.0.0.0")
+    ipFamily = option("ipFamily",default="ipv4")
+    kubeProxyMode = option("kubeProxyMode",default="iptables")
+}
+nodes=_nodes

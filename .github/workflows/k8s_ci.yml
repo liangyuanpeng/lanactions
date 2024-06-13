@@ -522,7 +522,7 @@ jobs:
         #TODO withANP, 部署了ANP的k8s
         etcd: 
         - build-in 
-        # - etcd-master
+        - etcd-main
         # - etcd-release3.5
         # - xline
         # - etcd-big # 持久化的etcd

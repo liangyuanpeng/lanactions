@@ -56,6 +56,10 @@ function util::deployk8s(){
       # etcdctl get /hello
     fi
 
+    if [ $WHICH_ETCD = "etcd-main" ];then 
+      docker run -it -d -v $PWD/_artifacts/testreport/etcd:/var/lib/etcd  --restart=always --name etcdtest -p 23379:23379 ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64 etcd --data-dir /var/lib/etcd --experimental-watch-progress-notify-interval 1m --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
+    fi
+
     if [ $WHICH_ETCD = "xline-cluster" ];then 
       echo "xline cluster"
     fi
@@ -139,6 +143,47 @@ nodes:
 
 EOF
       fi
+
+      if [ $WHICH_ETCD = "etcd-main" ];then
+
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
+nodes:
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
+      containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+        audit-log-path: /var/log/audit/kube-apiserver-audit.log
+        audit-policy-file: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
+      extraVolumes:
+        - name: "audit-logs"
+          hostPath: /var/log/audit
+          mountPath: /var/log/audit
+        - name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy
+          mountPath: /etc/kubernetes/audit-policy
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+
       if [ $WHICH_ETCD = "xline" ];then
 
 cat <<EOF> kind-ci.yaml
@@ -245,6 +290,45 @@ nodes:
       extraArgs:
         runtime-config: api/all=true 
         storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+- role: worker
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+EOF
+      elif [ $WHICH_ETCD = "etcd-main" ];then
+
+cat <<EOF> kind-ci.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  ipFamily: ${IPFAMILY}
+  kubeProxyMode: ${PROXY_MODE}
+nodes:
+- role: control-plane
+  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
+  extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
+      containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
+  kubeadmConfigPatches:
+  - |
+    kind: ClusterConfiguration
+    etcd:
+      external:
+        endpoints:
+        - http://192.168.66.2:2379
+    apiServer:
+      extraArgs:
+        runtime-config: api/all=true 
+        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
+        audit-log-path: /var/log/audit/kube-apiserver-audit.log
+        audit-policy-file: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
+      extraVolumes:
+        - name: "audit-logs"
+          hostPath: /var/log/audit
+          mountPath: /var/log/audit
+        - name: audit-policy
+          hostPath: /etc/kubernetes/audit-policy
+          mountPath: /etc/kubernetes/audit-policy
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 - role: worker
