@@ -59,6 +59,7 @@ jobs:
           repository: liangyuanpeng/kubernetes
           fetch-depth: 0
           ref: build_etcd_latest
+          #TODO setup-go
       - name: etcd 
         run: |
           cd ..
@@ -74,4 +75,4 @@ jobs:
           REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=amd64  make
           docker images
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/etcd:main-0-linux-amd64
-          REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=arm64  make
+          #REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=arm64  make
