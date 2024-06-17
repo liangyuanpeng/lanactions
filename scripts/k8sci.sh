@@ -183,6 +183,7 @@ nodes:
 - role: worker
   image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
 EOF
+      fi
 
       if [ $WHICH_ETCD = "xline" ];then
 
