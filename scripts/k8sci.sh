@@ -57,8 +57,9 @@ function util::deployk8s(){
     fi
 
     if [ $WHICH_ETCD = "etcd-main" ];then 
-      docker run -it -d -v $PWD/_artifacts/testreport/etcd:/var/lib/etcd  --restart=always --name etcdtest -p 23379:23379 ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64 etcd --data-dir /var/lib/etcd --experimental-watch-progress-notify-interval 1m --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
+      docker run -it -d -v $PWD/_artifacts/testreport/etcd:/var/lib/etcd  --restart=always --name etcdmain -p 2379:2379 ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64 etcd --data-dir /var/lib/etcd --experimental-watch-progress-notify-interval 1m --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
       sudo chmod -R 777 $PWD/_artifacts/testreport/etcd
+      docker logs etcdmain
     fi
 
     if [ $WHICH_ETCD = "xline-cluster" ];then 
