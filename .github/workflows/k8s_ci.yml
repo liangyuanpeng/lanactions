@@ -639,6 +639,7 @@ jobs:
           cp kind-ci.yaml /tmp/kind
           kubectl get pod -A
           docker stop `docker ps -aq`
+          sudo mkdir -p ${PWD}/_artifacts
 
       - name: upload kind logs
         if: always()
