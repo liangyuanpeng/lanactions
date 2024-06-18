@@ -640,6 +640,7 @@ jobs:
           kubectl get pod -A
           docker stop `docker ps -aq`
           sudo mkdir -p ${PWD}/_artifacts
+          sudo chmod -R 777 ${PWD}/_artifacts
 
       - name: upload kind logs
         if: always()
