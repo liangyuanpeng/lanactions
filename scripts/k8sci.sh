@@ -403,8 +403,8 @@ EOF
     ls
     ls artifacts
     nohup kubectl taint nodes --all  node-role.kubernetes.io/control-plane- &
-    #kubectl apply -f artifacts/ds.yaml
-    kubectl apply -f artifacts
+    #kubectl apply -f artifacts/k8s/ds.yaml
+    kubectl apply -f artifacts/k8s/
     kubectl get node
     kubectl get ds -A
     kubectl get pod -A
