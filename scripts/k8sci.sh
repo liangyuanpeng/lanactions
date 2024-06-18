@@ -66,7 +66,7 @@ function util::deployk8s(){
       echo "xline cluster"
     fi
 
-    if [ $WHICH_ETCD = "etcd-master-cluster" ];then 
+    if [ $WHICH_ETCD = "etcd-main-cluster5" ];then 
       echo "etcd cluster"
       docker-compose -f config/docker-compose-etcd.yml up -d
     fi

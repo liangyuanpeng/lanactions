@@ -523,6 +523,7 @@ jobs:
         etcd: 
         - build-in 
         - etcd-main
+        # - etcd-main-cluster5
         # - etcd-release3.5
         # - xline
         # - etcd-big # 持久化的etcd

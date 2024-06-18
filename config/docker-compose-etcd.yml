@@ -19,7 +19,7 @@ services:
       - '--initial-cluster-state=new'
     network_mode: "host"
     volumes:
-      - ./store/etcd1/data:/etcd_data
+      - ./_artifacts/testreport/etcd1:/etcd_data
 
   etcd2:
     image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
@@ -39,7 +39,7 @@ services:
       - '--initial-cluster-state=new'
     network_mode: "host"
     volumes:
-      - ./store/etcd2/data:/etcd_data
+      - ./_artifacts/testreport/etcd2:/etcd_data
 
   etcd3:
     image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
@@ -59,7 +59,7 @@ services:
       - '--initial-cluster-state=new'
     network_mode: "host"
     volumes:
-      - ./store/etcd3/data:/etcd_data
+      - ./_artifacts/testreport/etcd3:/etcd_data
 
   etcd4:
     image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
@@ -79,7 +79,7 @@ services:
       - '--initial-cluster-state=new'
     network_mode: "host"
     volumes:
-      - ./store/etcd4/data:/etcd_data
+      - ./_artifacts/testreport/etcd4:/etcd_data
 
   etcd5:
     image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
@@ -99,5 +99,6 @@ services:
       - '--initial-cluster-state=new'
     network_mode: "host"
     volumes:
-      - ./store/etcd5/data:/etcd_data
+      - ./_artifacts/testreport/etcd5:/etcd_data
+      # - ./store/etcd5/data:/etcd_data
 
