@@ -521,8 +521,8 @@ jobs:
         #TODO k8s 节点数量? 1 3 5?
         #TODO withANP, 部署了ANP的k8s
         etcd: 
-        # - build-in 
-        # - etcd-main
+        - build-in 
+        - etcd-main
         - etcd-main-cluster5
         # - etcd-release3.5
         # - xline
