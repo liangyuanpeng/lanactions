@@ -12,10 +12,6 @@ nodes:
   kubeadmConfigPatches:
   - |
     kind: ClusterConfiguration
-    etcd:
-      external:
-        endpoints:
-        - ${ETCD_ENDPOINTS}
     apiServer:
       extraArgs:
         runtime-config: api/all=true 
