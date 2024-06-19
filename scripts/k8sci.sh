@@ -68,9 +68,8 @@ function util::deployk8s(){
 
     if [ $WHICH_ETCD = "etcd-main-cluster5" ];then 
       echo "etcd cluster"
-      cd config 
       docker-compose -f config/docker-compose-etcd.yml up -d
-      cd ..
+      docker-compose -f config/docker-compose-etcd.yml ps
     fi
 
     REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
