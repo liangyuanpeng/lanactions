@@ -685,6 +685,8 @@ jobs:
         - yaml
         etcd: 
         - build-in 
+        - etcd-main
+        - etcd-main-cluster5
         # - xline
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
