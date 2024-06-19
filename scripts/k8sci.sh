@@ -28,21 +28,21 @@ function util::deployk8s(){
     # chmod +x /usr/local/bin/docker-compose
     # docker-compose -f docker-compose-jaeger-only.yml up -d 
 
-    KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
-    IMGTAG=${IMGTAG:-"v1.30.0"}
-    STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
-    KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
-    KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
-    KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
+    export KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
+    export IMGTAG=${IMGTAG:-"v1.30.0"}
+    export STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
+    export KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
+    export KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
+    export KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
     # k8s master 节点数量,  1master2node  3master2node
-    K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
-    WHICH_ETCD=${WHICH_ETCD:-"build-in"}
+    export K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
+    export WHICH_ETCD=${WHICH_ETCD:-"build-in"}
     #TODO k8s集群功能分类, 1.默认 2.all alpha=true 3. all beta=true 4. all alpha+beta=true
-    ENABLED_WHAT=${ENABLED_WHAT:-"default"}
+    export ENABLED_WHAT=${ENABLED_WHAT:-"default"}
     #TODO 1. 开启了apiserver-network-proxy的 k8s集群
-    ADDON_WHAT=${ADDON_WHAT:-"none"}
+    export ADDON_WHAT=${ADDON_WHAT:-"none"}
 
-    ETCD_VERSION=${ETCD_VERSION:-"v3.5.14"}
+    export ETCD_VERSION=${ETCD_VERSION:-"v3.5.14"}
     wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     tar -xf etcd-${ETCD_VERSION}-linux-amd64.tar.gz && rm -f etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     mv etcd-${ETCD_VERSION}-linux-amd64/etcd* /usr/local/bin/ && rm -rf etcd-${ETCD_VERSION}-linux-amd64
