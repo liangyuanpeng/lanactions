@@ -72,7 +72,7 @@ function util::deployk8s(){
       docker-compose -f config/docker-compose-etcd.yml ps
     fi
 
-    REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
+    export REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
     #TODO 开启以下配置 测试矩阵
     IPFAMILY=${IPFAMILY:-"ipv4"} #ipv4 ipv6  双栈
     PROXY_MODE=${PROXY_MODE:-"iptables"} # iptables, ipvs, nftables
@@ -110,7 +110,7 @@ function util::deployk8s(){
       if [ $WHICH_ETCD = "etcd-main-cluster5" ];then
         ETCD_ENDPOINTS="http://192.168.66.2:21379,http://192.168.66.2:22379,http://192.168.66.2:23379,http://192.168.66.2:24379,http://192.168.66.2:25379" envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
       fi
-      
+
     fi
 
     if [ $K8S_CP_COUNT = "3" ];then
