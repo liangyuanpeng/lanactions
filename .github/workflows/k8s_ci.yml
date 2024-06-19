@@ -720,7 +720,8 @@ jobs:
 
       - name: get kind
         run: |
-          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
+          #oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
+          mv scripts/k8sci.sh .
           chmod +x k8sci.sh 
           STEP_WAHT=getbuild ./k8sci.sh
 
