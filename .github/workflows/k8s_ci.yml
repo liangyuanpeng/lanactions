@@ -782,8 +782,11 @@ jobs:
           mv junit_01.xml _artifacts/testreport/
 
           echo "==============================================begin cat e2e.log =============================================="
+          touch _artifacts/testreport/e2e.log
           cat _artifacts/testreport/e2e.log
           echo "==============================================done cat e2e.log =============================================="
+
+          sudo chmod -R 777 _artifacts
 
           kubectl get pod -A
 
