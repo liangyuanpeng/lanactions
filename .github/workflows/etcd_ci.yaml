@@ -40,6 +40,10 @@ on:
 permissions: read-all
 jobs:
 
+
+#TODO 
+# etcd/bbolt CI
+# 由于etcd项目正在将CI迁移到prow,因此这里使用github action做测试可能可以测试到不一样的内容,因此仍然有价值
   build:
     name: build
     permissions:
