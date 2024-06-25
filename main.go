@@ -22,7 +22,14 @@ func main() {
 	}
 
 	fmt.Println(client.Cluster.MemberList(context.TODO()))
+	resp, err := client.Maintenance.Status(context.TODO(), "http://192.168.66.2:3379")
+	if err != nil {
+		log.Fatal("Maintenance Status error:", err)
+	}
+	log.Println(resp.Version)
+
 	err = client.Watcher.RequestProgress(context.TODO())
+
 	if err != nil {
 		log.Fatal("RequestProgress error:", err)
 	}
