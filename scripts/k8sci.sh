@@ -28,21 +28,21 @@ function util::deployk8s(){
     # chmod +x /usr/local/bin/docker-compose
     # docker-compose -f docker-compose-jaeger-only.yml up -d 
 
-    KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
-    IMGTAG=${IMGTAG:-"v1.30.0"}
-    STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
-    KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
-    KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
-    KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
+    export KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
+    export IMGTAG=${IMGTAG:-"v1.30.0"}
+    export STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
+    export KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}
+    export KIND_IMG_REGISTRY=${KIND_IMG_REGISTRY:-"ghcr.io"}
+    export KIND_IMG_USER=${KIND_IMG_USER:-"liangyuanpeng"}
     # k8s master 节点数量,  1master2node  3master2node
-    K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
-    WHICH_ETCD=${WHICH_ETCD:-"build-in"}
+    export K8S_CP_COUNT=${K8S_CP_COUNT:-"1"}
+    export WHICH_ETCD=${WHICH_ETCD:-"build-in"}
     #TODO k8s集群功能分类, 1.默认 2.all alpha=true 3. all beta=true 4. all alpha+beta=true
-    ENABLED_WHAT=${ENABLED_WHAT:-"default"}
+    export ENABLED_WHAT=${ENABLED_WHAT:-"default"}
     #TODO 1. 开启了apiserver-network-proxy的 k8s集群
-    ADDON_WHAT=${ADDON_WHAT:-"none"}
+    export ADDON_WHAT=${ADDON_WHAT:-"none"}
 
-    ETCD_VERSION=${ETCD_VERSION:-"v3.5.14"}
+    export ETCD_VERSION=${ETCD_VERSION:-"v3.5.14"}
     wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     tar -xf etcd-${ETCD_VERSION}-linux-amd64.tar.gz && rm -f etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     mv etcd-${ETCD_VERSION}-linux-amd64/etcd* /usr/local/bin/ && rm -rf etcd-${ETCD_VERSION}-linux-amd64
@@ -56,15 +56,24 @@ function util::deployk8s(){
       # etcdctl get /hello
     fi
 
+    if [ $WHICH_ETCD = "etcd-main" ];then 
+      sudo mkdir -p $PWD/_artifacts/testreport/etcd
+      sudo chmod -R 777 $PWD/_artifacts/testreport/etcd
+      docker run -it -d -v $PWD/_artifacts/testreport/etcd:/var/lib/etcd  --restart=always --name etcdmain -p 2379:2379 ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64 etcd --data-dir /var/lib/etcd --experimental-watch-progress-notify-interval 1m --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://0.0.0.0:2379
+      docker logs etcdmain
+    fi
+
     if [ $WHICH_ETCD = "xline-cluster" ];then 
       echo "xline cluster"
     fi
 
-    if [ $WHICH_ETCD = "etcd-cluster" ];then 
+    if [ $WHICH_ETCD = "etcd-main-cluster5" ];then 
       echo "etcd cluster"
+      docker-compose -f config/docker-compose-etcd.yml up -d
+      docker-compose -f config/docker-compose-etcd.yml ps
     fi
 
-    REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
+    export REALLY_STORAGE_MEDIA_TYPE=${REALLY_STORAGE_MEDIA_TYPE:-"application/json"}
     #TODO 开启以下配置 测试矩阵
     IPFAMILY=${IPFAMILY:-"ipv4"} #ipv4 ipv6  双栈
     PROXY_MODE=${PROXY_MODE:-"iptables"} # iptables, ipvs, nftables
@@ -88,202 +97,33 @@ function util::deployk8s(){
     if [ $K8S_CP_COUNT = "1" ];then
 
       if [ $WHICH_ETCD = "build-in" ];then
-
-cat <<EOF> kind-ci.yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-featureGates:
-  "AllAlpha": true
-  "AllBeta": true
-  "ValidatingAdmissionPolicy": true
-  "InTreePluginGCEUnregister": false
-  "DisableCloudProviders": true
-  "DisableKubeletCloudCredentialProviders": true
-  "EventedPLEG": false
-  "StorageVersionAPI": false
-  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
-networking:
-  ipFamily: ${IPFAMILY}
-  kubeProxyMode: ${PROXY_MODE}
-nodes:
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  extraMounts:
-    - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
-      containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-        audit-log-path: /var/log/audit/kube-apiserver-audit.log
-        audit-policy-file: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
-      extraVolumes:
-        - name: "audit-logs"
-          hostPath: /var/log/audit
-          mountPath: /var/log/audit
-        - name: audit-policy
-          hostPath: /etc/kubernetes/audit-policy
-          mountPath: /etc/kubernetes/audit-policy
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-
-EOF
+        envsubst  <  artifacts/kind_ci_template_in.yaml > kind-ci.yaml
       fi
+
+      if [ $WHICH_ETCD = "etcd-main" ];then
+        ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
+      fi
+
       if [ $WHICH_ETCD = "xline" ];then
-
-cat <<EOF> kind-ci.yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-networking:
-  ipFamily: ${IPFAMILY}
-  kubeProxyMode: ${PROXY_MODE}
-nodes:
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  extraMounts:
-    - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
-      containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    etcd:
-      external:
-        endpoints:
-        - http://192.168.66.2:2379
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-        audit-log-path: /var/log/audit/kube-apiserver-audit.log
-        audit-policy-file: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
-      extraVolumes:
-        - name: "audit-logs"
-          hostPath: /var/log/audit
-          mountPath: /var/log/audit
-        - name: audit-policy
-          hostPath: /etc/kubernetes/audit-policy
-          mountPath: /etc/kubernetes/audit-policy
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-EOF
+        ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
       fi
+
+      if [ $WHICH_ETCD = "etcd-main-cluster5" ];then
+        ETCD_ENDPOINTS="http://192.168.66.2:21379,http://192.168.66.2:22379,http://192.168.66.2:23379,http://192.168.66.2:24379,http://192.168.66.2:25379" envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
+      fi
+
     fi
 
     if [ $K8S_CP_COUNT = "3" ];then
 
       if [ $WHICH_ETCD = "xline" ];then 
-cat <<EOF> kind-ci.yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-networking:
-  ipFamily: ${IPFAMILY}
-  kubeProxyMode: ${PROXY_MODE}
-nodes:
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    etcd:
-      external:
-        endpoints:
-        - http://192.168.66.2:2379
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    etcd:
-      external:
-        endpoints:
-        - http://192.168.66.2:2379
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    etcd:
-      external:
-        endpoints:
-        - http://192.168.66.2:2379
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-EOF
+        ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
+      elif [ $WHICH_ETCD = "etcd-main" ];then
+        ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
+      elif [ $WHICH_ETCD = "etcd-main-cluster5" ];then
+        ETCD_ENDPOINTS="http://192.168.66.2:21379,http://192.168.66.2:22379,http://192.168.66.2:23379,http://192.168.66.2:24379,http://192.168.66.2:25379" envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
       else
-cat <<EOF> kind-ci.yaml
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-featureGates:
-  "AllAlpha": true
-  "AllBeta": true
-  "ValidatingAdmissionPolicy": true
-  "InTreePluginGCEUnregister": false
-  "DisableCloudProviders": true
-  "DisableKubeletCloudCredentialProviders": true
-  "EventedPLEG": false
-  "StorageVersionAPI": false
-  "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
-networking:
-  ipFamily: ${IPFAMILY}
-  kubeProxyMode: ${PROXY_MODE}
-nodes:
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-- role: control-plane
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-  kubeadmConfigPatches:
-  - |
-    kind: ClusterConfiguration
-    apiServer:
-      extraArgs:
-        runtime-config: api/all=true 
-        storage-media-type: $REALLY_STORAGE_MEDIA_TYPE
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-- role: worker
-  image: $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:$KIND_VERSION-$IMGTAG
-EOF
+        envsubst  <  artifacts/kind_ci_template_node5.yaml > kind-ci.yaml
       fi
     fi
 
@@ -300,8 +140,8 @@ EOF
     ls
     ls artifacts
     nohup kubectl taint nodes --all  node-role.kubernetes.io/control-plane- &
-    #kubectl apply -f artifacts/ds.yaml
-    kubectl apply -f artifacts
+    #kubectl apply -f artifacts/k8s/ds.yaml
+    kubectl apply -f artifacts/k8s/
     kubectl get node
     kubectl get ds -A
     kubectl get pod -A
@@ -326,6 +166,20 @@ function util::runtests(){
   # ginkgo hydrophone
   TEST_WHAT=${TEST_WHAT:-"none"}
   if [ $STEP_WHAT = "runtests" ];then
+
+    if [ $TEST_WHAT = "conformance-nodes1" ];then
+      ginkgo -v --race --trace --nodes=1                \
+          --focus="\[Conformance\]"     \
+          --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"   \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+    fi
+
     if [ $TEST_WHAT = "conformance" ];then
       ginkgo -v --race --trace --nodes=25                \
           --focus="\[Conformance\]"     \
@@ -336,7 +190,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-50" ];then
@@ -349,7 +203,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "ValidatingAdmissionPolicy" ];then
@@ -361,7 +215,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
@@ -373,7 +227,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-lease" ];then
@@ -386,7 +240,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-app" ];then
@@ -399,7 +253,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-node" ];then
@@ -412,7 +266,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-sig-storage" ];then
@@ -425,7 +279,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "conformance-aggregator" ];then
@@ -438,7 +292,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     
@@ -458,7 +312,7 @@ function util::runtests(){
           --provider=local                               \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     # [StatefulSetBasic]
@@ -472,7 +326,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "sig-apps" ];then
@@ -484,7 +338,7 @@ function util::runtests(){
           --provider=local                              \
           --dump-logs-on-failure=true                  \
           --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=false | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
     if [ $TEST_WHAT = "kind-e2e" ];then

@@ -21,6 +21,7 @@ name: k8s_ci_push
 on:
   push:
     branches: [ k8s_ci_push ]
+  workflow_dispatch:
 
 permissions:
   packages: write
@@ -36,6 +37,7 @@ jobs:
       max-parallel: 6
       fail-fast: false
       matrix:
+      #TODO 机器人自动化提PR更新下面的列表
         ref:
         - master 
         - release-1.30
@@ -57,6 +59,7 @@ jobs:
       matrix:
         tests:
           - conformance
+          - conformance-nodes1
           - conformance-lease
           - conformance-sig-app
           # - conformance-sig-node

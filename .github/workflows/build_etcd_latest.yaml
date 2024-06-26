@@ -23,6 +23,7 @@ on:
     branches: 
     - build_etcd_latest
     - main
+    - pulsar
   schedule:
     - cron: '0 17 * * 0,1,2,3,4,5,6'
   workflow_call:
@@ -45,15 +46,34 @@ jobs:
     name: build
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
           repository: liangyuanpeng/kubernetes
           fetch-depth: 0
           ref: build_etcd_latest
+          #TODO setup-go
+      - name: etcd 
+        run: |
+          cd ..
+          git clone https://github.com/etcd-io/etcd
+          cd etcd
+          make
+          cd bin
+          tar -czvf etcd.tar.gz etcd  etcdctl  etcdutl
       - name: run 
         run: |
+          mv ../etcd/bin/etcd.tar.gz cluster/images/etcd/
           cd cluster/images/etcd
-          make
+          REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=amd64  make
+          docker images
+          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/etcd:main-0-linux-amd64
+          #REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=arm64  make

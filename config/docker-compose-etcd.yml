@@ -1,0 +1,104 @@
+version: "3.8"
+
+services:
+  etcd1:
+    image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+    entrypoint: /usr/local/bin/etcd
+    restart: always
+    command:
+      - '--name=etcd1'
+      - '--data-dir=/etcd_data'
+      - '--initial-advertise-peer-urls=http://192.168.66.2:21380'
+      - '--listen-peer-urls=http://0.0.0.0:21380'
+      - '--listen-client-urls=http://0.0.0.0:21379'
+      - '--advertise-client-urls=http://192.168.66.2:21379,http://127.0.0.1:21379'
+      - '--initial-cluster-token=mys1cr2tt1k7n'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--initial-cluster=etcd1=http://192.168.66.2:21380,etcd2=http://192.168.66.2:22380,etcd3=http://192.168.66.2:23380,etcd4=http://192.168.66.2:24380,etcd5=http://192.168.66.2:25380'
+      - '--initial-cluster-state=new'
+    network_mode: "host"
+    volumes:
+      - ./_artifacts/testreport/etcd1:/etcd_data
+
+  etcd2:
+    image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+    entrypoint: /usr/local/bin/etcd
+    restart: always
+    command:
+      - '--name=etcd2'
+      - '--data-dir=/etcd_data'
+      - '--initial-advertise-peer-urls=http://192.168.66.2:22380'
+      - '--listen-peer-urls=http://0.0.0.0:22380'
+      - '--listen-client-urls=http://0.0.0.0:22379'
+      - '--advertise-client-urls=http://192.168.66.2:22379'
+      - '--initial-cluster-token=mys1cr2tt1k7n'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--initial-cluster=etcd1=http://192.168.66.2:21380,etcd2=http://192.168.66.2:22380,etcd3=http://192.168.66.2:23380,etcd4=http://192.168.66.2:24380,etcd5=http://192.168.66.2:25380'
+      - '--initial-cluster-state=new'
+    network_mode: "host"
+    volumes:
+      - ./_artifacts/testreport/etcd2:/etcd_data
+
+  etcd3:
+    image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+    entrypoint: /usr/local/bin/etcd
+    restart: always
+    command:
+      - '--name=etcd3'
+      - '--data-dir=/etcd_data'
+      - '--initial-advertise-peer-urls=http://192.168.66.2:23380'
+      - '--listen-peer-urls=http://0.0.0.0:23380'
+      - '--listen-client-urls=http://0.0.0.0:23379'
+      - '--advertise-client-urls=http://192.168.66.2:23379,http://127.0.0.1:23379'
+      - '--initial-cluster-token=mys1cr2tt1k7n'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--initial-cluster=etcd1=http://192.168.66.2:21380,etcd2=http://192.168.66.2:22380,etcd3=http://192.168.66.2:23380,etcd4=http://192.168.66.2:24380,etcd5=http://192.168.66.2:25380'
+      - '--initial-cluster-state=new'
+    network_mode: "host"
+    volumes:
+      - ./_artifacts/testreport/etcd3:/etcd_data
+
+  etcd4:
+    image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+    entrypoint: /usr/local/bin/etcd
+    restart: always
+    command:
+      - '--name=etcd4'
+      - '--data-dir=/etcd_data'
+      - '--initial-advertise-peer-urls=http://192.168.66.2:24380'
+      - '--listen-peer-urls=http://0.0.0.0:24380'
+      - '--listen-client-urls=http://0.0.0.0:24379'
+      - '--advertise-client-urls=http://192.168.66.2:24379,http://127.0.0.1:24379'
+      - '--initial-cluster-token=mys1cr2tt1k7n'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--initial-cluster=etcd1=http://192.168.66.2:21380,etcd2=http://192.168.66.2:22380,etcd3=http://192.168.66.2:23380,etcd4=http://192.168.66.2:24380,etcd5=http://192.168.66.2:25380'
+      - '--initial-cluster-state=new'
+    network_mode: "host"
+    volumes:
+      - ./_artifacts/testreport/etcd4:/etcd_data
+
+  etcd5:
+    image: ghcr.io/liangyuanpeng/etcd:main-0-linux-amd64
+    entrypoint: /usr/local/bin/etcd
+    restart: always
+    command:
+      - '--name=etcd5'
+      - '--data-dir=/etcd_data'
+      - '--initial-advertise-peer-urls=http://192.168.66.2:25380'
+      - '--listen-peer-urls=http://0.0.0.0:25380'
+      - '--listen-client-urls=http://0.0.0.0:25379'
+      - '--advertise-client-urls=http://192.168.66.2:25379,http://127.0.0.1:25379'
+      - '--initial-cluster-token=mys1cr2tt1k7n'
+      - '--heartbeat-interval=250'
+      - '--election-timeout=1250'
+      - '--initial-cluster=etcd1=http://192.168.66.2:21380,etcd2=http://192.168.66.2:22380,etcd3=http://192.168.66.2:23380,etcd4=http://192.168.66.2:24380,etcd5=http://192.168.66.2:25380'
+      - '--initial-cluster-state=new'
+    network_mode: "host"
+    volumes:
+      - ./_artifacts/testreport/etcd5:/etcd_data
+      # - ./store/etcd5/data:/etcd_data
+

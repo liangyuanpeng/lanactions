@@ -513,6 +513,7 @@ jobs:
     - getcommitid
     permissions:
       packages: write
+    timeout-minutes: 360
     strategy:
       max-parallel: 6
       fail-fast: false
@@ -521,9 +522,10 @@ jobs:
         #TODO withANP, 部署了ANP的k8s
         etcd: 
         - build-in 
-        # - etcd-master
+        - etcd-main
+        - etcd-main-cluster5
         # - etcd-release3.5
-        - xline
+        # - xline
         # - etcd-big # 持久化的etcd
         storageMediaType: 
         - protobuf
@@ -543,6 +545,10 @@ jobs:
       # JON_NAME: e2e-${{ inputs.kindVersion }}_${{ matrix.tests }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
       JON_NAME: e2e-${{ inputs.kindVersion }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
     steps:
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
@@ -585,7 +591,10 @@ jobs:
 
       - name: get kind
         run: |
-          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
+          #oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
+
+          mv scripts/k8sci.sh .
+
           chmod +x k8sci.sh 
           STEP_WAHT=getbuild ./k8sci.sh
 
@@ -630,12 +639,15 @@ jobs:
           kind export logs /tmp/kind
           cp kind-ci.yaml /tmp/kind
           kubectl get pod -A
+          docker stop `docker ps -aq`
+          sudo mkdir -p ${PWD}/_artifacts
+          sudo chmod -R 777 ${PWD}/_artifacts
 
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_logs_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: /tmp/kind/
 
       - name: print result 
@@ -649,7 +661,7 @@ jobs:
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: kind_testreport_e2e_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          name: kind_testreport_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
           path: _artifacts/testreport
 
 
@@ -673,13 +685,16 @@ jobs:
         - yaml
         etcd: 
         - build-in 
-        - xline
+        - etcd-main
+        - etcd-main-cluster5
+        # - xline
         tests:
         # - hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0-26-g7606cf7b3d7 --parallel 25  --focus=\[Feature:StatefulSet\]
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.31.0-alpha.0.941_d309063e35d38d --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
         # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:v1.29.0-alpha.0-5232-gd309063e35d --conformance  --verbosity 2 --parallel 10 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
-        - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }} --conformance  --verbosity 2 --parallel 10 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+        # - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }} --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
+        - hydrophone --conformance-image ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }} --conformance  --verbosity 2 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
     env:
       KIND_VERSION: ${{ inputs.kindVersion }}
       IMGTAG: ${{ needs.getcommitid.outputs.imgtag }}
@@ -707,7 +722,8 @@ jobs:
 
       - name: get kind
         run: |
-          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
+          #oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish
+          mv scripts/k8sci.sh .
           chmod +x k8sci.sh 
           STEP_WAHT=getbuild ./k8sci.sh
 
@@ -736,15 +752,24 @@ jobs:
         run: |
           # watch kubectl get pod -A
           # hydrophone --conformance --parallel 25 --focus sig-apps --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
-          export EXTRA_ARGS="--parallel=25"
+          
+          #export EXTRA_ARGS="--parallel=25"
+
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --conformance  --verbosity 2 --parallel 25 --skip="Feature|Federation|machinery|PerformanceDNS|DualStack|Disruptive|Serial|Slow|KubeProxy|LoadBalancer|GCE|Netpol|NetworkPolicy|NodeConformance"
           # hydrophone --conformance --parallel 25
           # hydrophone --parallel 25 --focus sig-apps
           # see report 
           # hydrophone --conformance-image registry.k8s.io/conformance:v1.29.2 --parallel 25  --focus=\[StatefulSetBasic\]
-          ${{ matrix.tests }}
           
+          if [ $${{ inputs.testname }} = "conformance-nodes1" ];then
+            export EXTRA_ARGS="--parallel=1"
+          else
+            export EXTRA_ARGS="--parallel=25"
+          fi
 
+          ${{ matrix.tests }}
+
+          env
       - name: export logs
         if: always()
         run: |
@@ -757,8 +782,11 @@ jobs:
           mv junit_01.xml _artifacts/testreport/
 
           echo "==============================================begin cat e2e.log =============================================="
+          touch _artifacts/testreport/e2e.log
           cat _artifacts/testreport/e2e.log
           echo "==============================================done cat e2e.log =============================================="
+
+          sudo chmod -R 777 _artifacts
 
           kubectl get pod -A
 
@@ -766,12 +794,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kind_test_hydrophone_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_logs_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: /tmp/kind/
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         if: always()
         with:
-          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_${{ needs.getcommitid.outputs.imgtag }}_CPCOUNT${{ inputs.k8sCPCount }}
+          name: hydrophone_testreport_${{ inputs.ref }}_${{ matrix.storageMediaType }}_${{ matrix.etcd }}_${{ inputs.testname }}_CPCOUNT${{ inputs.k8sCPCount }}
           path: _artifacts/testreport
 

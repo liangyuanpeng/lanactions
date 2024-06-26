@@ -22,8 +22,23 @@ on:
   push:
     paths:
     - '.github/workflows/arm.yaml'
-
+#TODO arm tests: etcd/bbolt/kubernetes/xline
 jobs:
+
+  linuxarm:
+  #https://github.com/actions/partner-runner-images/blob/main/images/arm-ubuntu-22-image.md
+    if: ${{ needs.getcommitid.outputs.linuxarm }}
+    runs-on: arm-ubuntu-22
+    steps:
+      - name: run
+        run: |
+          env
+          free -mh
+          df -h
+
+      - name: check 
+        run: |
+          docker ps
 
   macosarm:
     name: macosarm

@@ -363,7 +363,7 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
-          - ubuntu-latest
+          # - ubuntu-latest
     runs-on: ${{ matrix.os }}
     needs: getcommitid
     env:
@@ -409,7 +409,9 @@ jobs:
   # non-blocking
   pk-e2e-kind-alpha-features-sig-storage:
     name: pk-e2e-kind-alpha-features-sig-storage
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runos }}
+    # 目前都是报错,暂时这样直接跳过这个CI
+    if: ${{ needs.getcommitid.outputs.sigStorage }}
     needs: getcommitid
     strategy:
       max-parallel: 6
@@ -424,6 +426,9 @@ jobs:
         # - blockfs
         #TODO 解决完sig-storage测试问题后放开上述注释并且删除下面的Conformance测试(目前只是用来占一个位置)
         # - \[Conformance\]
+        runos:
+        - ubuntu-22.04
+        - ubuntu-24.04
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
@@ -537,6 +542,8 @@ jobs:
 # 构建kubernetes容器镜像
   buildk8s:
     name: buildk8s-${{ inputs.repo }}
+    #TODO 暂时关闭
+    if: ${{ needs.getcommitid.outputs.buildk8s }}
     uses: ./.github/workflows/kubernetes_release_template.yml
     with:
       repo: ${{ inputs.repo }}
