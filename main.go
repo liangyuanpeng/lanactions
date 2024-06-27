@@ -57,7 +57,7 @@ func initTracerProvider(ctx context.Context, res *resource.Resource, conn *grpc.
 	headers := make(map[string]string)
 	headers["organization"] = "default"
 	headers["stream-name"] = "trace_default"
-	headers["Authorization"] = "Basic YWRtaW5AbGFuLmNvbTphZG1pbg=="
+	headers["Authorization"] = "Basic YWRtaW5AbGFuazhzLmNuOmFkbWlu"
 	traceExporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn), otlptracegrpc.WithHeaders(headers))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create trace exporter: %w", err)
@@ -85,7 +85,7 @@ func initMeterProvider(ctx context.Context, res *resource.Resource, conn *grpc.C
 	headers := make(map[string]string)
 	headers["organization"] = "default"
 	headers["stream-name"] = "metrics_default"
-	headers["Authorization"] = "Basic YWRtaW5AbGFuLmNvbTphZG1pbg=="
+	headers["Authorization"] = "Basic YWRtaW5AbGFuazhzLmNuOmFkbWlu"
 	metricExporter, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithGRPCConn(conn), otlpmetricgrpc.WithHeaders(headers))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create metrics exporter: %w", err)
