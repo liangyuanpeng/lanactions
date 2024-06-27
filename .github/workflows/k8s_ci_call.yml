@@ -263,7 +263,7 @@ jobs:
 
   pk-e2e-kind-cloud-provider-loadbalancer:
     name: pk-e2e-kind-cloud-provider-loadbalancer
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: getcommitid
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -551,11 +551,14 @@ jobs:
 
   pk-unit:
     name: pk-unit
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 6
       fail-fast: false
       matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
         goversion:
           - "go.mod"
           # - "1.22.1"
