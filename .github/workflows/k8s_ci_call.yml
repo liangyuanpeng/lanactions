@@ -78,7 +78,7 @@ jobs:
     steps:
     - uses: oras-project/setup-oras@main
       with:
-        version: 1.1.0
+        version: 1.2.0
     - name: checkoutactions
       uses: actions/checkout@v4
       with:
@@ -202,7 +202,7 @@ jobs:
     steps:
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -281,7 +281,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       # - name: checkoutactions
       #   uses: actions/checkout@v4
       #   with:
@@ -329,7 +329,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -375,7 +375,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -443,7 +443,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -515,7 +515,7 @@ jobs:
           swap-storage: true
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -582,7 +582,7 @@ jobs:
           go-version: ${{ matrix.goversion }}
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - uses: actions/setup-go@v5
         if: matrix.goversion == 'go.mod'
         with:
