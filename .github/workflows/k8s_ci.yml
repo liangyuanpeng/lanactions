@@ -635,13 +635,23 @@ jobs:
         if: always()
         run: |
           ls -allh
+          sudo mkdir -p /tmp/auditlogs
+          sudo chmod -R 777 /tmp/auditlogs
           docker ps -a
           kind export logs /tmp/kind
+          ls -allh /tmp/kind
           cp kind-ci.yaml /tmp/kind
           kubectl get pod -A
           docker stop `docker ps -aq`
           sudo mkdir -p ${PWD}/_artifacts
           sudo chmod -R 777 ${PWD}/_artifacts
+
+      - name: upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit_logs_${{ inputs.ref }}_${{ inputs.kindVersion }}_CPCOUNT${{ inputs.k8sCPCount }}_${{ inputs.testname }}_${{ matrix.etcd }}_${{ matrix.storageMediaType }}
+          path: /tmp/auditlogs
 
       - name: upload kind logs
         if: always()
