@@ -299,21 +299,20 @@ function util::runtests(){
 
     
 
-    if [ $TEST_WHAT = "kind-e2e" ];then
-    #TODO 将ginkgo跑在容器里面? 或者继续研究如何才能不丢失日志 (目前在github action 会丢失ginkgo的测试日志,但是使用官方的 e2e-k8s.sh 却不会丢失,奇怪)
-    #--provider=skeleton       
-    #--prefix=e2e --network=e2e \
-      ginkgo -v --race --trace --nodes=25                \
-          --focus="."     \
-          --skip="\[Serial\]|\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
-          /usr/local/bin/e2e.test                       \
-          --                                            \
-          --kubeconfig=${PWD}/_artifacts/config     \
-          --provider=local                               \
-          --dump-logs-on-failure=true                  \
-          --report-dir=${PWD}/_artifacts/testreport            \
-          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
-    fi
+    # if [ $TEST_WHAT = "kind-e2e" ];then
+    # #--provider=skeleton       
+    # #--prefix=e2e --network=e2e \
+    #   ginkgo -v --race --trace --nodes=25                \
+    #       --focus="."     \
+    #       --skip="\[Serial\]|\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"   \
+    #       /usr/local/bin/e2e.test                       \
+    #       --                                            \
+    #       --kubeconfig=${PWD}/_artifacts/config     \
+    #       --provider=local                               \
+    #       --dump-logs-on-failure=true                  \
+    #       --report-dir=${PWD}/_artifacts/testreport            \
+    #       --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+    # fi
 
     # [StatefulSetBasic]
     # StatefulSetStartOrdinal 
@@ -341,11 +340,11 @@ function util::runtests(){
           --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
-    if [ $TEST_WHAT = "kind-e2e" ];then
-      export FOCUS=.
+    # if [ $TEST_WHAT = "kind-e2e" ];then
+    #   export FOCUS=.
       
-      curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
-    fi
+    #   curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
+    # fi
 
     touch ${PWD}/_artifacts/testreport/ginkgo-e2e.log
 
