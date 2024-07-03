@@ -294,7 +294,8 @@ function util::runtests(){
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
-
+    
+    #TODO test feature watchList
     
 
     

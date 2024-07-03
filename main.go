@@ -8,7 +8,9 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/google/go-github/v56/github"
 	clientv3 "go.etcd.io/etcd/client/v3"
+	"golang.org/x/oauth2"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -27,7 +29,23 @@ import (
 )
 
 func main() {
-	oteldemo()
+	// oteldemo()
+	ghdemo()
+}
+
+func ghdemo() {
+	ghtoken := os.Getenv("GITHUB_TOKEN")
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: ghtoken},
+	)
+	tc := oauth2.NewClient(context.TODO(), ts)
+	ghclient := github.NewClient(tc)
+	reporesp, _, err := ghclient.Repositories.GetReleaseByTag(context.TODO(), "karmada-io", "karmada", "v1.9.1")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("reporesp:", reporesp.GetTargetCommitish())
+
 }
 
 var serviceName = semconv.ServiceNameKey.String("test-service")
