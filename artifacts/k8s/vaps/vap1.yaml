@@ -3,6 +3,7 @@ kind: ValidatingAdmissionPolicy
 metadata:
   name: vap1
 spec:
+  # variables:
   failurePolicy: Fail
   matchConstraints:
     resourceRules:
