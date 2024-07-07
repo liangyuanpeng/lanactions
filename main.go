@@ -28,18 +28,27 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/utils/ptr"
+	"k8s.io/klog/v2"
 )
 
 func main() {
 	// oteldemo()
-	ghdemo()
+	svcdemo()
+	// ghdemo()
 }
 
 func svcdemo() {
-	restConfig, err := clientcmd.BuildConfigFromFlags("", "")
+
+	// k8s.io/api v0.28.5
+	// k8s.io/api v0.29.4
+	// k8s.io/api v0.30.2
+
+	config := "/home/runner/work/lanactions/lanactions/k8s26config"
+	config = "/home/runner/.kube/config"
+	restConfig, err := clientcmd.BuildConfigFromFlags("", config)
 	if err != nil {
 		panic(err)
 	}
@@ -47,23 +56,57 @@ func svcdemo() {
 	if err != nil {
 		panic(err)
 	}
+	ns := "default"
+	svcname := "test"
+
 	aaService := &corev1.Service{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
 			Kind:       "Service",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test",
-			Namespace: "default",
+			Name:      svcname,
+			Namespace: ns,
 		},
 		Spec: corev1.ServiceSpec{
-			Type:         corev1.ServiceTypeLoadBalancer,
-			ExternalName: fmt.Sprintf("%s.%s.svc", "test", "default"),
+			Type: corev1.ServiceTypeLoadBalancer,
+			Ports: []corev1.ServicePort{
+				{
+					Name:       "http",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       80,
+					TargetPort: intstr.IntOrString{IntVal: 80},
+				},
+			},
+			Selector: map[string]string{"app": "nginx"},
 		},
 	}
-	clientSet.CoreV1().Services("default").Create(context.TODO(), aaService, metav1.CreateOptions{})
 
-	ingresses := []corev1.LoadBalancerIngress{{IP: fmt.Sprintf("172.19.1.%d", index+6), IPMode: ptr.To(corev1.LoadBalancerIPModeVIP)}}
+	clientSet.CoreV1().Services(ns).Delete(context.TODO(), svcname, metav1.DeleteOptions{})
+
+	rsvc, err := clientSet.CoreV1().Services(ns).Create(context.TODO(), aaService, metav1.CreateOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	//, IPMode: ptr.To(corev1.LoadBalancerIPModeVIP)
+	ingresses := []corev1.LoadBalancerIngress{{IP: fmt.Sprintf("172.19.1.%d", 1+6)}}
+	rsvc.Status.LoadBalancer = corev1.LoadBalancerStatus{Ingress: ingresses}
+	_, err = clientSet.CoreV1().Services(ns).UpdateStatus(context.TODO(), rsvc, metav1.UpdateOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	latestSvc, err := clientSet.CoreV1().Services(ns).Get(context.TODO(), svcname, metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	klog.Infof("the latest serviceStatus loadBalancer: %v", latestSvc.Status.LoadBalancer)
+	if latestSvc.Status.LoadBalancer.Ingress[0].IPMode != nil {
+		klog.Infof("ipmode:%v", *latestSvc.Status.LoadBalancer.Ingress[0].IPMode)
+	}
+
 }
 
 func ghdemo() {
