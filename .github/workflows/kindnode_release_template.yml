@@ -216,13 +216,6 @@ jobs:
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           echo "KUBE_VERSION:"$KUBE_VERSION
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: $GITHUB_REPOSITORY_OWNER
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: rebuild init message
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
@@ -259,9 +252,18 @@ jobs:
           pwd
           go version
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: build
         id: build
         run: |
+
+          #ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
           
           git branch
           #git describe

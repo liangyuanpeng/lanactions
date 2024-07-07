@@ -26,11 +26,44 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.25.0"
 	"go.opentelemetry.io/otel/trace"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/utils/ptr"
 )
 
 func main() {
 	// oteldemo()
 	ghdemo()
+}
+
+func svcdemo() {
+	restConfig, err := clientcmd.BuildConfigFromFlags("", "")
+	if err != nil {
+		panic(err)
+	}
+	clientSet, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		panic(err)
+	}
+	aaService := &corev1.Service{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Service",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test",
+			Namespace: "default",
+		},
+		Spec: corev1.ServiceSpec{
+			Type:         corev1.ServiceTypeLoadBalancer,
+			ExternalName: fmt.Sprintf("%s.%s.svc", "test", "default"),
+		},
+	}
+	clientSet.CoreV1().Services("default").Create(context.TODO(), aaService, metav1.CreateOptions{})
+
+	ingresses := []corev1.LoadBalancerIngress{{IP: fmt.Sprintf("172.19.1.%d", index+6), IPMode: ptr.To(corev1.LoadBalancerIPModeVIP)}}
 }
 
 func ghdemo() {
