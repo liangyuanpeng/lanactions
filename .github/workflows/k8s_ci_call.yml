@@ -313,7 +313,7 @@ jobs:
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
   integration:  
-    name: pk-integration
+    name: integration
     runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 6
