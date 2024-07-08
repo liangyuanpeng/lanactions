@@ -324,9 +324,6 @@ jobs:
           - ubuntu-24.04
     needs: getcommitid
     steps:
-      - uses: oras-project/setup-oras@main
-        with:
-          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -343,11 +340,15 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: run
         run: |
+          hack/install-etcd.sh
           make test-integration
 
   pk-integration:
