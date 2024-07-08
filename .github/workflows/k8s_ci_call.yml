@@ -322,6 +322,7 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
+        #TODO etcd版本矩阵? build-in/etcd-main
     needs: getcommitid
     steps:
       - name: Free Disk Space (Ubuntu)
