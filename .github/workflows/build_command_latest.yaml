@@ -45,6 +45,9 @@ jobs:
         with:
           repository: karmada-io/karmada
           fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
