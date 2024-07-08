@@ -374,11 +374,19 @@ jobs:
         env: 
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
+          sudo mkdir -p /var/log/containers/
           echo "run always shell"
           if [ -f always.sh ];then
             chmod +x always.sh
             ./always.sh
           fi
+
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: /var/log/containers/
 
   frpc:
     name: start_frpc
