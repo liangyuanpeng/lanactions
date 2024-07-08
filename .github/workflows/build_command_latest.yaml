@@ -20,10 +20,7 @@
 name: build_command_latest
 on:
   push:
-    branches: 
-    - build_command_latest
-    - main
-    - pulsar
+    branches:
   schedule:
     - cron: '0 17 * * 0,1,2,3,4,5,6'
   workflow_call:
@@ -56,9 +53,9 @@ jobs:
           make karmadactl
           mv _output/bin/linux/amd64/karmadactl .
           chmod +x karmadactl
-          # oras push  karmadactl
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmadactl-latest karmadactl
           # build crds
           cd  charts/karmada/
           cp -r _crds crds
           tar -zcvf crds.tar.gz crds
-          # oras push crds.tar.gz
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmada-crds-latest crds.tar.gz
