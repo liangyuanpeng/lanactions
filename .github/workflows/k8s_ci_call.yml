@@ -312,6 +312,37 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
+  integration:  
+    name: pk-integration
+    runs-on: ubuntu-24.04
+    needs: getcommitid
+    steps:
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: run
+        run: |
+          make test-integration
+
   pk-integration:
     name: pk-integration
     runs-on: ubuntu-22.04
@@ -340,6 +371,12 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
       - name: run
         run: |
           mkdir -p gopath 
@@ -438,9 +475,9 @@ jobs:
       # PARALLEL: true
       PARALLEL: ${{ matrix.parallel }}
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
+      # - uses: actions/setup-go@v5
+      #   with:
+      #     go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
@@ -460,6 +497,9 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: run
         run: |
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh

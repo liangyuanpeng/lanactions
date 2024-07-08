@@ -79,6 +79,7 @@ env:
   
 jobs:
 
+#TODO 测试sample-apiserver
 #TODO 构建完k8s容器镜像后 直接安装containerd, kubeadm 部署k8s
 #TODO 添加etcd重启,然后再跑一遍测试  
 #TODO etcd 跑在vagrant搭建的虚拟机里面,测试完成一边后强制关机虚拟机,然后再启动etcd 再跑一次测试
