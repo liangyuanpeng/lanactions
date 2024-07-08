@@ -375,12 +375,14 @@ jobs:
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
           sudo mkdir -p /var/log/containers/
+          sudo chmod -R 777  /var/log/containers/
           echo "run always shell"
           if [ -f always.sh ];then
             chmod +x always.sh
             ./always.sh
           fi
 
+      #TODO 动态
       - name: upload kind logs
         if: always()
         uses: actions/upload-artifact@v4
