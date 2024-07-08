@@ -54,5 +54,11 @@ jobs:
       - name: build
         run: |
           make karmadactl
-          # oras push 
-          
+          mv _output/bin/linux/amd64/karmadactl .
+          chmod +x karmadactl
+          # oras push  karmadactl
+          # build crds
+          cd  charts/karmada/
+          cp -r _crds crds
+          tar -zcvf crds.tar.gz crds
+          # oras push crds.tar.gz
