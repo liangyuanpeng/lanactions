@@ -202,6 +202,10 @@ jobs:
             echo "existKubebins is false"
           fi
 
+  build-hydrophone:
+    name: build-hydrophone
+    uses: ./.github/workflows/hydrophone_release_template.yml
+
   build-kind:
     needs: getcommitid
     # if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}

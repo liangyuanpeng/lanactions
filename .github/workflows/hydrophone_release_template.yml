@@ -1,0 +1,78 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: hydrophone_release_template
+on:
+  workflow_call:
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  GOFLAGS: "-p=2"
+jobs:
+
+  release:
+    name: release
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      # Free up disk space on Ubuntu
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes-sigs/hydrophone
+          fetch-depth: 0
+          
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: build
+        run: |
+          go mod tidy
+          make
+          mv bin/hydrophone /usr/local/bin/hydrophone
+          hydrophone -h
+          #TODO 上传artifacts
+
+

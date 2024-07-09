@@ -28,6 +28,8 @@ on:
 permissions: read-all
 jobs:
 
+#TODO hydrophone
+
   karmadactl:
     name: buildkarmada
     permissions:
