@@ -376,6 +376,8 @@ jobs:
         run: |
           sudo mkdir -p /var/log/containers/
           sudo chmod -R 777  /var/log/containers/
+          sudo cp /var/log/containers /var/log/containers2
+          sudo chmod -R 777 /var/log/containers2
           echo "run always shell"
           if [ -f always.sh ];then
             chmod +x always.sh
@@ -388,7 +390,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: logs
-          path: /var/log/containers/
+          path: /var/log/containers2/
 
   frpc:
     name: start_frpc
