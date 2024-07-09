@@ -73,6 +73,14 @@ jobs:
           make
           mv bin/hydrophone /usr/local/bin/hydrophone
           hydrophone -h
-          #TODO 上传artifacts
+
+          cp /usr/local/bin/hydrophone hydrophone
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:hydrophone-latest hydrophone
+
+      - name: upload bin
+        uses: actions/upload-artifact@v4
+        with:
+          name: hydrophone
+          path: /usr/local/bin/hydrophone
 
 
