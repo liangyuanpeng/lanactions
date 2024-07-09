@@ -58,6 +58,10 @@ jobs:
           chmod +x karmadactl
           #TODO arm64? 两层含义, 存储的内容是arm64架构的,例如etcd-arm64, oras推送到镜像是arm64的 如果arm64机器可以直接oras拉取amd64镜像里面的内容的话 那就不是问题
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmadactl-latest karmadactl
+          make karmadactl GOARCH=arm64
+          mv _output/bin/linux/arm64/karmadactl .
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmadactl-linux-arm64-latest karmadactl
+
           # build crds
           cd  charts/karmada/
           cp -r _crds crds
@@ -96,5 +100,5 @@ jobs:
           rm -rf bin
           make build-linux-arm64
           cd bin
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-arm64-latest etcd  etcdctl  etcdutl
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-linux-arm64-latest etcd  etcdctl  etcdutl
 
