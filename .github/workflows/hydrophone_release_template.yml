@@ -20,6 +20,7 @@
 name: hydrophone_release_template
 on:
   workflow_call:
+  push:
 
 env:
   GH_TOKEN: ${{ github.token }}
