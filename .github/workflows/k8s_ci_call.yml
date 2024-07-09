@@ -323,6 +323,9 @@ jobs:
           - ubuntu-22.04
           - ubuntu-24.04
         #TODO etcd版本矩阵? build-in/etcd-main
+        etcd:
+          - build-in
+          # - etcd-main
     needs: getcommitid
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -350,6 +353,7 @@ jobs:
       - name: run
         run: |
           hack/install-etcd.sh
+          export PATH=$PATH:$PWD/third_party/etcd/
           make test-integration
 
   pk-integration:
