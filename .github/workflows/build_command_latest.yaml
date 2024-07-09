@@ -29,7 +29,7 @@ permissions: read-all
 jobs:
 
   karmadactl:
-    name: build
+    name: buildkarmada
     permissions:
       packages: write
     runs-on: ubuntu-latest
@@ -56,6 +56,7 @@ jobs:
           make karmadactl
           mv _output/bin/linux/amd64/karmadactl .
           chmod +x karmadactl
+          #TODO arm64? 两层含义, 存储的内容是arm64架构的,例如etcd-arm64, oras推送到镜像是arm64的 如果arm64机器可以直接oras拉取amd64镜像里面的内容的话 那就不是问题
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmadactl-latest karmadactl
           # build crds
           cd  charts/karmada/
@@ -64,7 +65,7 @@ jobs:
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmada-crds-latest crds.tar.gz
 
   etcd:
-    name: build
+    name: buildetcd
     permissions:
       packages: write
     runs-on: ubuntu-latest
@@ -91,4 +92,9 @@ jobs:
           make
           cd bin
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest etcd  etcdctl  etcdutl
+          cd ..
+          rm -rf bin
+          make build-linux-arm64
+          cd bin
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-arm64-latest etcd  etcdctl  etcdutl
 
