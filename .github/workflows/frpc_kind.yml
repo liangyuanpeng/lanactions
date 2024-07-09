@@ -376,7 +376,7 @@ jobs:
         run: |
           sudo mkdir -p /var/log/containers/
           sudo chmod -R 777  /var/log/containers/
-          sudo cp /var/log/containers /var/log/containers2
+          sudo cp -r /var/log/containers /var/log/containers2
           sudo chmod -R 777 /var/log/containers2
           echo "run always shell"
           if [ -f always.sh ];then
