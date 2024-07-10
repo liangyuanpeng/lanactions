@@ -76,10 +76,10 @@ jobs:
           cp /usr/local/bin/hydrophone hydrophone
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:hydrophone-latest hydrophone
 
-      - name: upload bin
-        uses: actions/upload-artifact@v4
-        with:
-          name: hydrophone
-          path: /usr/local/bin/hydrophone
+      # - name: upload bin
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: hydrophone
+      #     path: /usr/local/bin/hydrophone
 
 
