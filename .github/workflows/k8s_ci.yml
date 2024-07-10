@@ -724,12 +724,18 @@ jobs:
           version: 1.2.0
       - name: clean
         run: |
-          docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
           nohup docker rmi `docker images -aq` &
           rm -rf /opt/hostedtoolcache/CodeQL
           rm -rf /opt/hostedtoolcache/node
           rm -rf /opt/hostedtoolcache/Python
           mkdir -p _artifacts/testreport
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: get kind
         run: |
@@ -748,15 +754,11 @@ jobs:
           kubectl get pods -A
           kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system -l k8s-app=kube-dns
 
-      #TODO 专门一个job来build hydrophone
-      - name: build hydrophone
+      - name: download hydrophone
         run: |
-          pwd
-          git clone https://github.com/kubernetes-sigs/hydrophone.git
-          cd hydrophone
-          go mod tidy
-          make
-          mv bin/hydrophone /usr/local/bin/hydrophone
+          oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:hydrophone-latest
+          chmod +x hydrophone
+          mv hydrophone /usr/local/bin/hydrophone
           hydrophone -h
 
       - name: run test 

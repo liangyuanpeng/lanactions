@@ -22,12 +22,11 @@ on:
   workflow_call:
 
 env:
-  GH_TOKEN: ${{ github.token }}
   GOFLAGS: "-p=2"
 jobs:
 
-  release:
-    name: release
+  release-hydrophone:
+    name: release-hydrophone
     runs-on: ubuntu-24.04
     permissions:
       packages: write
