@@ -139,7 +139,7 @@ jobs:
 
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
 
       - name: save ghaction env
         if: ${{ inputs.valueTag }}
@@ -185,7 +185,7 @@ jobs:
     steps:
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: ghaction-setup
         id: ghaction-setup
         run: |
@@ -257,7 +257,7 @@ jobs:
 
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
 
       - name: genoutputs
         id: genoutputs
@@ -374,11 +374,24 @@ jobs:
         env: 
           ACTION_VALUE_TAG: ${{ matrix.valueTag }}
         run: |
+          sudo mkdir -p /var/log/containers/
+          sudo chmod -R 777  /var/log/containers/
+          sudo cp -r /var/log/containers /var/log/containers2
+          sudo chmod -R 777 /var/log/containers2
+          ls -allh /var/log/containers2
           echo "run always shell"
           if [ -f always.sh ];then
             chmod +x always.sh
             ./always.sh
           fi
+
+      #TODO 动态
+      - name: upload kind logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: /var/log/containers2/
 
   frpc:
     name: start_frpc
@@ -498,7 +511,7 @@ jobs:
         
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
 
       - uses: graalvm/setup-graalvm@v1
         if: steps.genoutputs.outputs.GH_OUTPUT_GRAALVM == 'true'

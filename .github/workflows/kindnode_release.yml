@@ -42,9 +42,9 @@ on:
         default: true
         type: boolean
       kindVersion:
-        description: 'version of kind,v0.20.0 by default.'
+        description: 'version of kind,latest stable version by default.'
         required: false
-        default: "latest"
+        default: "stable"
       triggerIssueCommentId:
         description: 'triggerIssueCommentId'
         required: false

@@ -1,0 +1,115 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: build_command_latest
+on:
+  push:
+    branches:
+  schedule:
+    - cron: '0 17 * * 0,1,2,3,4,5,6'
+  workflow_call:
+
+permissions: read-all
+jobs:
+
+#TODO ocm: clusteradm
+#TODO kubectl-ns   openkruise命令行
+#TODO kubebuilder/operator-sdk/xlinectl/kcl
+#TODO krew, 这样就可以用 krew安装插件,例如kubectl-ns
+
+  build-hydrophone:
+    name: build-hydrophone
+    permissions:
+      packages: write
+    uses: ./.github/workflows/hydrophone_release_template.yml
+
+  karmadactl:
+    name: buildkarmada
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: karmada-io/karmada
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+      - name: build
+        run: |
+          make karmadactl
+          mv _output/bin/linux/amd64/karmadactl .
+          chmod +x karmadactl
+          #TODO arm64? 两层含义, 存储的内容是arm64架构的,例如etcd-arm64, oras推送到镜像是arm64的 如果arm64机器可以直接oras拉取amd64镜像里面的内容的话 那就不是问题
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmadactl-latest karmadactl
+          make karmadactl GOARCH=arm64
+          mv _output/bin/linux/arm64/karmadactl .
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmadactl-linux-arm64-latest karmadactl
+
+          # build crds
+          cd  charts/karmada/
+          cp -r _crds crds
+          tar -zcvf crds.tar.gz crds
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:karmada-crds-latest crds.tar.gz
+
+  etcd:
+    name: buildetcd
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: etcd-io/etcd
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+      - name: build
+        run: |
+          make
+          cd bin
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest etcd  etcdctl  etcdutl
+          cd ..
+          rm -rf bin
+          make build-linux-arm64
+          cd bin
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-linux-arm64-latest etcd  etcdctl  etcdutl
+

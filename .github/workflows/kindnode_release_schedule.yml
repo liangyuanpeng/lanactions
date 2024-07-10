@@ -31,7 +31,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "latest"
+        default: "stable"
         type: string
       tagWithKind:
         description: 'is it need to add kind version for tag'
@@ -46,7 +46,6 @@ on:
 
   schedule:
     - cron: '0 19 * * 0,1,2,3,4,5,6'
-    # - cron: '0 3 * * 0,6'
 env:
   GH_TOKEN: ${{ github.token }}
 
@@ -54,13 +53,9 @@ jobs:
 # #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
   gettags:
     runs-on: ubuntu-24.04
-    if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     TAG_WITH_KIND: ["0","1"]
+    if: ${{ github.repository == 'liangyuanpeng/lanactions' || github.repository == 'lank8scn/lanactions' }}
+    # if: ${{ github.repository == 'lank8scn/lanactions' }}
     env:
-      # TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
     outputs:
@@ -70,14 +65,14 @@ jobs:
     steps:
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: gher
         id: gher
         run: |
           export TAG_WITH_KIND=true
           echo "inputs.kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
-          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
             KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
           fi
           if [ "${{ inputs.kindVersion }}" = "" ];then
@@ -107,7 +102,6 @@ jobs:
       fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
-        #TODO 构建每个分支的latest， 例如 ghcr.io/liangyuanpeng/kindest/node:v0.23.0-v1.29
         kindVersion:
         - ${{ needs.gettags.outputs.kindVersion }}
     with:
@@ -115,3 +109,20 @@ jobs:
       maketag: false
       repo: "kubernetes/kubernetes"
       kindVersion: ${{ matrix.kindVersion }}
+
+  build-testnode:
+    if: ${{ github.repository == 'lank8scn/lanactions' }}
+    name: build-kindnode
+    uses: ./.github/workflows/kindnode_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: 
+        - master
+        - release-1.30
+        - release-1.29
+    with:
+      repo: kubernetes/kubernetes
+      ref: ${{ matrix.ref }}
+      imgname: testnode
+

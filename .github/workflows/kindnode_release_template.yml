@@ -46,7 +46,7 @@ on:
       kindVersion:
         description: 'version of kind,latest by default.'
         required: false
-        default: "latest"
+        default: "stable"
         type: string
       # triggerIssueCommentId:
       #   description: 'triggerIssueCommentId'
@@ -73,6 +73,11 @@ on:
         required: false
         default: "node"
         type: string
+      commitid:
+        description: 'commitid'
+        required: false
+        default: "node"
+        type: string
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -88,7 +93,7 @@ jobs:
 
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -106,21 +111,11 @@ jobs:
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
           echo "cloning repo:"${{ inputs.repo }}
-
-#TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
-#TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
-  release:
-    name: release-${{ inputs.ref }}
-    runs-on: ubuntu-22.04
-    needs: saverunid
-    permissions:
-      packages: write
-    steps:
+          echo "commitid:"${{ inputs.commitid }}
 
       - name: make default value
         id: genoutputs
         env:
-          KINDVERSION: ${{ inputs.kindVersion }}
           REF: ${{ inputs.ref }}
           MAKETAG: ${{ inputs.maketag }}
         run: |
@@ -128,7 +123,55 @@ jobs:
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
           export KIND_VERSION=${{ inputs.kindVersion }}
-          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
+            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            cat kind.version
+            KIND_VERSION=`cat kind.version`
+            #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$MAKETAG" = "" ];then
+              echo "maketag=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
+          fi
+          echo "kindVersion=$KIND_VERSION" >> "$GITHUB_OUTPUT"
+
+#TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
+#TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
+#TODO 根据commitid 检查镜像,如果存在则不继续了,checkout还是挺耗时的
+#TODO 如果是 lank8scn 的话就检查下 liangyuanpeng 下是否有对应的镜像,如果没有则 skopeo 复制一份过去, 减少liangyuanpeng github action 运行
+  release:
+    name: release-${{ inputs.ref }}
+    runs-on: ubuntu-24.04
+    needs: saverunid
+    permissions:
+      packages: write
+    steps:
+
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ inputs.ref }}
+          MAKETAG: ${{ inputs.maketag }}
+        run: |
+          sudo apt install -y tree
+          echo "inputs.maketag:"${{ inputs.maketag }}
+          echo "inputs.repo:"${{ inputs.repo }}
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
             cat kind.version
             KIND_VERSION=`cat kind.version`
@@ -159,10 +202,6 @@ jobs:
           kind --version
           kind build node-image -h
 
-      - uses: oras-project/setup-oras@main
-        with:
-          version: 1.1.0
-
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -185,6 +224,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: make tag
         if: steps.genoutputs.outputs.maketag == 'true'
         run: |
@@ -215,13 +261,6 @@ jobs:
           version_line=`hack/print-workspace-status.sh | grep 'STABLE_DOCKER_TAG'`
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           echo "KUBE_VERSION:"$KUBE_VERSION
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: $GITHUB_REPOSITORY_OWNER
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: rebuild init message
         run: |
@@ -262,7 +301,7 @@ jobs:
       - name: build
         id: build
         run: |
-          
+          #ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
           git branch
           #git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
@@ -319,6 +358,15 @@ jobs:
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
 
+          if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
+          fi
+
+
           # kind build node-image ../kubernetes
 
           # kind build node-image --image ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG --kube-root $PWD/../
@@ -363,11 +411,6 @@ jobs:
           kubectl wait --timeout=1m --for=condition=ready pods test
           kubectl get pods -A -owide
 
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: result
-      #     path: /tmp/result.txt
-
       - name: save outputs 
         id: saveoutputs
         run: |
@@ -387,3 +430,4 @@ jobs:
           echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
           echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
+

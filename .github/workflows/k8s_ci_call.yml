@@ -78,7 +78,7 @@ jobs:
     steps:
     - uses: oras-project/setup-oras@main
       with:
-        version: 1.1.0
+        version: 1.2.0
     - name: checkoutactions
       uses: actions/checkout@v4
       with:
@@ -202,7 +202,7 @@ jobs:
     steps:
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -263,7 +263,7 @@ jobs:
 
   pk-e2e-kind-cloud-provider-loadbalancer:
     name: pk-e2e-kind-cloud-provider-loadbalancer
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: getcommitid
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -281,7 +281,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       # - name: checkoutactions
       #   uses: actions/checkout@v4
       #   with:
@@ -312,6 +312,66 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
+  integration:  
+    name: integration
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+        etcd:
+          - build-in
+          - etcd-main
+    needs: getcommitid
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: install etcd
+        run: |
+          if [ ${{ matrix.etcd }} = "build-in" ];then 
+            hack/install-etcd.sh
+          fi
+          sudo mkdir -p $PWD/third_party/etcd/
+          if [ ${{ matrix.etcd }} = "build-main" ];then 
+            oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest
+            chmod +x etcd
+            chmod +x etcdctl
+            chmod +x etcdutl
+            mv etcd $PWD/third_party/etcd/
+            mv etcdctl $PWD/third_party/etcd/
+            mv etcdutl $PWD/third_party/etcd/
+            #/usr/local/bin/
+          fi
+      - name: run
+        run: |
+          # https://github.com/kubernetes/community/blob/master/contributors/devel/sig-testing/integration-tests.md#install-etcd-dependency
+          
+          export PATH=$PATH:$PWD/third_party/etcd/
+          make test-integration
+
   pk-integration:
     name: pk-integration
     runs-on: ubuntu-22.04
@@ -329,7 +389,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -340,6 +400,12 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: kubernetes/kubernetes
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
       - name: run
         run: |
           mkdir -p gopath 
@@ -375,7 +441,7 @@ jobs:
           go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -438,12 +504,12 @@ jobs:
       # PARALLEL: true
       PARALLEL: ${{ matrix.parallel }}
     steps:
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
+      # - uses: actions/setup-go@v5
+      #   with:
+      #     go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -460,6 +526,9 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: run
         run: |
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
@@ -515,7 +584,7 @@ jobs:
           swap-storage: true
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -548,14 +617,16 @@ jobs:
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-
   pk-unit:
     name: pk-unit
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 6
       fail-fast: false
       matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
         goversion:
           - "go.mod"
           # - "1.22.1"
@@ -582,7 +653,7 @@ jobs:
           go-version: ${{ matrix.goversion }}
       - uses: oras-project/setup-oras@main
         with:
-          version: 1.1.0
+          version: 1.2.0
       - uses: actions/setup-go@v5
         if: matrix.goversion == 'go.mod'
         with:
