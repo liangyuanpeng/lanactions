@@ -36,8 +36,9 @@ import (
 
 func main() {
 	// oteldemo()
-	svcdemo()
+	// svcdemo()
 	// ghdemo()
+	preditdemo()
 }
 
 func svcdemo() {
@@ -105,6 +106,29 @@ func svcdemo() {
 	klog.Infof("the latest serviceStatus loadBalancer: %v", latestSvc.Status.LoadBalancer)
 	if latestSvc.Status.LoadBalancer.Ingress[0].IPMode != nil {
 		klog.Infof("ipmode:%v", *latestSvc.Status.LoadBalancer.Ingress[0].IPMode)
+	}
+
+}
+
+func preditdemo() {
+	ghtoken := os.Getenv("GITHUB_TOKEN")
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: ghtoken},
+	)
+	tc := oauth2.NewClient(context.TODO(), ts)
+	ghclient := github.NewClient(tc)
+	pr, _, err := ghclient.PullRequests.Get(context.TODO(), "liangyuanpeng", "karmada", 68)
+	if err != nil {
+		panic(err)
+	}
+	klog.Info("body:", pr.GetBody())
+	*pr.Body = pr.GetBody() + "\n ```release-note \n test \n ```"
+
+	klog.Info("body2:", pr.GetBody())
+
+	_, _, err = ghclient.PullRequests.Edit(context.TODO(), "liangyuanpeng", "karmada", 60, pr)
+	if err != nil {
+		panic(err)
 	}
 
 }

@@ -28,6 +28,11 @@ on:
 permissions: read-all
 jobs:
 
+#TODO ocm: clusteradm
+#TODO kubectl-ns   openkruise命令行
+#TODO kubebuilder/operator-sdk/xlinectl/kcl
+#TODO krew, 这样就可以用 krew安装插件,例如kubectl-ns
+
   build-hydrophone:
     name: build-hydrophone
     permissions:
