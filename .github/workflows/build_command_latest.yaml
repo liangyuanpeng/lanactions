@@ -30,6 +30,8 @@ jobs:
 
   build-hydrophone:
     name: build-hydrophone
+    permissions:
+      packages: write
     uses: ./.github/workflows/hydrophone_release_template.yml
 
   karmadactl:
