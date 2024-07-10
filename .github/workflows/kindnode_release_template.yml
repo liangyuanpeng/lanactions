@@ -46,7 +46,7 @@ on:
       kindVersion:
         description: 'version of kind,latest by default.'
         required: false
-        default: "latest"
+        default: "stable"
         type: string
       # triggerIssueCommentId:
       #   description: 'triggerIssueCommentId'
@@ -70,6 +70,11 @@ on:
         type: string
       imgname:
         description: 'node'
+        required: false
+        default: "node"
+        type: string
+      commitid:
+        description: 'commitid'
         required: false
         default: "node"
         type: string
@@ -106,9 +111,43 @@ jobs:
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
           rm -f result.txt
           echo "cloning repo:"${{ inputs.repo }}
+          echo "commitid:"${{ inputs.commitid }}
+
+      - name: make default value
+        id: genoutputs
+        env:
+          REF: ${{ inputs.ref }}
+          MAKETAG: ${{ inputs.maketag }}
+        run: |
+          sudo apt install -y tree
+          echo "inputs.maketag:"${{ inputs.maketag }}
+          echo "inputs.repo:"${{ inputs.repo }}
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
+            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            cat kind.version
+            KIND_VERSION=`cat kind.version`
+            #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+          if [ "$REF" = "" ];then
+              echo "ref=master" >> "$GITHUB_OUTPUT"
+          else
+              echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          fi
+          if [ "$MAKETAG" = "" ];then
+              echo "maketag=true" >> "$GITHUB_OUTPUT"
+          else
+              echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
+          fi
+          echo "kindVersion=$KIND_VERSION" >> "$GITHUB_OUTPUT"
 
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
 #TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
+#TODO 根据commitid 检查镜像,如果存在则不继续了,checkout还是挺耗时的
   release:
     name: release-${{ inputs.ref }}
     runs-on: ubuntu-24.04
@@ -117,10 +156,13 @@ jobs:
       packages: write
     steps:
 
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
       - name: make default value
         id: genoutputs
         env:
-          KINDVERSION: ${{ inputs.kindVersion }}
           REF: ${{ inputs.ref }}
           MAKETAG: ${{ inputs.maketag }}
         run: |
@@ -128,7 +170,7 @@ jobs:
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
           export KIND_VERSION=${{ inputs.kindVersion }}
-          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
             cat kind.version
             KIND_VERSION=`cat kind.version`
@@ -158,10 +200,6 @@ jobs:
           mv kind-linux-amd64 /usr/local/bin/kind
           kind --version
           kind build node-image -h
-
-      - uses: oras-project/setup-oras@main
-        with:
-          version: 1.2.0
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)

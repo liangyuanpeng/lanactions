@@ -211,6 +211,7 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
       imgname: testnode
+      commitid: ${{ needs.getcommitid.outputs.commitID }}
 
   # build-kind:
   # #TODO 上传 kubernetes/hack/ginkgo-e2e.sh?
