@@ -298,14 +298,10 @@ jobs:
           pwd
           go version
 
-
-
       - name: build
         id: build
         run: |
-
           #ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
-          
           git branch
           #git describe
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
@@ -362,6 +358,15 @@ jobs:
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
 
+          if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
+          fi
+
+
           # kind build node-image ../kubernetes
 
           # kind build node-image --image ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG --kube-root $PWD/../
@@ -406,11 +411,6 @@ jobs:
           kubectl wait --timeout=1m --for=condition=ready pods test
           kubectl get pods -A -owide
 
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: result
-      #     path: /tmp/result.txt
-
       - name: save outputs 
         id: saveoutputs
         run: |
@@ -430,3 +430,4 @@ jobs:
           echo "GH_RUN_ID=${{ github.run_id }}" > result.txt
           echo "GH_REPO=$GITHUB_REPOSITORY" >> result.txt
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind-buildrun:$IMGTAG result.txt
+

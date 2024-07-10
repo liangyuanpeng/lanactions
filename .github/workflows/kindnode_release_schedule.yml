@@ -54,7 +54,8 @@ jobs:
 # #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
   gettags:
     runs-on: ubuntu-24.04
-    if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
+    # if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
+    if: ${{ github.repository == 'lank8scn/lanactions' }}
     # strategy:
     #   fail-fast: false
     #   matrix:
@@ -107,7 +108,6 @@ jobs:
       fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
-        #TODO 构建每个分支的latest， 例如 ghcr.io/liangyuanpeng/kindest/node:v0.23.0-v1.29
         kindVersion:
         - ${{ needs.gettags.outputs.kindVersion }}
     with:
