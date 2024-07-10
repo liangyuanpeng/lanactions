@@ -354,19 +354,21 @@ jobs:
           if [ ${{ matrix.etcd }} = "build-in" ];then 
             hack/install-etcd.sh
           fi
+          sudo mkdir -p $PWD/third_party/etcd/
           if [ ${{ matrix.etcd }} = "build-main" ];then 
             oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest
             chmod +x etcd
             chmod +x etcdctl
             chmod +x etcdutl
-            mv etcd /usr/local/bin/
-            mv etcdctl /usr/local/bin/
-            mv etcdutl /usr/local/bin/
+            mv etcd $PWD/third_party/etcd/
+            mv etcdctl $PWD/third_party/etcd/
+            mv etcdutl $PWD/third_party/etcd/
+            #/usr/local/bin/
           fi
       - name: run
         run: |
           # https://github.com/kubernetes/community/blob/master/contributors/devel/sig-testing/integration-tests.md#install-etcd-dependency
-          sudo mkdir -p $PWD/third_party/etcd/
+          
           export PATH=$PATH:$PWD/third_party/etcd/
           make test-integration
 
