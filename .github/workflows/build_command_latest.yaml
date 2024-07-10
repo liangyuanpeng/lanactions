@@ -28,7 +28,9 @@ on:
 permissions: read-all
 jobs:
 
-#TODO hydrophone
+  build-hydrophone:
+    name: build-hydrophone
+    uses: ./.github/workflows/hydrophone_release_template.yml
 
   karmadactl:
     name: buildkarmada
