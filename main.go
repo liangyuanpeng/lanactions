@@ -117,22 +117,26 @@ func preditdemo() {
 	)
 	tc := oauth2.NewClient(context.TODO(), ts)
 	ghclient := github.NewClient(tc)
-	pr, _, err := ghclient.PullRequests.Get(context.TODO(), "liangyuanpeng", "karmada", 68)
+
+	owner := "liangyuanpeng"
+	repo := "karmada"
+	prnum := 65
+	// ^^^ can read it from prowjob env
+
+	pr, _, err := ghclient.PullRequests.Get(context.TODO(), owner, repo, prnum)
 	if err != nil {
 		panic(err)
 	}
-	klog.Info("body:", pr.GetBody())
-	*pr.Body = pr.GetBody() + "\n ```release-note \n test \n ```"
-	*pr.MaintainerCanModify = true
 
-	klog.Info("body2:", pr.GetBody())
+	releaseNote := "The base image `alpine` has been bumped from 3.20.0 to 3.20.1 "
+	// parse title to get it ^^^
 
-	body := "```release-note\nhello\n```"
-	newpr := &github.PullRequest{
-		Body: &body,
+	newbody := pr.GetBody() + "```release-note\n  .  \n```"
+	updatepr := &github.PullRequest{
+		Body: &newbody,
 	}
 
-	_, _, err = ghclient.PullRequests.Edit(context.TODO(), "liangyuanpeng", "karmada", 68, newpr)
+	_, _, err = ghclient.PullRequests.Edit(context.TODO(), owner, repo, prnum, updatepr)
 	if err != nil {
 		panic(err)
 	}
