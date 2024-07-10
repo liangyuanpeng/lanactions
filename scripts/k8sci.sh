@@ -7,14 +7,20 @@ function util::getbuild(){
   STEP_WHAT=${STEP_WHAT:-"none"}
   KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
   if [ $STEP_WHAT = "getbuild" ];then 
-    wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
+    if [ $KIND_VERSION = "latest" ];then 
+      echo "download latest version of kind."
+    else 
+      wget -q https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
     chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+    fi
+    
   fi
 }
 
 # kind create cluster --image $KIND_IMG_REGISTRY/$KIND_IMG_USER/${KIND_IMG_REPO}:v0.22.0-v1.31.0-alpha.0-368-g47ad87e95fe
 function util::deployk8s(){
   #TODO 支持使用vagrant部署虚拟机,在虚拟机里面跑测试?
+  #TODO 部署一个staticpod, 测试过程中加入一个 etcd learner
   STEP_WHAT=${STEP_WHAT:-"none"}
 
    # deployk8s, runtests
@@ -28,7 +34,16 @@ function util::deployk8s(){
     # chmod +x /usr/local/bin/docker-compose
     # docker-compose -f docker-compose-jaeger-only.yml up -d 
 
-    export KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
+    export KIND_VERSION=${KIND_VERSION:-"stable"}
+
+    if [ "$KIND_VERSION" = "stable" ];then
+      gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+      cat kind.version
+      # KIND_VERSION=`cat kind.version`
+      KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+      echo $KIND_VERSION
+    fi
+
     export IMGTAG=${IMGTAG:-"v1.30.0"}
     export STORAGE_MEDIA_TYPE=${STORAGE_MEDIA_TYPE:-"json"}
     export KIND_IMG_REPO=${KIND_IMG_REPO:-"kindest/testnode"}

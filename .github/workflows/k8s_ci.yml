@@ -36,7 +36,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.23.0"
+        default: "stable"
         type: string
       hydrophone:
         description: 'hydrophone'
@@ -126,6 +126,14 @@ jobs:
 
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
           cd kubernetes
+
+          if [ "$KIND_VERSION" = "stable" ];then
+            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            cat kind.version
+            # KIND_VERSION=`cat kind.version`
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
 
           if [ $INPUT_COMMID_ID != "none" ];then
             git reset --hard $INPUT_COMMID_ID
@@ -217,123 +225,6 @@ jobs:
   # #TODO 上传 kubernetes/hack/ginkgo-e2e.sh?
   # #TODO 一起上传 kubebins?
   # # TODO 构建 cross,  make cross
-  #   name: build-kind
-  #   needs: getcommitid
-  #   # if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
-  #   permissions:
-  #     packages: write
-  #   runs-on: ubuntu-22.04
-  #   env:
-  #     COMMIT_ID: ${{ needs.getcommitid.outputs.commitID }}
-  #     KIND_VERSION: ${{ inputs.kindVersion }}
-  #   steps:
-  #     - name: make default value
-  #       id: genoutputs
-  #       env:
-  #         REF: ${{ github.event.inputs.ref }}
-  #         REPO: ${{ github.event.inputs.repo }}
-  #       run: |
-  #         if [ "$REF" = "" ];then
-  #             echo "ref=master" >> "$GITHUB_OUTPUT"
-  #         else
-  #             echo "ref=$REF" >> "$GITHUB_OUTPUT"
-  #         fi
-
-  #         if [ "$REPO" = "" ];then
-  #             echo "repo=kubernetes/kubernetes" >> "$GITHUB_OUTPUT"
-  #         else
-  #             echo "repo=$REPO" >> "$GITHUB_OUTPUT"
-  #         fi
-
-  #     - name: checkoutactions
-  #       if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: kubernetes/kubernetes
-  #         # repository: ${{ inputs.repo }}
-  #         fetch-depth: 0
-  #         ref: ${{ inputs.ref }}
-
-  #     - name: check out to commitid
-  #       if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
-  #       run: |
-  #         echo "COMMIT_ID:"$COMMIT_ID
-  #         pwd
-  #         if [ $COMMIT_ID != "none" ];then
-  #           git reset --hard $COMMIT_ID
-  #           git log --pretty=format:"%s" $COMMIT_ID -1
-  #           exit 0
-  #         fi
-  #         LATEST_COMMIT=`git rev-parse HEAD`
-  #         git log --pretty=format:"%s" $LATEST_COMMIT -1
-
-  #     - uses: oras-project/setup-oras@main
-  #       with:
-  #         version: 1.2.0
-
-  #     - name: checkimgs
-  #       if: ${{ needs.getcommitid.outputs.existTestnode == 'false' }}
-  #       id: checkimgs
-  #       run: |
-  #         docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-  #         IMGTAG=`git describe --tags`
-  #         echo "imgtag=${IMGTAG}" >> "$GITHUB_OUTPUT"
-  #         echo "check images for ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:"$KIND_VERSION-$IMGTAG
-
-  #         IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
-  #         if [ $IMAGE_EXIST -eq 1 ]; then
-  #           echo "exist testnode"
-  #           echo "exist=true" >> "$GITHUB_OUTPUT"
-  #         else 
-  #           echo "exist=false" >> "$GITHUB_OUTPUT"
-  #         fi
-
-  #     - uses: actions/setup-go@v5
-  #       if: steps.checkimgs.outputs.exist == 'false'
-  #       with:
-  #         go-version: '1.22'
-
-  #     - name: clean
-  #       if: steps.checkimgs.outputs.exist == 'false'
-  #       run: |
-  #         docker login ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-  #         nohup docker rmi `docker images -aq` &
-  #         rm -rf /opt/hostedtoolcache/CodeQL
-  #         rm -rf /opt/hostedtoolcache/node
-  #         rm -rf /opt/hostedtoolcache/Python
-
-  #     - name: download kind
-  #       if: steps.checkimgs.outputs.exist == 'false'
-  #       run: |
-  #         wget -q https://github.com/kubernetes-sigs/kind/releases/download/$KIND_VERSION/kind-linux-amd64
-  #         chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
-
-  #     # Free up disk space on Ubuntu
-  #     - name: Free Disk Space (Ubuntu)
-  #       if: steps.checkimgs.outputs.exist == 'false'
-  #       uses: jlumbroso/free-disk-space@main
-  #       with:
-  #         # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
-  #         tool-cache: true
-  #         # all of these default to true, but feel free to set to "false" if necessary for your workflow
-  #         android: true
-  #         dotnet: true
-  #         haskell: true
-  #         large-packages: false
-  #         docker-images: true
-  #         swap-storage: false
-
-  #     - name: build kind node
-  #       id: build-kind-node
-  #       if: steps.checkimgs.outputs.exist == 'false'
-  #       run: |
-  #         IMGTAG=`git describe --tags`
-  #         mkdir -p tmp
-  #         cd tmp
-  #         kind build node-image --image ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  --kube-root $PWD/../
-  #         cd ..
-  #         rm -rf tmp
-  #         docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG
 
   build-k8sbins-arm:
     name: build-k8sbins-arm
