@@ -46,7 +46,6 @@ on:
 
   schedule:
     - cron: '0 19 * * 0,1,2,3,4,5,6'
-    # - cron: '0 3 * * 0,6'
 env:
   GH_TOKEN: ${{ github.token }}
 
@@ -54,14 +53,9 @@ jobs:
 # #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
   gettags:
     runs-on: ubuntu-24.04
-    # if: ${{ github.repository == 'liangyuanpeng/lanactions' }}
-    if: ${{ github.repository == 'lank8scn/lanactions' }}
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     TAG_WITH_KIND: ["0","1"]
+    if: ${{ github.repository == 'liangyuanpeng/lanactions' || github.repository == 'lank8scn/lanactions' }}
+    # if: ${{ github.repository == 'lank8scn/lanactions' }}
     env:
-      # TAG_WITH_KIND: ${{ inputs.tagWithKind }}
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
     outputs:
@@ -115,3 +109,20 @@ jobs:
       maketag: false
       repo: "kubernetes/kubernetes"
       kindVersion: ${{ matrix.kindVersion }}
+
+  build-testnode:
+    if: ${{ github.repository == 'lank8scn/lanactions' }}
+    name: build-kindnode
+    uses: ./.github/workflows/kindnode_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: 
+        - master
+        - release-1.30
+        - release-1.29
+    with:
+      repo: kubernetes/kubernetes
+      ref: ${{ matrix.ref }}
+      imgname: testnode
+
