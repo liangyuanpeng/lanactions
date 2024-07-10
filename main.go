@@ -123,10 +123,16 @@ func preditdemo() {
 	}
 	klog.Info("body:", pr.GetBody())
 	*pr.Body = pr.GetBody() + "\n ```release-note \n test \n ```"
+	*pr.MaintainerCanModify = true
 
 	klog.Info("body2:", pr.GetBody())
 
-	_, _, err = ghclient.PullRequests.Edit(context.TODO(), "liangyuanpeng", "karmada", 60, pr)
+	body := "```release-note\nhello\n```"
+	newpr := &github.PullRequest{
+		Body: &body,
+	}
+
+	_, _, err = ghclient.PullRequests.Edit(context.TODO(), "liangyuanpeng", "karmada", 68, newpr)
 	if err != nil {
 		panic(err)
 	}
