@@ -57,6 +57,8 @@ function util::deployk8s(){
     #TODO 1. 开启了apiserver-network-proxy的 k8s集群
     export ADDON_WHAT=${ADDON_WHAT:-"none"}
 
+    nohup docker pull ${KIND_IMG_REGISTRY}/${KIND_IMG_USER}/${KIND_IMG_REPO}:${KIND_VERSION}-${IMGTAG} &
+
     export ETCD_VERSION=${ETCD_VERSION:-"v3.5.14"}
     wget -q https://github.com/etcd-io/etcd/releases/download/${ETCD_VERSION}/etcd-${ETCD_VERSION}-linux-amd64.tar.gz
     tar -xf etcd-${ETCD_VERSION}-linux-amd64.tar.gz && rm -f etcd-${ETCD_VERSION}-linux-amd64.tar.gz
