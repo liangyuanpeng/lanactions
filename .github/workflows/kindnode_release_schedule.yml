@@ -124,10 +124,13 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
-    - name: run
+    - name: go mod tidy
       run: |
         cd hack/release-latester
         go mod tidy 
+    - name: run
+      run: |
+        cd hack/release-latester
         go run main.go
 
   build-testnode:
