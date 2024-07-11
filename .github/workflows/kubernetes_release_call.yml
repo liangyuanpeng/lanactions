@@ -43,7 +43,6 @@ permissions:
 jobs:
 
   #TODO 自动获取最新的3个release branch
-
   buildk8s:
     name: buildk8s
     uses: ./.github/workflows/kubernetes_release_template.yml

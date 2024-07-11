@@ -48,6 +48,9 @@ on:
     - cron: '0 19 * * 0,1,2,3,4,5,6'
 env:
   GH_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+permissions: read-all
 
 jobs:
 # #/kind_build_auto kindVersion=v0.23.0&tagWithKind=true&k8sMinVersion=v1.27.0
@@ -84,6 +87,7 @@ jobs:
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
           ./gher > tags.json
+          cat tags.json
           list=$(cat tags.json | jq .tags | jq -c )
           tagslength=$(cat tags.json | jq '.tags | length' )
           echo "list:"${list}
@@ -98,6 +102,8 @@ jobs:
     - gettags
     uses: ./.github/workflows/kindnode_release_template.yml
     if: ${{ needs.gettags.outputs.tagslength > 0 }}
+    permissions:
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -110,17 +116,52 @@ jobs:
       repo: "kubernetes/kubernetes"
       kindVersion: ${{ matrix.kindVersion }}
 
+  getreleases:
+    name: getreleases
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: go mod tidy
+      run: |
+        cd hack/release-latester
+        go mod tidy 
+    - name: run
+      id: run
+      run: |
+        cd hack/release-latester
+        go run main.go > refs.json
+        cat refs.json
+        list=$(cat refs.json | jq .refs | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+        # echo "::set-output name=ref::${list} "  
+
   build-testnode:
+    needs:
+    - getreleases
     if: ${{ github.repository == 'lank8scn/lanactions' }}
+    permissions:
+      packages: write
     name: build-kindnode
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
       fail-fast: false
       matrix:
-        ref: 
-        - master
-        - release-1.30
-        - release-1.29
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+        # - master
+        # - release-1.30
+        # - release-1.29
+        # - release-1.28
     with:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}

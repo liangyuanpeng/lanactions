@@ -148,7 +148,6 @@ jobs:
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
 #TODO 在saverunid job 里面解析kindVersion,然后把结果拼接到release这个job里面，可以直观的看到kindVersion
 #TODO 根据commitid 检查镜像,如果存在则不继续了,checkout还是挺耗时的
-#TODO 如果是 lank8scn 的话就检查下 liangyuanpeng 下是否有对应的镜像,如果没有则 skopeo 复制一份过去, 减少liangyuanpeng github action 运行
   release:
     name: release-${{ inputs.ref }}
     runs-on: ubuntu-24.04
@@ -202,6 +201,21 @@ jobs:
           kind --version
           kind build node-image -h
 
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to GHCR from token
+        if: ${{ github.repository == 'lank8scn/lanactions' }}
+        run: |
+          oras pull ghcr.io/lank8scn/lanfiles:actiontoken
+          ACTION_TOKEN=`cat actiontoken`
+          oras login ghcr.io -ulank8scn -p$ACTION_TOKEN
+
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -224,13 +238,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: $GITHUB_REPOSITORY_OWNER
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: make tag
         if: steps.genoutputs.outputs.maketag == 'true'
         run: |
