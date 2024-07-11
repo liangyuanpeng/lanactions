@@ -212,11 +212,10 @@ jobs:
 
       - name: Login to GHCR from token
         if: ${{ github.repository == 'lank8scn/lanactions' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: $GITHUB_REPOSITORY_OWNER
-          password: ${{ secrets.ACTION_TOKEN }}
+        run: |
+          oras pull ghcr.io/lank8scn/lanfiles:actiontoken
+          ACTION_TOKEN=`cat actiontoken`
+          oras login ghcr.io -ulank8scn -p$ACTION_TOKEN
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
