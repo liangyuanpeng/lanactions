@@ -87,6 +87,7 @@ jobs:
           oras pull ghcr.io/lank8scn/files:gher 
           chmod +x gher 
           ./gher > tags.json
+          cat tags.json
           list=$(cat tags.json | jq .tags | jq -c )
           tagslength=$(cat tags.json | jq '.tags | length' )
           echo "list:"${list}
@@ -118,6 +119,9 @@ jobs:
   getreleases:
     name: getreleases
     runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
     steps:
     - name: checkoutactions
       uses: actions/checkout@v4
@@ -129,11 +133,21 @@ jobs:
         cd hack/release-latester
         go mod tidy 
     - name: run
+      id: run
       run: |
         cd hack/release-latester
-        go run main.go
+        go run main.go > refs.json
+        list=$(cat refs.json | jq .tags | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+        # echo "::set-output name=ref::${list} "  
 
   build-testnode:
+    needs:
+    - getreleases
     if: ${{ github.repository == 'lank8scn/lanactions' }}
     permissions:
       packages: write
@@ -142,11 +156,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: 
-        - master
-        - release-1.30
-        - release-1.29
-        - release-1.28
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+        # - master
+        # - release-1.30
+        # - release-1.29
+        # - release-1.28
     with:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
