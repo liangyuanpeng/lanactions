@@ -30,19 +30,52 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
+
+
+  getreleases:
+    name: getreleases
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: go mod tidy
+      run: |
+        cd hack/release-latester
+        go mod tidy 
+    - name: run
+      id: run
+      run: |
+        cd hack/release-latester
+        go run main.go > refs.json
+        cat refs.json
+        list=$(cat refs.json | jq .refs | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+        # echo "::set-output name=ref::${list} "  
+
   build-kindnode:
     name: build-kindnode-${{ matrix.ref }}
+    needs:
+    - getreleases
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
       max-parallel: 6
       fail-fast: false
       matrix:
-      #TODO 机器人自动化提PR更新下面的列表
-        ref:
-        - master 
-        - release-1.30
-        - release-1.29
-        - release-1.28
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+        # - master 
+        # - release-1.30
+        # - release-1.29
+        # - release-1.28
     with:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
@@ -50,7 +83,8 @@ jobs:
 
   k8sci:
     name: k8sci
-    needs: build-kindnode
+    needs: 
+    - build-kindnode
     # if: always()
     uses: ./.github/workflows/k8s_ci.yml
     strategy:
@@ -67,13 +101,12 @@ jobs:
           # - conformance-aggregator
           # - sig-apps
           # - statefulset
-        ref: 
-        - master 
-        - release-1.30
-        - release-1.29
-        - release-1.28
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+        # - master 
+        # - release-1.30
+        # - release-1.29
+        # - release-1.28
     with:
-      # repo: ${{ matrix.repo }}
       ref: ${{ matrix.ref }}
       testname: ${{ matrix.tests }}
 
