@@ -122,8 +122,12 @@ jobs:
       with:
         go-version-file: go.mod
     - name: run
+      env:
+        GITHUB_TOkEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        go run hack/release-latester/main.go
+        cd hack/release-latester
+        go mod tidy 
+        go run main.go
 
   build-testnode:
     if: ${{ github.repository == 'lank8scn/lanactions' }}
