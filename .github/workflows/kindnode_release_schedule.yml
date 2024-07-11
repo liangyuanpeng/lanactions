@@ -98,6 +98,8 @@ jobs:
     - gettags
     uses: ./.github/workflows/kindnode_release_template.yml
     if: ${{ needs.gettags.outputs.tagslength > 0 }}
+    permissions:
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -112,6 +114,8 @@ jobs:
 
   build-testnode:
     if: ${{ github.repository == 'lank8scn/lanactions' }}
+    permissions:
+      packages: write
     name: build-kindnode
     uses: ./.github/workflows/kindnode_release_template.yml
     strategy:
