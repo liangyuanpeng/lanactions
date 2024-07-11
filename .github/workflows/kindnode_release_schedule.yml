@@ -138,7 +138,7 @@ jobs:
         cd hack/release-latester
         go run main.go > refs.json
         cat refs.json
-        list=$(cat refs.json | jq .tags | jq -c )
+        list=$(cat refs.json | jq .refs | jq -c )
         refslength=$(cat refs.json | jq '.refs | length' )
         echo "list:"${list}
         echo "refslength:"${refslength}
