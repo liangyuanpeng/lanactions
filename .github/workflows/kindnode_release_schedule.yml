@@ -112,6 +112,18 @@ jobs:
       repo: "kubernetes/kubernetes"
       kindVersion: ${{ matrix.kindVersion }}
 
+  getreleases:
+    name: getreleases
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: run
+      run: |
+        hack/release-latester/main.go
+
   build-testnode:
     if: ${{ github.repository == 'lank8scn/lanactions' }}
     permissions:

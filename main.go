@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -19,6 +20,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/karmada-io/karmada/pkg/sharedcli/klogflag"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -36,6 +38,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/klog/v2"
 )
 
@@ -48,7 +51,18 @@ func main() {
 	latestReleaseRef()
 }
 
+type Vrefs struct {
+	Vrefs []string `json:"refs"`
+}
+
 func latestReleaseRef() {
+
+	fss := cliflag.NamedFlagSets{}
+
+	// Set klog flags
+	logsFlagSet := fss.FlagSet("logs")
+	klogflag.Add(logsFlagSet)
+
 	ghtoken := os.Getenv("GITHUB_TOKEN")
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: ghtoken},
@@ -109,7 +123,7 @@ func latestReleaseRef() {
 		// log.Println("ref.name:", ref, lastReleases)
 
 	}
-	log.Println(lastReleasesTmp.List())
+	klog.V(4).Info(lastReleasesTmp.List())
 	strs := lastReleasesTmp.List()
 	// sort.Strings(strs)
 	// log.Println(strs)
@@ -121,7 +135,7 @@ func latestReleaseRef() {
 	for _, s := range strs {
 		v, err := strconv.Atoi(s)
 		if err != nil {
-			log.Println("parse failed!", err)
+			klog.V(4).ErrorS(err, "parse failed!")
 			continue
 		}
 		lastReleasesNums = append(lastReleasesNums, v)
@@ -129,19 +143,34 @@ func latestReleaseRef() {
 	// sort.Ints(lastReleasesInts)
 	sort.Ints(lastReleasesNums)
 	// slices.Sort(lastReleasesInts)
-	log.Println(lastReleasesNums)
+	klog.V(4).Info(lastReleasesNums)
 
-	log.Println("sort with slices............")
+	klog.V(4).Info("sort with slices............")
 	slices.Sort(lastReleasesNums)
-	log.Println(lastReleasesNums)
+	klog.V(4).Info(lastReleasesNums)
 
 	lastReleases := sets.NewString()
-	lastReleases.Insert("master")
-	for _, v := range lastReleasesNums {
+
+	for i := len(lastReleasesNums) - 1; i > 0; i-- {
+		v := lastReleasesNums[i]
 		refv := fmt.Sprintf("release-1.%d", v)
 		lastReleases.Insert(refv)
+		if lastReleases.Len() >= 3 {
+			break
+		}
 	}
-	log.Println(lastReleases.List())
+
+	lastReleases.Insert("master")
+	klog.V(4).Info(lastReleases.List())
+	vrefs := &Vrefs{
+		Vrefs: lastReleases.List(),
+	}
+	klog.V(4).Info("vrefs:", vrefs)
+	data, err3 := json.Marshal(vrefs)
+	if err3 != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(data))
 
 }
 
