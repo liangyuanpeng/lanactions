@@ -114,6 +114,7 @@ jobs:
 
   getreleases:
     name: getreleases
+    runs-on: ubuntu-24.04
     steps:
     - name: checkoutactions
       uses: actions/checkout@v4
