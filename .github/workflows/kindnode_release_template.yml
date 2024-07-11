@@ -230,7 +230,15 @@ jobs:
           registry: ghcr.io
           username: $GITHUB_REPOSITORY_OWNER
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
+      - name: Login to GHCR
+        if: ${{ github.repository == 'lank8scn/lanactions' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: lank8scn
+          password: ${{ secrets.ACTION_TOKEN }}
+
       - name: make tag
         if: steps.genoutputs.outputs.maketag == 'true'
         run: |
