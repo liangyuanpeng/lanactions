@@ -6,6 +6,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"slices"
+	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v56/github"
@@ -29,6 +33,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
@@ -38,7 +43,143 @@ func main() {
 	// oteldemo()
 	// svcdemo()
 	// ghdemo()
-	preditdemo()
+	// preditdemo()
+	// cancelghaction()
+	latestReleaseRef()
+}
+
+func latestReleaseRef() {
+	ghtoken := os.Getenv("GITHUB_TOKEN")
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: ghtoken},
+	)
+	tc := oauth2.NewClient(context.TODO(), ts)
+	ghclient := github.NewClient(tc)
+
+	owner := "kubernetes"
+	repo := "kubernetes"
+
+	refs, _, err := ghclient.Repositories.ListBranches(context.TODO(), owner, repo, &github.BranchListOptions{
+		ListOptions: github.ListOptions{
+			PerPage: 1000,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	lastReleasesTmp := sets.NewString()
+
+	for _, refobj := range refs {
+		ref := refobj.GetName()
+		if !strings.HasPrefix(ref, "release-") {
+			continue
+		}
+		if strings.HasPrefix(ref, "release-0") {
+			continue
+		}
+		refversion := strings.ReplaceAll(ref, "release-1.", "")
+		lastReleasesTmp.Insert(refversion)
+		// if len(lastReleases) == 0 {
+		// 	lastReleases = append(lastReleases, refversion)
+		// }
+		// newLastReleases := []string{}
+		// for _, r := range lastReleases {
+		// 	if len(newLastReleases) >= 3 {
+		// 		break
+		// 	}
+		// 	if r == refversion {
+		// 		continue
+		// 	}
+		// 	refversionsem, err := version.ParseSemantic(refversion)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	rversionsem, err := version.ParseSemantic(r)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+
+		// 	if !refversionsem.LessThan(rversionsem) {
+		// 		newLastReleases = append(newLastReleases, refversion)
+		// 	}
+
+		// }
+		// lastReleases = newLastReleases
+		// log.Println("ref.name:", ref, lastReleases)
+
+	}
+	log.Println(lastReleasesTmp.List())
+	strs := lastReleasesTmp.List()
+	// sort.Strings(strs)
+	// log.Println(strs)
+	// log.Println("sofr with slices............")
+	// slices.Sort(strs)
+	// log.Println(strs)
+
+	lastReleasesNums := []int{}
+	for _, s := range strs {
+		v, err := strconv.Atoi(s)
+		if err != nil {
+			log.Println("parse failed!", err)
+			continue
+		}
+		lastReleasesNums = append(lastReleasesNums, v)
+	}
+	// sort.Ints(lastReleasesInts)
+	sort.Ints(lastReleasesNums)
+	// slices.Sort(lastReleasesInts)
+	log.Println(lastReleasesNums)
+
+	log.Println("sort with slices............")
+	slices.Sort(lastReleasesNums)
+	log.Println(lastReleasesNums)
+
+	lastReleases := sets.NewString()
+	lastReleases.Insert("master")
+	for _, v := range lastReleasesNums {
+		refv := fmt.Sprintf("release-1.%d", v)
+		lastReleases.Insert(refv)
+	}
+	log.Println(lastReleases.List())
+
+}
+
+func cancelghaction() {
+	ghtoken := os.Getenv("GITHUB_TOKEN")
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: ghtoken},
+	)
+	tc := oauth2.NewClient(context.TODO(), ts)
+	ghclient := github.NewClient(tc)
+
+	owner := "liangyuanpeng"
+	repo := "etcd"
+
+	wfs, _, err := ghclient.Actions.ListWorkflows(context.TODO(), owner, repo, &github.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, wf := range wfs.Workflows {
+		wfrs, _, err := ghclient.Actions.ListWorkflowRunsByID(context.TODO(), owner, repo, wf.GetID(), &github.ListWorkflowRunsOptions{})
+		if err != nil {
+			panic(err)
+		}
+
+		for _, wfr := range wfrs.WorkflowRuns {
+			klog.Info("cancel wf:", wf.GetName(), wfr.GetID(), wfr.GetStatus())
+			if wfr.GetStatus() == "in_progress" || wfr.GetStatus() == "queued" {
+				_, err = ghclient.Actions.CancelWorkflowRunByID(context.TODO(), owner, repo, wfr.GetID())
+				if err != nil {
+					klog.Infof("cancel wf %s|%v failed!\n", wf.GetName(), wfr.GetID(), err)
+				}
+			}
+
+		}
+
+	}
+
 }
 
 func svcdemo() {
@@ -131,7 +272,7 @@ func preditdemo() {
 	releaseNote := "The base image `alpine` has been bumped from 3.20.0 to 3.20.1 "
 	// parse title to get it ^^^
 
-	newbody := pr.GetBody() + "```release-note\n  .  \n```"
+	newbody := pr.GetBody() + "```release-note\n  " + releaseNote + ".  \n```"
 	updatepr := &github.PullRequest{
 		Body: &newbody,
 	}
