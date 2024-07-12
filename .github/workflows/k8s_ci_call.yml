@@ -354,7 +354,7 @@ jobs:
             hack/install-etcd.sh
           fi
           sudo mkdir -p $PWD/third_party/etcd/
-          if [ ${{ matrix.etcd }} = "build-main" ];then 
+          if [ ${{ matrix.etcd }} = "etcd-main" ];then 
             oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest
             chmod +x etcd
             chmod +x etcdctl
@@ -559,7 +559,7 @@ jobs:
         os: 
         - ubuntu-22.04
         - ubuntu-24.04
-        - ubuntu-latest
+        # - ubuntu-latest
         ref: 
         - master 
         - release-1.30
