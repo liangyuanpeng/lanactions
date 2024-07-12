@@ -137,6 +137,10 @@ jobs:
       id: run
       run: |
         cd hack/release-latester
+        export LATEST_COUNT=3
+        if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
+          LATEST_COUNT=5
+        fi
         go run main.go > refs.json
         cat refs.json
         list=$(cat refs.json | jq .refs | jq -c )

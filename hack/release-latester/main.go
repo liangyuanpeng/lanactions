@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"slices"
 	"sort"
@@ -36,6 +37,18 @@ func latestReleaseRef() {
 	klogflag.Add(logsFlagSet)
 
 	ghtoken := os.Getenv("GITHUB_TOKEN")
+	latestCountStr := os.Getenv("LATEST_COUNT")
+	latestCount := 3
+
+	if latestCountStr != "" {
+		latestCounttmp, err := strconv.Atoi(latestCountStr)
+		if err != nil {
+			log.Println("parse latestCount failed!", err)
+		} else {
+			latestCount = latestCounttmp
+		}
+	}
+
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: ghtoken},
 	)
@@ -127,7 +140,7 @@ func latestReleaseRef() {
 		v := lastReleasesNums[i]
 		refv := fmt.Sprintf("release-1.%d", v)
 		lastReleases.Insert(refv)
-		if lastReleases.Len() >= 3 {
+		if lastReleases.Len() >= latestCount {
 			break
 		}
 	}
