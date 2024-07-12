@@ -354,6 +354,7 @@ jobs:
             hack/install-etcd.sh
           fi
           sudo mkdir -p $PWD/third_party/etcd/
+          sudo chmod -R 777 $PWD/third_party/etcd/
           if [ ${{ matrix.etcd }} = "etcd-main" ];then 
             oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest
             chmod +x etcd
