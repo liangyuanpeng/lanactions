@@ -454,6 +454,7 @@ jobs:
 
       - name: save outputs 
         id: saveoutputs
+        if: steps.checkexist.outputs.existimg == 'true'
         run: |
           mv /tmp/result.txt .
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt
