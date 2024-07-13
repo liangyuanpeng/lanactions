@@ -237,6 +237,7 @@ jobs:
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            echo "existimg=true" >> "$GITHUB_OUTPUT"
             exit 0
           else 
             echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
@@ -244,6 +245,7 @@ jobs:
 
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
+        if: steps.checkexist.outputs.existimg == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -257,6 +259,7 @@ jobs:
           swap-storage: false
 
       - name: checkoutactions
+        if: steps.checkexist.outputs.existimg == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repo }}
@@ -271,6 +274,7 @@ jobs:
           echo "ref=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: print
+        if: steps.checkexist.outputs.existimg == 'true'
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind == false }} ];then 
@@ -296,6 +300,7 @@ jobs:
           echo "KUBE_VERSION:"$KUBE_VERSION
 
       - name: rebuild init message
+        if: steps.checkexist.outputs.existimg == 'true'
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind == false }} ];then 
@@ -319,10 +324,12 @@ jobs:
           echo "KUBE_VERSION:"$KUBE_VERSION
 
       - uses: actions/setup-go@v5
+        if: steps.checkexist.outputs.existimg == 'true'
         with:
           go-version-file: go.mod
 
       - name: checkout kind 
+        if: steps.checkexist.outputs.existimg == 'true'
         run: |
           cd ..
           git clone https://github.com/kubernetes-sigs/kind
@@ -333,6 +340,7 @@ jobs:
 
       - name: build
         id: build
+        if: steps.checkexist.outputs.existimg == 'true'
         run: |
           #ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
           git branch
@@ -395,10 +403,9 @@ jobs:
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
           fi
-
 
           # kind build node-image ../kubernetes
 
@@ -424,6 +431,7 @@ jobs:
           cat /tmp/result.txt
 
       - name: test
+        if: steps.checkexist.outputs.existimg == 'true'
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind}}  == false  ];then 
