@@ -58,6 +58,29 @@ func latestReleaseRef() {
 	owner := "kubernetes"
 	repo := "kubernetes"
 
+	// arts, _, err := ghclient.Actions.ListArtifacts(context.TODO(), "etcd-io", "etcd", &github.ListOptions{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, art := range arts.Artifacts {
+	// 	log.Println("art:", art.GetName())
+	// }
+	// if 2 > 1 {
+	// 	os.Exit(0)
+	// }
+
+	// 获取最新一个commit
+	// gh api /repos/kubernetes/kubernetes/commits | jq -r '.[0].sha'
+	// commits, _, err := ghclient.Repositories.ListCommits(context.TODO(), owner, repo, &github.CommitsListOptions{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// c := commits[0]
+	// log.Printf("c.Commit.GetSHA(): %s\n%s\n%s\n", c.GetSHA(), c.GetCommit().GetSHA(), c.GetCommit().GetMessage())
+	// if 2 > 1 {
+	// 	os.Exit(0)
+	// }
+
 	refs, _, err := ghclient.Repositories.ListBranches(context.TODO(), owner, repo, &github.BranchListOptions{
 		ListOptions: github.ListOptions{
 			PerPage: 1000,
