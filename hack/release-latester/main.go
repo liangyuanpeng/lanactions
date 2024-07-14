@@ -58,6 +58,7 @@ func latestReleaseRef() {
 	owner := "kubernetes"
 	repo := "kubernetes"
 
+	// arts, _, err := ghclient.Actions.ListWorkflowRunArtifacts(context.TODO(), "etcd-io", "etcd", 9922099741, &github.ListOptions{})
 	// arts, _, err := ghclient.Actions.ListArtifacts(context.TODO(), "etcd-io", "etcd", &github.ListOptions{})
 	// if err != nil {
 	// 	panic(err)
