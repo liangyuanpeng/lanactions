@@ -124,6 +124,7 @@ jobs:
           #   exit 0
           # fi
 
+          #TODO 用 github api 的方式查询commitid,而不拉取源码
           git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
           cd kubernetes
 
