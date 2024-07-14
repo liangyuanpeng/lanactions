@@ -60,8 +60,13 @@ on:
         required: false
         default: 0
         type: number
+      imgname:
+        description: 'imgname.'
+        required: false
+        default: "node"
 
 jobs:
+#TODO slack监听到 kubernetes 仓库有merged 就出发这个workflow构建一次 testnode 的镜像?
 # #/kindnode_release
   build:
     uses: ./.github/workflows/kindnode_release_template.yml
@@ -70,6 +75,7 @@ jobs:
       ref: ${{ inputs.ref }}
       maketag: ${{ inputs.maketag }}
       kindVersion: ${{ inputs.kindVersion }}
+      imgname: ${{ inputs.imgname }}
       # triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
       # triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
       # discussionId: ${{ inputs.discussionId }}

@@ -268,11 +268,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
 
-      - name: make tag
-        if: steps.genoutputs.outputs.maketag == 'true'
-        run: |
-          export TAG=`git describe --tags`
-          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
+      # - name: make tag
+      #   if: steps.genoutputs.outputs.maketag == 'true'
+      #   run: |
+      #     export TAG=`git describe --tags`
+      #     echo "ref=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: print
         if: steps.checkexist.outputs.notexistimg == 'true'
