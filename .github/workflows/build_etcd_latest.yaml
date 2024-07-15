@@ -60,7 +60,7 @@ jobs:
           repository: liangyuanpeng/kubernetes
           fetch-depth: 0
           ref: build_etcd_latest
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.2
         with:
           go-version-file: go.mod
       - name: etcd 

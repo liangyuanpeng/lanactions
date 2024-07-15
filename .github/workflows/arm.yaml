@@ -71,7 +71,7 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.2
         with:
           go-version-file: go.mod
       - uses: uraimo/run-on-arch-action@v2
