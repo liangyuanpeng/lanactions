@@ -67,8 +67,8 @@ jobs:
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
-# 命名规范: pull-kubernetes-  --->  pk-
 
+# 命名规范: pull-kubernetes-  --->  pk-
   buildkind:
     name: buildkind
     runs-on: ubuntu-latest
@@ -140,11 +140,12 @@ jobs:
         run: |
           echo "INPUT_COMMID_ID:$INPUT_COMMID_ID"
           echo "inputs.repo:"${{ inputs.repo }}
-          if [ $INPUT_COMMID_ID != "none" ];then
+          if [ "$INPUT_COMMID_ID" != "none" ];then
             echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
             echo "existTestnode=false" >> "$GITHUB_OUTPUT"
             echo "existKubebins=false" >> "$GITHUB_OUTPUT"
           else
+            #TODO 直接用github api 查询,不用clone完整代码
              git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
              cd kubernetes
              IMGTAG=`git describe --tags`
@@ -311,9 +312,43 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
+
+
+  getreleases-1:
+    name: getreleases-1
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: go mod tidy
+      run: |
+        cd hack/release-latester
+        go mod tidy 
+    - name: run
+      id: run
+      env:
+        LATEST_COUNT: 1
+      run: |
+        cd hack/release-latester
+        go run main.go > refs.json
+        cat refs.json
+        list=$(cat refs.json | jq .refs | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+
   integration:  
     name: integration
     runs-on: ${{ matrix.os }}
+    #TODO 测试一个stable最新分支,例如最新发布1.31,则测试 master和1.31, 由于这里被call使用,测试特定分支的integration,因此需要一个 kubernetes_integration_template
     strategy:
       max-parallel: 6
       fail-fast: false
@@ -321,10 +356,15 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
+          #TODO arm
         etcd:
           - build-in
           - etcd-main
-    needs: getcommitid
+          # - etcd-3.6
+        # ref: ${{ fromJson(needs.getreleases-1.outputs.ref) }}
+    needs: 
+    - getcommitid
+    # - getreleases-1
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
