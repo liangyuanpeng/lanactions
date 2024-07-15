@@ -62,7 +62,7 @@ jobs:
           username: $GITHUB_REPOSITORY_OWNER
           password: ${{ secrets.GITHUB_TOKEN }}
           
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.2
         with:
           go-version-file: go.mod
 

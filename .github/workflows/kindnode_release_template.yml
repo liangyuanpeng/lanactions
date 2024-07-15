@@ -293,7 +293,7 @@ jobs:
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           echo "KUBE_VERSION:"$KUBE_VERSION
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.2
         with:
           go-version-file: go.mod
 
