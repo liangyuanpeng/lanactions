@@ -55,6 +55,7 @@ permissions:
 env:
   KIND_VERSION: ${{ inputs.kindVersion }}
   GH_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GOFLAGS: "-p=2"
 
 jobs:
