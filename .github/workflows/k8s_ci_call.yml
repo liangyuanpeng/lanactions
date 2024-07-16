@@ -36,7 +36,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.23.0"
+        default: "stable"
         type: string
       hydrophone:
         description: 'hydrophone'
@@ -53,7 +53,6 @@ permissions:
   packages: write
 
 env:
-  KIND_VERSION: ${{ inputs.kindVersion }}
   GH_TOKEN: ${{ github.token }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GOFLAGS: "-p=2"
@@ -155,6 +154,18 @@ jobs:
              COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
              echo "commitMsg=$COMMIT_MESSAGE" >> "$GITHUB_OUTPUT"
 
+             export KIND_VERSION=${{ inputs.kindVersion }}
+             if [ "${{ inputs.kindVersion }}" = "stable" ];then
+              gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+              cat kind.version
+              KIND_VERSION=`cat kind.version`
+              #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+              echo $KIND_VERSION
+             fi
+             if [ "${{ inputs.kindVersion }}" = "" ];then
+              KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+             fi
+
              IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
                echo "exist testnode"
@@ -241,8 +252,20 @@ jobs:
           #export SKIP="\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
           export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
 
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
+            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            cat kind.version
+            KIND_VERSION=`cat kind.version`
+            #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/"
-          wget https://github.com/kubernetes-sigs/kind/releases/download/${{inputs.kindVersion}}/kind-linux-amd64
+          wget https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind 
           e2e-k8s.sh
