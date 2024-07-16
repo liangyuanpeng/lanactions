@@ -48,6 +48,10 @@ on:
         required: false
         default: "none"
         type: string
+      slackMsgId:
+        description: 'slackMsgId'
+        required: false
+        default: ""
       #TODO 使用Kind的master 构建kind bin
 permissions:
   packages: write
@@ -55,6 +59,7 @@ permissions:
 env:
   GH_TOKEN: ${{ github.token }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  slackMsgId: ${{ inputs.slackMsgId }}
   GOFLAGS: "-p=2"
 
 jobs:
@@ -67,6 +72,8 @@ jobs:
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
+
+# TODO 传递 slack messageID 进来, 让 slack 命令支持 /rerun 命令.
 
 # 命名规范: pull-kubernetes-  --->  pk-
   buildkind:
@@ -92,6 +99,7 @@ jobs:
         mv bin/kind kind
         oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:kind kind
         oras logout ghcr.io
+        echo "slackMsgId:$slackMsgId"
 
   k8scicp3:
     name: k8scicp3
