@@ -628,15 +628,16 @@ jobs:
       matrix:
         parallel:
         - true
-        # - false
+        - false
         os: 
         - ubuntu-22.04
         - ubuntu-24.04
         # - ubuntu-latest
         ref: 
-        - master 
-        - release-1.30
-        - release-1.29
+        - ${{ matrix.ref }}
+        # - master 
+        # - release-1.30
+        # - release-1.29
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'
