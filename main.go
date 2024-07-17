@@ -42,6 +42,31 @@ import (
 	"k8s.io/klog/v2"
 )
 
+func teststr(){
+	strs := []string{}
+	strs = append(strs, "--etcd-servers=http://kwok-kwok-etcd:2379")
+	strs = append(strs, "--featuragtes=a=true,b=true")
+	m := make(map[string]string)
+	for _, v := range strs {
+		strstmp := strings.Split(v, "=")
+		m[strstmp[0]] = strings.ReplaceAll(v, strstmp[0]+"=", "")
+	}
+	log.Println("m:", m)
+
+	newstrs := []string{}
+	newstrs = append(newstrs, "--etcd-servers=http://localhost:2379")
+
+	for _, v := range newstrs {
+		strstmp := strings.Split(v, "=")
+		m[strstmp[0]] = strings.ReplaceAll(v, strstmp[0]+"=", "")
+	}
+
+	log.Println("m2:", m)
+	s := sets.NewString(newstrs...)
+
+	log.Println(s)
+}
+
 func main() {
 	// oteldemo()
 	// svcdemo()
