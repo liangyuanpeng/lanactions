@@ -634,7 +634,7 @@ jobs:
         - ubuntu-24.04
         # - ubuntu-latest
         ref: 
-        - ${{ matrix.ref }}
+        - ${{ inputs.ref }}
         # - master 
         # - release-1.30
         # - release-1.29
