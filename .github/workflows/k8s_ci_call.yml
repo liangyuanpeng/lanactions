@@ -61,6 +61,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   slackMsgId: ${{ inputs.slackMsgId }}
   GOFLAGS: "-p=2"
+  REF: ${{ inputs.ref }}
 
 jobs:
 # #/k8scicall
@@ -154,12 +155,16 @@ jobs:
             echo "existKubebins=false" >> "$GITHUB_OUTPUT"
           else
             #TODO 直接用github api 查询,不用clone完整代码
-             git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
-             cd kubernetes
-             IMGTAG=`git describe --tags`
-             LATEST_COMMIT=`git rev-parse HEAD`
-             echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
-             COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
+             #git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+             #cd kubernetes
+             #export IMGTAG=`git describe --tags`
+             #export LATEST_COMMIT=`git rev-parse HEAD`
+
+             export COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
+             export IMGTAG=$COMMITID
+             echo "commitID=$COMMITID" >> "$GITHUB_OUTPUT"
+             #COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
+             export COMMIT_MESSAGE="todo:get from github api"
              echo "commitMsg=$COMMIT_MESSAGE" >> "$GITHUB_OUTPUT"
 
              export KIND_VERSION=${{ inputs.kindVersion }}
