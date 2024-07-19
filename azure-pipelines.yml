@@ -95,6 +95,7 @@ stages:
       displayName: "check env"
 
     - script: |
+        #TODO 用脚本来构建镜像,oras pull
         export GOFLAGS="-p=2"
         git clone https://github.com/kubernetes/kubernetes
         cd kubernetes 
