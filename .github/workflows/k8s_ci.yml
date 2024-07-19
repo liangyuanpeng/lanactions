@@ -391,12 +391,13 @@ jobs:
           bins=`ls .`
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG $bins
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e ginkgo e2e.test e2e_node.test
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:${{ inputs.ref }}-e2e
 
-          if [ "ref: ${{ inputs.ref }}" = "master" ];then 
-            oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest $bins
-            oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest-e2e ginkgo e2e.test e2e_node.test
-          fi
-
+          # if [ "ref: ${{ inputs.ref }}" = "master" ];then 
+          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest $bins
+          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest-e2e ginkgo e2e.test e2e_node.test
+          # fi
 
   e2e:
     name: e2e
