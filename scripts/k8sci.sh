@@ -136,9 +136,9 @@ function util::deployk8s(){
       if [ $WHICH_ETCD = "xline" ];then 
         ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
       elif [ $WHICH_ETCD = "etcd-main" ];then
-        ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
+        ETCD_ENDPOINTS=http://192.168.66.2:2379 envsubst  <  artifacts/kind_ci_template_cp3.yaml > kind-ci.yaml
       elif [ $WHICH_ETCD = "etcd-main-cluster5" ];then
-        ETCD_ENDPOINTS="http://192.168.66.2:21379,http://192.168.66.2:22379,http://192.168.66.2:23379,http://192.168.66.2:24379,http://192.168.66.2:25379" envsubst  <  artifacts/kind_ci_template.yaml > kind-ci.yaml
+        ETCD_ENDPOINTS="http://192.168.66.2:21379,http://192.168.66.2:22379,http://192.168.66.2:23379,http://192.168.66.2:24379,http://192.168.66.2:25379" envsubst  <  artifacts/kind_ci_template_cp3.yaml > kind-ci.yaml
       else
         envsubst  <  artifacts/kind_ci_template_node5.yaml > kind-ci.yaml
       fi
