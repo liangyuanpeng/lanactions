@@ -7,6 +7,8 @@ nodes:
 - role: control-plane
   image: ${KIND_IMG_REGISTRY}/${KIND_IMG_USER}/${KIND_IMG_REPO}:${KIND_VERSION}-${IMGTAG}
   extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/flakeca.crt
+      containerPath: /etc/kubernetes/pki/etcd/ca.crt
     - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
       containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
   kubeadmConfigPatches:
@@ -32,6 +34,8 @@ nodes:
 - role: control-plane
   image: ${KIND_IMG_REGISTRY}/${KIND_IMG_USER}/${KIND_IMG_REPO}:${KIND_VERSION}-${IMGTAG}
   extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/flakeca.crt
+      containerPath: /etc/kubernetes/pki/etcd/ca.crt
     - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
       containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
   kubeadmConfigPatches:
@@ -57,6 +61,8 @@ nodes:
 - role: control-plane
   image: ${KIND_IMG_REGISTRY}/${KIND_IMG_USER}/${KIND_IMG_REPO}:${KIND_VERSION}-${IMGTAG}
   extraMounts:
+    - hostPath: /home/runner/work/lanactions/lanactions/config/flakeca.crt
+      containerPath: /etc/kubernetes/pki/etcd/ca.crt
     - hostPath: /home/runner/work/lanactions/lanactions/config/apiserver-audit-policy.yaml
       containerPath: /etc/kubernetes/audit-policy/apiserver-audit-policy.yaml
   kubeadmConfigPatches:
