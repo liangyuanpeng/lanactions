@@ -73,6 +73,7 @@ jobs:
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
+# TODO pk-e2e-kind-beta-features
 
 # TODO 传递 slack messageID 进来, 让 slack 命令支持 /rerun 命令.
 
@@ -450,6 +451,11 @@ jobs:
           ls 
           export PATH=$PATH:$PWD/third_party/etcd/
           make test-integration
+      - name: check logs
+        if: always()
+        run: |
+          sudo mkdir -p $HOME/logs
+          sudo ls $HOME/logs
 
   pk-integration:
     name: pk-integration
