@@ -76,7 +76,7 @@ on:
       commitid:
         description: 'commitid'
         required: false
-        default: "node"
+        default: "none"
         type: string
 
 env:
@@ -234,6 +234,10 @@ jobs:
 
           export COMMITID=${{ inputs.commitid }}
           if [ "$COMMITID" = "" ];then
+            COMMITID="none"
+          fi
+          
+          if [ "$COMMITID" = "none" ];then
             COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
           fi
 
