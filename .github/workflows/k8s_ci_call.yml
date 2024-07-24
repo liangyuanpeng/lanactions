@@ -133,6 +133,7 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
       imgname: testnode
+      commitid: ${{ inputs.commitid }}
 
   getcommitid:
     name: getcommitid
