@@ -232,7 +232,10 @@ jobs:
             KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
           fi
 
-          export COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
+          export COMMITID=${{ inputs.commitid }}
+          if [ "$COMMITID" = "" ];then
+            COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
+          fi
 
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
