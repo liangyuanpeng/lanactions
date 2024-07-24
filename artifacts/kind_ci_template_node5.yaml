@@ -4,7 +4,6 @@ featureGates:
   "AllAlpha": true
   "AllBeta": true
   "ValidatingAdmissionPolicy": true
-  "InTreePluginGCEUnregister": false
   "DisableCloudProviders": true
   "DisableKubeletCloudCredentialProviders": true
   "EventedPLEG": false
