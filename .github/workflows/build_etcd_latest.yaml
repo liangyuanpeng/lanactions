@@ -90,9 +90,10 @@ jobs:
         repository: kubernetes/kubernetes
         fetch-depth: 0
     - name: build
+      env:
+        DOCKER_CLI_EXPERIMENTAL: enabled
+        BUILDX_EXPERIMENTAL: 1
       run: |
-        export DOCKER_CLI_EXPERIMENTAL=enabled
-        export BUILDX_EXPERIMENTAL=1
         cd cluster/images/etcd
         docker version
         make build
