@@ -92,4 +92,5 @@ jobs:
     - name: build
       run: |
         cd cluster/images/etcd
+        docker version
         make build
