@@ -389,6 +389,10 @@ jobs:
         echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
         echo "ref=${list}" >> "$GITHUB_OUTPUT"
 
+  #TODO post-kubernetes-push-image-etcd 测试etcd镜像构建
+
+
+
   integration:  
     name: integration
     runs-on: ${{ matrix.os }}

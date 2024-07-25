@@ -79,3 +79,17 @@ jobs:
           docker images
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/etcd:main-0-linux-amd64
           #REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=arm64  make
+
+  push-image-etcd-windows:
+    name: push-image-etcd-windows
+    runs-on: windows-2022
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+      with:
+        repository: kubernetes/kubernetes
+        fetch-depth: 0
+    - name: build
+      run: |
+        cd cluster/images/etcd
+        make build
