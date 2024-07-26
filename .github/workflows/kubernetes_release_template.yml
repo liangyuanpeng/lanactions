@@ -41,6 +41,8 @@ env:
 
 jobs:
 
+#TODO cross 多架构镜像构建.
+#TODO arm64 架构镜像构建
   release:
     name: release-${{ inputs.ref }}
     runs-on: ubuntu-24.04

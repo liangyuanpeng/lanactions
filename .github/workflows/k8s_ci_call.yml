@@ -65,6 +65,7 @@ env:
 
 jobs:
 # #/k8scicall
+# TODO 添加 /k8sunitcall 和 /k8sintegrationcall
 # TODO summary
 # TODO 构建完 k8s 容器镜像后 直接安装 containerd, kubeadm 部署 k8s
 # TODO 将镜像 push 到阿里云容器镜像仓库

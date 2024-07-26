@@ -427,6 +427,7 @@ jobs:
         - json
         - yaml
         # - TODO CBOR
+        #TODO 添加参数控制,默认情况下只需要 protobuf
     runs-on: ubuntu-22.04
     env:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
