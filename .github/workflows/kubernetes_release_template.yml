@@ -115,7 +115,8 @@ jobs:
 
           sudo apt install -y tree
 
-          #export KUBE_DOCKER_REGISTRY=ghcr.io
+          export KUBE_DOCKER_REGISTRY=ghcr.io/liangyuanpeng
+
           export IMGTAG=`git describe`
           echo "IMGTAG:"$IMGTAG
           git tag `git describe`
@@ -158,6 +159,8 @@ jobs:
           rm -f _output/release-images/amd64/conformance-amd64.tar
           
           docker images
+
+          #TODO skopeo?
           docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
           docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
           docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
