@@ -237,4 +237,5 @@ jobs:
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:${{ inputs.ref }}
 
           docker images
-          docker logout ghcr.io
+          df -h
+          #TODO arm64
