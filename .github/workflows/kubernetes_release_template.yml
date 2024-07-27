@@ -66,10 +66,16 @@ jobs:
           #git tag v1.27.4-patch
           nohup docker rmi `docker images -aq` &
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: checkimgs
         id: checkimgs
         run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
           IMGTAG=`git describe --tags`
           echo "check images for "$IMGTAG
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG  | grep schemaVersion | wc -l `
@@ -102,12 +108,7 @@ jobs:
           docker-images: true
           swap-storage: false
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: $GITHUB_REPOSITORY_OWNER
-          password: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: make
         if: steps.checkimgs.outputs.exist != 'true'
