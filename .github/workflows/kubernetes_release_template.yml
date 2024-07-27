@@ -65,7 +65,7 @@ jobs:
           export COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
           echo "commitiD=$COMMITID" >> "$GITHUB_OUTPUT"
 
-          IMGTAG=`git describe --tags`
+          # IMGTAG=`git describe --tags`
           echo "check images for "$COMMITID
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$COMMITID  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
