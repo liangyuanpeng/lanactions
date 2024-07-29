@@ -94,6 +94,15 @@ function util::deployk8s(){
     #TODO 开启以下配置 测试矩阵
     IPFAMILY=${IPFAMILY:-"ipv4"} #ipv4 ipv6  双栈
     PROXY_MODE=${PROXY_MODE:-"iptables"} # iptables, ipvs, nftables
+    CLIENT_CONTENT_TYPE=${CLIENT_CONTENT_TYPE:-"application/json"} # application/vnd.kubernetes.protobuf  application/json
+    # =============================================================================
+    # 测试 client-go (kube-scheduler kube-controller-manager) 和 kube-apiserver 请求的数据格式 ^^^
+    # apiVersion: kubescheduler.config.k8s.io/v1
+    # kind: KubeSchedulerConfiguration
+    # clientConnection:
+    #   acceptContentTypes: application/yaml
+    #   contentType: application/yaml
+    # =============================================================================
 
     if [ $STORAGE_MEDIA_TYPE = "json" ];then 
       REALLY_STORAGE_MEDIA_TYPE="application/json"
