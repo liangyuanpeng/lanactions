@@ -31,6 +31,16 @@ on:
         required: false
         default: "kubernetes/kubernetes"
         type: string
+      imgrepo:
+        description: ''
+        required: false
+        default: ""
+        type: string
+      checkCommit:
+        description: 'checkCommit'
+        required: false
+        default: "false"
+        type: string
       
 
 permissions:
@@ -38,9 +48,12 @@ permissions:
 
 env:
   GOFLAGS: "-p=2"
+  REF: ${{ inputs.ref }}
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
 
+#TODO cross 多架构镜像构建.
   release:
     name: release-${{ inputs.ref }}
     runs-on: ubuntu-24.04
@@ -48,8 +61,52 @@ jobs:
       packages: write
     steps:
 
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: $GITHUB_REPOSITORY_OWNER
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: checkimgs
+        id: checkimgs
+        run: |
+          # kubernetes/kubernetes
+
+          echo "IMAGE_PREFIX:${IMAGE_PREFIX}"
+          echo "imgrepo:"${{ inputs.imgrepo}}
+
+          export COMMITID=`gh api /repos/${{ inputs.repo }}/commits?sha=$REF | jq -r '.[0].sha'`
+          echo "commitiD=$COMMITID" >> "$GITHUB_OUTPUT"
+
+          export IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER
+          if [ "${{ inputs.imgrepo}}" != "" ];then
+            IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
+          fi
+
+          # IMGTAG=`git describe --tags`
+          echo "check images for "$COMMITID
+          IMAGE_EXIST=`oras manifest fetch ${IMAGE_PREFIX}/conformance-amd64:$COMMITID  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist kubeimgs"
+            echo "exist=true" >> "$GITHUB_OUTPUT"
+          else 
+
+            if [ ${{ inputs.checkCommit }} = "true" ];then 
+              echo "exist=false" >> "$GITHUB_OUTPUT"
+            else 
+              echo "exist=true" >> "$GITHUB_OUTPUT"
+            fi
+            
+          fi
+
       - name: checkoutactions
-        uses: actions/checkout@v4
+        uses: actions/setup-go@v5
+        if: steps.checkimgs.outputs.exist != 'true'
         with:
           repository: ${{ inputs.repo }}
           fetch-depth: 0
@@ -57,36 +114,6 @@ jobs:
 #          ref: dev_1.28
           # ref: master
           ref: ${{ inputs.ref }}
-
-      - name: git tag
-        run: |
-          echo "do git tag"
-          #git tag v1.27.4-patch
-          nohup docker rmi `docker images -aq` &
-
-      - name: checkimgs
-        id: checkimgs
-        run: |
-          docker login ghcr.io -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }}
-          IMGTAG=`git describe --tags`
-          echo "check images for "$IMGTAG
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG  | grep schemaVersion | wc -l `
-          if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist kubeimgs"
-            echo "exist=true" >> "$GITHUB_OUTPUT"
-          else 
-            echo "exist=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - uses: oras-project/setup-oras@main
-        if: steps.checkimgs.outputs.exist != 'true'
-        with:
-          version: 1.2.0
-
-      - uses: actions/setup-go@v5.0.2
-        if: steps.checkimgs.outputs.exist != 'true'
-        with:
-          go-version: '1.22'
 
       - name: Free Disk Space (Ubuntu)
         if: steps.checkimgs.outputs.exist != 'true'
@@ -100,12 +127,17 @@ jobs:
           docker-images: true
           swap-storage: false
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
+      - uses: actions/setup-go@v5
+        if: steps.checkimgs.outputs.exist != 'true'
         with:
-          registry: ghcr.io
-          username: $GITHUB_REPOSITORY_OWNER
-          password: ${{ secrets.GITHUB_TOKEN }}
+          go-version-file: go.mod
+
+      - name: checkout to commitiD
+        if: steps.checkimgs.outputs.exist != 'true'
+        run: |
+          export COMMITID=${{ steps.checkimgs.outputs.commitiD }}
+          echo "COMMITID:$COMMITID"
+          git reset --hard $COMMITID
 
       - name: make
         if: steps.checkimgs.outputs.exist != 'true'
@@ -113,16 +145,21 @@ jobs:
 
           sudo apt install -y tree
 
-          #export KUBE_DOCKER_REGISTRY=ghcr.io
+          # export KUBE_DOCKER_REGISTRY=${IMAGE_PREFIX}
+          export COMMITID=${{ steps.checkimgs.outputs.commitiD }}
+
           export IMGTAG=`git describe`
           echo "IMGTAG:"$IMGTAG
+          echo "COMMITID:$COMMITID"
           git tag `git describe`
           echo "begin make"
           
+          # WHAT=kube-apiserver KUBE_DOCKER_REGISTRY=ghcr.io/liangyuanpeng KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
+          # KUBE_DOCKER_REGISTRY=ghcr.io/liangyuanpeng KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
           #make quick-release-images
           #make release-images KUBE_BUILD_CONFORMANCE=y
           export GOFLAGS="-p=2"
-          KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
+          KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64" make quick-release-images
           mkdir -p _output/release-images
 
           #make quick-release-images KUBE_BUILD_CONFORMANCE=y
@@ -156,80 +193,61 @@ jobs:
           rm -f _output/release-images/amd64/conformance-amd64.tar
           
           docker images
-          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
-          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
-          
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
 
-          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:$IMGTAG
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:$IMGTAG
-          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:$IMGTAG
-          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:$IMGTAG
-          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:$IMGTAG
-          
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:$IMGTAG
-
-          if [ "${{ inputs.ref }}" = "master" ];then 
-            docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:latest
-            docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:latest
-            docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:latest
-            docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:latest
-            docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:latest
-          
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:latest
-
-            docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:latest
-            docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:latest
-            docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:latest
-            docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:latest
-            docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:latest
-          
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:latest
-            docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:latest
-
+          export IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER
+          if [ "${{ inputs.imgrepo}}" != "" ];then
+            IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
           fi
 
-          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:${{ inputs.ref }}
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:${{ inputs.ref }}
-          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:${{ inputs.ref }}
-          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:${{ inputs.ref }}
-          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }}
+          #TODO skopeo?
+          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG
+          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ${IMAGE_PREFIX}/conformance-amd64:$IMGTAG
           
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }}
+          docker push ${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/conformance-amd64:$IMGTAG
 
-          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:${{ inputs.ref }}
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:${{ inputs.ref }}
-          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:${{ inputs.ref }}
-          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:${{ inputs.ref }}
-          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:${{ inputs.ref }}
           
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:${{ inputs.ref }}
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:${{ inputs.ref }}
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:$COMMITID
+          fi
+
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:${{ inputs.ref }}
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:$COMMITID
+          fi
+
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:${{ inputs.ref }}
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:$COMMITID
+          fi
+
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:${{ inputs.ref }}
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:$COMMITID
+          fi
+
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:${{ inputs.ref }}
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:$COMMITID
+          fi
 
           docker images
-          docker logout ghcr.io
+          df -h
+          #TODO arm64

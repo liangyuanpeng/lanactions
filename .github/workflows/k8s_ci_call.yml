@@ -36,7 +36,7 @@ on:
       kindVersion:
         description: 'kindVersion'
         required: false
-        default: "v0.23.0"
+        default: "stable"
         type: string
       hydrophone:
         description: 'hydrophone'
@@ -48,17 +48,24 @@ on:
         required: false
         default: "none"
         type: string
+      slackMsgId:
+        description: 'slackMsgId'
+        required: false
+        default: ""
       #TODO 使用Kind的master 构建kind bin
 permissions:
   packages: write
 
 env:
-  KIND_VERSION: ${{ inputs.kindVersion }}
   GH_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  slackMsgId: ${{ inputs.slackMsgId }}
   GOFLAGS: "-p=2"
+  REF: ${{ inputs.ref }}
 
 jobs:
 # #/k8scicall
+# TODO 添加 /k8sunitcall 和 /k8sintegrationcall
 # TODO summary
 # TODO 构建完 k8s 容器镜像后 直接安装 containerd, kubeadm 部署 k8s
 # TODO 将镜像 push 到阿里云容器镜像仓库
@@ -67,8 +74,11 @@ jobs:
 # TODO 添加一些没有拦截性影响的 CEL 策略 ValidatingAdmissionPolicy 
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
-# 命名规范: pull-kubernetes-  --->  pk-
+# TODO pk-e2e-kind-beta-features
 
+# TODO 传递 slack messageID 进来, 让 slack 命令支持 /rerun 命令.
+
+# 命名规范: pull-kubernetes-  --->  pk-
   buildkind:
     name: buildkind
     runs-on: ubuntu-latest
@@ -92,6 +102,7 @@ jobs:
         mv bin/kind kind
         oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/files:kind kind
         oras logout ghcr.io
+        echo "slackMsgId:$slackMsgId"
 
   k8scicp3:
     name: k8scicp3
@@ -123,6 +134,8 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ inputs.ref }}
       imgname: testnode
+      commitid: ${{ inputs.commitid }}
+      checkCommit: "true"
 
   getcommitid:
     name: getcommitid
@@ -140,18 +153,40 @@ jobs:
         run: |
           echo "INPUT_COMMID_ID:$INPUT_COMMID_ID"
           echo "inputs.repo:"${{ inputs.repo }}
-          if [ $INPUT_COMMID_ID != "none" ];then
-            echo "commitID=$INPUT_COMMID_ID" >> "$GITHUB_OUTPUT"
+          export COMMITID=${{ inputs.commitid }}
+          if [ "$COMMITID" = "" ];then
+            COMMITID="none"
+          fi
+
+          if [ "$COMMITID" != "none" ];then
+            echo "commitID=$COMMITID" >> "$GITHUB_OUTPUT"
             echo "existTestnode=false" >> "$GITHUB_OUTPUT"
             echo "existKubebins=false" >> "$GITHUB_OUTPUT"
           else
-             git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
-             cd kubernetes
-             IMGTAG=`git describe --tags`
-             LATEST_COMMIT=`git rev-parse HEAD`
-             echo "commitID=$LATEST_COMMIT" >> "$GITHUB_OUTPUT"
-             COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
+            #TODO 直接用github api 查询,不用clone完整代码
+             #git clone https://github.com/kubernetes/kubernetes -b ${{ inputs.ref }}
+             #cd kubernetes
+             #export IMGTAG=`git describe --tags`
+             #export LATEST_COMMIT=`git rev-parse HEAD`
+
+             export COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
+             export IMGTAG=$COMMITID
+             echo "commitID=$COMMITID" >> "$GITHUB_OUTPUT"
+             #COMMIT_MESSAGE=`git log --pretty=format:"%s" $COMMIT_ID -1`
+             export COMMIT_MESSAGE="todo:get from github api"
              echo "commitMsg=$COMMIT_MESSAGE" >> "$GITHUB_OUTPUT"
+
+             export KIND_VERSION=${{ inputs.kindVersion }}
+             if [ "${{ inputs.kindVersion }}" = "stable" ];then
+              gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+              cat kind.version
+              KIND_VERSION=`cat kind.version`
+              #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+              echo $KIND_VERSION
+             fi
+             if [ "${{ inputs.kindVersion }}" = "" ];then
+              KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+             fi
 
              IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/kindest/testnode:$KIND_VERSION-$IMGTAG  | grep schemaVersion | wc -l `
              if [ $IMAGE_EXIST -eq 1 ]; then
@@ -239,8 +274,20 @@ jobs:
           #export SKIP="\[sig-storage\]|\[sig-storage, Slow\]|\[sig-storage\]\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
           export SKIP="\[Slow\]|\[Disruptive\]|\[Flaky\]|\[Feature:.+\]|PodSecurityPolicy|LoadBalancer|load.balancer|Simple.pod.should.support.exec.through.an.HTTP.proxy|subPath.should.support.existing|NFS|nfs|inline.execution.and.attach|should.be.rejected.when.no.endpoints.exist"
 
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
+            gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            cat kind.version
+            KIND_VERSION=`cat kind.version`
+            #KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/"
-          wget https://github.com/kubernetes-sigs/kind/releases/download/${{inputs.kindVersion}}/kind-linux-amd64
+          wget https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
           chmod +x kind-linux-amd64
           mv kind-linux-amd64 /usr/local/bin/kind 
           e2e-k8s.sh
@@ -311,9 +358,47 @@ jobs:
           cd cloud-provider-kind
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && $GOPATH/src/sigs.k8s.io/cloud-provider-kind/hack/ci/e2e.sh
 
+
+
+  getreleases-1:
+    name: getreleases-1
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: go mod tidy
+      run: |
+        cd hack/release-latester
+        go mod tidy 
+    - name: run
+      id: run
+      env:
+        LATEST_COUNT: 1
+      run: |
+        cd hack/release-latester
+        go run main.go > refs.json
+        cat refs.json
+        list=$(cat refs.json | jq .refs | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+
+  #TODO post-kubernetes-push-image-etcd 测试etcd镜像构建
+
+
+
   integration:  
     name: integration
     runs-on: ${{ matrix.os }}
+    #TODO 测试一个stable最新分支,例如最新发布1.31,则测试 master和1.31, 由于这里被call使用,测试特定分支的integration,因此需要一个 kubernetes_integration_template
     strategy:
       max-parallel: 6
       fail-fast: false
@@ -321,10 +406,15 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
+          #TODO arm
         etcd:
           - build-in
           - etcd-main
-    needs: getcommitid
+          # - etcd-3.6
+        # ref: ${{ fromJson(needs.getreleases-1.outputs.ref) }}
+    needs: 
+    - getcommitid
+    # - getreleases-1
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -354,7 +444,8 @@ jobs:
             hack/install-etcd.sh
           fi
           sudo mkdir -p $PWD/third_party/etcd/
-          if [ ${{ matrix.etcd }} = "build-main" ];then 
+          sudo chmod -R 777 $PWD/third_party/etcd/
+          if [ ${{ matrix.etcd }} = "etcd-main" ];then 
             oras pull ghcr.io/$GITHUB_REPOSITORY_OWNER/files:etcd-latest
             chmod +x etcd
             chmod +x etcdctl
@@ -372,6 +463,11 @@ jobs:
           ls 
           export PATH=$PATH:$PWD/third_party/etcd/
           make test-integration
+      - name: check logs
+        if: always()
+        run: |
+          sudo mkdir -p $HOME/logs
+          sudo ls $HOME/logs
 
   pk-integration:
     name: pk-integration
@@ -385,9 +481,6 @@ jobs:
       KUBE_INTEGRATION_TEST_MAX_CONCURRENCY: "8"
       KUBE_TIMEOUT: "-timeout=1h30m"
     steps:
-      - uses: actions/setup-go@v5.0.2
-        with:
-          go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
@@ -407,6 +500,9 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: run
         run: |
           mkdir -p gopath 
@@ -437,9 +533,6 @@ jobs:
       GA_ONLY: true
       PARALLEL: true
     steps:
-      - uses: actions/setup-go@v5.0.2
-        with:
-          go-version: '1.22'
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
@@ -459,6 +552,9 @@ jobs:
           repository: kubernetes/kubernetes
           fetch-depth: 0
           ref: ${{ inputs.ref }}
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
       - name: run
         run: |
           curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-amd64.tgz | tar xvfz - -C "${PATH%%:*}/" && e2e-k8s.sh
@@ -555,15 +651,16 @@ jobs:
       matrix:
         parallel:
         - true
-        # - false
+        - false
         os: 
         - ubuntu-22.04
         - ubuntu-24.04
-        - ubuntu-latest
+        # - ubuntu-latest
         ref: 
-        - master 
-        - release-1.30
-        - release-1.29
+        - ${{ inputs.ref }}
+        # - master 
+        # - release-1.30
+        # - release-1.29
     env:
       FEATURE_GATES: '{"AllAlpha":true,"EventedPLEG":false}'
       RUNTIME_CONFIG: '{"api/alpha":"true", "api/ga":"true"}'

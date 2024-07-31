@@ -45,7 +45,8 @@ on:
         type: number
 
   schedule:
-    - cron: '0 19 * * 0,1,2,3,4,5,6'
+    # - cron: '0 19 * * 0,1,2,3,4,5,6'
+    - cron: '0 0,1,12,19 * * 0,1,2,3,4,5,6'
 env:
   GH_TOKEN: ${{ github.token }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,7 +58,6 @@ jobs:
   gettags:
     runs-on: ubuntu-24.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' || github.repository == 'lank8scn/lanactions' }}
-    # if: ${{ github.repository == 'lank8scn/lanactions' }}
     env:
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
@@ -115,6 +115,7 @@ jobs:
       maketag: false
       repo: "kubernetes/kubernetes"
       kindVersion: ${{ matrix.kindVersion }}
+      tagMode: "withRepoTag"
 
   getreleases:
     name: getreleases
@@ -136,6 +137,10 @@ jobs:
       id: run
       run: |
         cd hack/release-latester
+        export LATEST_COUNT=3
+        if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
+          LATEST_COUNT=10
+        fi
         go run main.go > refs.json
         cat refs.json
         list=$(cat refs.json | jq .refs | jq -c )
@@ -144,7 +149,7 @@ jobs:
         echo "refslength:"${refslength}
         echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
         echo "ref=${list}" >> "$GITHUB_OUTPUT"
-        # echo "::set-output name=ref::${list} "  
+        # echo "::set-output name=ref::${list}"  
 
   build-testnode:
     needs:
@@ -166,4 +171,5 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
       imgname: testnode
+      checkCommit: "true"
 

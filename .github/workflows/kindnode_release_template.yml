@@ -76,7 +76,17 @@ on:
       commitid:
         description: 'commitid'
         required: false
-        default: "node"
+        default: "none"
+        type: string
+      checkCommit:
+        description: 'checkCommit'
+        required: false
+        default: "false"
+        type: string
+      tagMode:
+        description: 'withRepoTag,withCommitID'
+        required: false
+        default: "withCommitID"
         type: string
 
 env:
@@ -201,7 +211,6 @@ jobs:
           kind --version
           kind build node-image -h
 
-
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -216,8 +225,59 @@ jobs:
           ACTION_TOKEN=`cat actiontoken`
           oras login ghcr.io -ulank8scn -p$ACTION_TOKEN
 
+      - name: checkexist
+        id: checkexist
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "stable" ];then
+            # gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
+            # cat kind.version
+            # KIND_VERSION=`cat kind.version`
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+            echo $KIND_VERSION
+          fi
+          if [ "${{ inputs.kindVersion }}" = "" ];then
+            KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
+          fi
+
+          export COMMITID=${{ inputs.commitid }}
+          if [ "$COMMITID" = "" ];then
+            COMMITID="none"
+          fi
+          
+          if [ "$COMMITID" = "none" ];then
+            COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
+          fi
+
+          export IMGTAG=${KIND_VERSION}-${COMMITID}
+          if [ ${{ inputs.tagMode }} = "withRepoTag" ];then 
+            IMGTAG=${KIND_VERSION}-${{ inputs.ref }}
+          fi
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${IMGTAG}  | grep schemaVersion | wc -l `
+          if [ $IMAGE_EXIST -eq 1 ]; then
+            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${IMGTAG}"
+            exit 0
+          else 
+            echo "notexistimg=true" >> "$GITHUB_OUTPUT"
+
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${IMGTAG}"
+            
+            # if [ ${{ inputs.checkCommit }} = "true" ];then 
+            #   echo "exist=false" >> "$GITHUB_OUTPUT"
+            #   echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            # else 
+            #   echo "exist=true" >> "$GITHUB_OUTPUT"
+            # fi
+
+          fi
+
       # Free up disk space on Ubuntu
       - name: Free Disk Space (Ubuntu)
+        if: steps.checkexist.outputs.notexistimg == 'true'
         uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed, if set to "true" but frees about 6 GB
@@ -231,6 +291,7 @@ jobs:
           swap-storage: false
 
       - name: checkoutactions
+        if: steps.checkexist.outputs.notexistimg == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repo }}
@@ -238,14 +299,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ steps.genoutputs.outputs.ref }}
 
-
-      - name: make tag
-        if: steps.genoutputs.outputs.maketag == 'true'
-        run: |
-          export TAG=`git describe --tags`
-          echo "ref=$TAG" >> "$GITHUB_OUTPUT"
+      # - name: make tag
+      #   if: steps.genoutputs.outputs.maketag == 'true'
+      #   run: |
+      #     export TAG=`git describe --tags`
+      #     echo "ref=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: print
+        if: steps.checkexist.outputs.notexistimg == 'true'
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind == false }} ];then 
@@ -271,6 +332,7 @@ jobs:
           echo "KUBE_VERSION:"$KUBE_VERSION
 
       - name: rebuild init message
+        if: steps.checkexist.outputs.notexistimg == 'true'
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind == false }} ];then 
@@ -293,11 +355,13 @@ jobs:
           KUBE_VERSION="${version_line#"STABLE_DOCKER_TAG "}"
           echo "KUBE_VERSION:"$KUBE_VERSION
 
-      - uses: actions/setup-go@v5.0.2
+      - uses: actions/setup-go@v5
+        if: steps.checkexist.outputs.notexistimg == 'true'
         with:
           go-version-file: go.mod
 
       - name: checkout kind 
+        if: steps.checkexist.outputs.notexistimg == 'true'
         run: |
           cd ..
           git clone https://github.com/kubernetes-sigs/kind
@@ -308,6 +372,7 @@ jobs:
 
       - name: build
         id: build
+        if: steps.checkexist.outputs.notexistimg == 'true'
         run: |
           #ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
           git branch
@@ -370,10 +435,9 @@ jobs:
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
             skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
           fi
-
 
           # kind build node-image ../kubernetes
 
@@ -399,6 +463,7 @@ jobs:
           cat /tmp/result.txt
 
       - name: test
+        if: steps.checkexist.outputs.notexistimg == 'true'
         run: |
           export IMGTAG=${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
           if [ ${{ inputs.tagWithKind}}  == false  ];then 
@@ -421,6 +486,7 @@ jobs:
 
       - name: save outputs 
         id: saveoutputs
+        if: steps.checkexist.outputs.notexistimg == 'true'
         run: |
           mv /tmp/result.txt .
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/lanactions/artifacts-kind:${{ github.run_id }} result.txt

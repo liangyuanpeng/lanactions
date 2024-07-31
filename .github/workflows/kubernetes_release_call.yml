@@ -40,25 +40,66 @@ on:
 permissions:
   packages: write
 
+env:
+  GH_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
 
-  #TODO 自动获取最新的3个release branch
+  getreleases:
+    name: getreleases
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
+    - name: go mod tidy
+      run: |
+        cd hack/release-latester
+        go mod tidy 
+    - name: run
+      id: run
+      run: |
+        cd hack/release-latester
+        export LATEST_COUNT=3
+        if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
+          LATEST_COUNT=8
+        fi
+        go run main.go > refs.json
+        cat refs.json
+        list=$(cat refs.json | jq .refs | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+        # echo "::set-output name=ref::${list}"  
+
   buildk8s:
     name: buildk8s
+    needs:
+    - getreleases
     uses: ./.github/workflows/kubernetes_release_template.yml
     strategy:
       fail-fast: false
       matrix:
-        ref: 
-        - master
-        - release-1.30
-        - release-1.29
-        - release-1.28
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+        # - master
+        # - release-1.30
+        # - release-1.29
+        # - release-1.28
+        # - release-1.27
+        # - release-1.26
     with:
       ref: ${{ matrix.ref }}
 
   buildk8sdev:
-    name: buildk8s
+    name: buildk8s-dev
     uses: ./.github/workflows/kubernetes_release_template.yml
     strategy:
       fail-fast: false
@@ -71,3 +112,14 @@ jobs:
     with:
       ref: ${{ matrix.ref }}
       repo: ${{ matrix.repo }}
+
+  buildk8s-test:
+    name: buildk8s-test
+    uses: ./.github/workflows/kubernetes_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+    with:
+      ref: ${{ matrix.ref }}
+      imgrepo: k8s

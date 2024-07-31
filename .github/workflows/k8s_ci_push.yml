@@ -28,6 +28,7 @@ permissions:
 
 env:
   GH_TOKEN: ${{ github.token }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
 
@@ -80,10 +81,12 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
       imgname: testnode
+      checkCommit: "true"
 
   k8sci:
     name: k8sci
     needs: 
+    - getreleases
     - build-kindnode
     # if: always()
     uses: ./.github/workflows/k8s_ci.yml
