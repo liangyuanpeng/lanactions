@@ -71,6 +71,10 @@ jobs:
         id: checkimgs
         run: |
           # kubernetes/kubernetes
+
+          echo "IMAGE_PREFIX:${IMAGE_PREFIX}"
+          echo "imgrepo:"${{ inputs.imgrepo}}
+
           export COMMITID=`gh api /repos/${{ inputs.repo }}/commits?sha=$REF | jq -r '.[0].sha'`
           echo "commitiD=$COMMITID" >> "$GITHUB_OUTPUT"
 
@@ -78,7 +82,7 @@ jobs:
           if [ "${{ inputs.imgrepo}}" != "" ];then
             IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
           fi
-          
+
           # IMGTAG=`git describe --tags`
           echo "check images for "$COMMITID
           IMAGE_EXIST=`oras manifest fetch ${IMAGE_PREFIX}/conformance-amd64:$COMMITID  | grep schemaVersion | wc -l `
