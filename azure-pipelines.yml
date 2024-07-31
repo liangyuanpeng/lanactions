@@ -35,12 +35,12 @@ stages:
       #TODO 机器人自动化提PR更新下面的列表
         master:
           ref: 'master'
-        release-1.30:
-          ref: 'release-1.30'
-        release-1.29:
-          ref: 'release-1.29'
-        release-1.28:
-          ref: 'release-1.28'
+        # release-1.30:
+        #   ref: 'release-1.30'
+        # release-1.29:
+        #   ref: 'release-1.29'
+        # release-1.28:
+        #   ref: 'release-1.28'
     steps:
     - script: |
         sudo rm -rf /usr/local/lib/android || true
