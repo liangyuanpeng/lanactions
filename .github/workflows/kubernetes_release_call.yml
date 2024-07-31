@@ -123,4 +123,4 @@ jobs:
     with:
       ref: ${{ matrix.ref }}
       repo: ${{ matrix.repo }}
-      imgrepo: kindest
+      imgrepo: k8s
