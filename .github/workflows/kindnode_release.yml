@@ -65,6 +65,9 @@ on:
         required: false
         default: "node"
 
+permissions:
+  packages: write
+
 jobs:
 #TODO slack监听到 kubernetes 仓库有merged 就出发这个workflow构建一次 testnode 的镜像?
 # #/kindnode_release
