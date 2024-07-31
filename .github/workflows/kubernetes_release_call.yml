@@ -113,13 +113,14 @@ jobs:
       ref: ${{ matrix.ref }}
       repo: ${{ matrix.repo }}
 
-  # buildk8s-test:
-  #   name: buildk8s-test
-  #   uses: ./.github/workflows/kubernetes_release_template.yml
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
-  #   with:
-  #     ref: ${{ matrix.ref }}
-  #     repo: ${{ matrix.repo }}
+  buildk8s-test:
+    name: buildk8s-test
+    uses: ./.github/workflows/kubernetes_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+    with:
+      ref: ${{ matrix.ref }}
+      repo: ${{ matrix.repo }}
+      imgrepo: kindest

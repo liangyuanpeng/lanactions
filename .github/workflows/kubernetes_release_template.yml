@@ -32,7 +32,7 @@ on:
         default: "kubernetes/kubernetes"
         type: string
       imgrepo:
-        description: 'kindest'
+        description: ''
         required: false
         default: ""
         type: string
