@@ -58,7 +58,6 @@ jobs:
   gettags:
     runs-on: ubuntu-24.04
     if: ${{ github.repository == 'liangyuanpeng/lanactions' || github.repository == 'lank8scn/lanactions' }}
-    # if: ${{ github.repository == 'lank8scn/lanactions' }}
     env:
       K8S_MIN_VERSION: ${{ inputs.k8sMinVersion }}
       ONCE_COUNT: ${{ inputs.onceCount }}
