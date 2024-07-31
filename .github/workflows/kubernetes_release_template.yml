@@ -213,29 +213,40 @@ jobs:
           docker push ${IMAGE_PREFIX}/conformance-amd64:$IMGTAG
 
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$COMMITID
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:$COMMITID
+          
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:$COMMITID
+          fi
 
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$COMMITID
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:$COMMITID
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:$COMMITID
+          fi
 
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$COMMITID
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:$COMMITID
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:$COMMITID
+          fi
 
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:$COMMITID
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:$COMMITID
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:$COMMITID
+          fi
 
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:$COMMITID
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:$COMMITID
+          if [ ${{ inputs.checkCommit }} = "true" ];then 
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:$COMMITID
+            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:$COMMITID
+          fi
 
           docker images
           df -h

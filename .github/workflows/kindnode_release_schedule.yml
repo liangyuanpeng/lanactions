@@ -171,4 +171,5 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
       imgname: testnode
+      checkCommit: "true"
 

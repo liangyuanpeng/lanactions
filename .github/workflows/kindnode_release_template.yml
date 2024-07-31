@@ -249,11 +249,16 @@ jobs:
           IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
-            
             exit 0
           else 
             echo "notexistimg=true" >> "$GITHUB_OUTPUT"
-            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+
+            if [ ${{ inputs.checkCommit }} = "true" ];then 
+              echo "exist=false" >> "$GITHUB_OUTPUT"
+              echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            else 
+              echo "exist=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       # Free up disk space on Ubuntu
