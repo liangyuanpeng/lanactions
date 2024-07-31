@@ -115,6 +115,8 @@ jobs:
 
   buildk8s-test:
     name: buildk8s-test
+    needs:
+    - getreleases
     uses: ./.github/workflows/kubernetes_release_template.yml
     strategy:
       fail-fast: false
