@@ -122,5 +122,4 @@ jobs:
         ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
     with:
       ref: ${{ matrix.ref }}
-      repo: ${{ matrix.repo }}
       imgrepo: k8s
