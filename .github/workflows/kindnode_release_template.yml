@@ -251,7 +251,7 @@ jobs:
             COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
           fi
 
-          exoport IMGTAG=${KIND_VERSION}-${COMMITID}
+          export IMGTAG=${KIND_VERSION}-${COMMITID}
           if [ ${{ inputs.tagMode }} = "withRepoTag" ];then 
             IMGTAG=${KIND_VERSION}-${{ inputs.ref }}
           fi
