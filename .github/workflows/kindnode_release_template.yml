@@ -264,7 +264,7 @@ jobs:
             echo "notexistimg=true" >> "$GITHUB_OUTPUT"
 
             echo "exist=false" >> "$GITHUB_OUTPUT"
-            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${IMGTAG}"
             
             # if [ ${{ inputs.checkCommit }} = "true" ];then 
             #   echo "exist=false" >> "$GITHUB_OUTPUT"
