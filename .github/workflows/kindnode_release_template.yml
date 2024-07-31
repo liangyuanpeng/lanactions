@@ -83,6 +83,11 @@ on:
         required: false
         default: "false"
         type: string
+      tagMode:
+        description: 'withRepoTag,withCommitID'
+        required: false
+        default: "withCommitID"
+        type: string
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -246,19 +251,28 @@ jobs:
             COMMITID=`gh api /repos/kubernetes/kubernetes/commits?sha=$REF | jq -r '.[0].sha'`
           fi
 
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID  | grep schemaVersion | wc -l `
+          exoport IMGTAG=${KIND_VERSION}-${COMMITID}
+          if [ ${{ inputs.tagMode }} = "withRepoTag" ];then 
+            IMGTAG=${KIND_VERSION}-${{ inputs.ref }}
+          fi
+
+          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${IMGTAG}  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
-            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            echo "exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${IMGTAG}"
             exit 0
           else 
             echo "notexistimg=true" >> "$GITHUB_OUTPUT"
 
-            if [ ${{ inputs.checkCommit }} = "true" ];then 
-              echo "exist=false" >> "$GITHUB_OUTPUT"
-              echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
-            else 
-              echo "exist=true" >> "$GITHUB_OUTPUT"
-            fi
+            echo "exist=false" >> "$GITHUB_OUTPUT"
+            echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            
+            # if [ ${{ inputs.checkCommit }} = "true" ];then 
+            #   echo "exist=false" >> "$GITHUB_OUTPUT"
+            #   echo "have not exist image of ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KIND_VERSION-$COMMITID"
+            # else 
+            #   echo "exist=true" >> "$GITHUB_OUTPUT"
+            # fi
+
           fi
 
       # Free up disk space on Ubuntu

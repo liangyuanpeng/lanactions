@@ -116,6 +116,7 @@ jobs:
       maketag: false
       repo: "kubernetes/kubernetes"
       kindVersion: ${{ matrix.kindVersion }}
+      tagMode: "withRepoTag"
 
   getreleases:
     name: getreleases
