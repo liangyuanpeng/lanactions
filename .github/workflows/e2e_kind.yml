@@ -103,7 +103,7 @@ jobs:
           else 
             git checkout ${{ matrix.branch }}
           fi
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.0.2
         with:
           go-version-file: ${{ github.workspace }}/kubernetes/go.mod
       - name: get kind

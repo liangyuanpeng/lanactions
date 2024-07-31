@@ -126,7 +126,7 @@ jobs:
     steps:
     - name: checkoutactions
       uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
+    - uses: actions/setup-go@v5.0.2
       with:
         go-version-file: go.mod
     - name: go mod tidy

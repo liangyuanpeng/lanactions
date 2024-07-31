@@ -105,8 +105,8 @@ jobs:
           fi
 
       - name: checkoutactions
+        uses: actions/setup-go@v5
         if: steps.checkimgs.outputs.exist != 'true'
-        uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repo }}
           fetch-depth: 0
