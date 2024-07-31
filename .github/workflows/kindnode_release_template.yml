@@ -78,6 +78,11 @@ on:
         required: false
         default: "none"
         type: string
+      checkCommit:
+        description: 'checkCommit'
+        required: false
+        default: "false"
+        type: string
 
 env:
   GH_TOKEN: ${{ github.token }}

@@ -36,6 +36,11 @@ on:
         required: false
         default: ""
         type: string
+      checkCommit:
+        description: 'checkCommit'
+        required: false
+        default: "false"
+        type: string
       
 
 permissions:
@@ -90,7 +95,13 @@ jobs:
             echo "exist kubeimgs"
             echo "exist=true" >> "$GITHUB_OUTPUT"
           else 
-            echo "exist=false" >> "$GITHUB_OUTPUT"
+
+            if [ ${{ inputs.checkCommit }} = "true" ];then 
+              echo "exist=false" >> "$GITHUB_OUTPUT"
+            else 
+              echo "exist=true" >> "$GITHUB_OUTPUT"
+            fi
+            
           fi
 
       - name: checkoutactions
