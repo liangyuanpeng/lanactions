@@ -80,7 +80,6 @@ jobs:
         echo "ref=${list}" >> "$GITHUB_OUTPUT"
         # echo "::set-output name=ref::${list}"  
 
-  #TODO 自动获取最新的3个release branch
   buildk8s:
     name: buildk8s
     needs:
