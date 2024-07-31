@@ -41,6 +41,11 @@ on:
         required: false
         default: "false"
         type: string
+      tagMode:
+        description: 'withRepoTag,withCommitID'
+        required: false
+        default: "withCommitID"
+        type: string
       
 
 permissions:
@@ -88,8 +93,12 @@ jobs:
             IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
           fi
 
+          exoirt TAG_MODE=${{inputs.tagMode}}
           export IMGTAG=${COMMITID}
-          if [ ${{ inputs.tagMode }} = "withRepoTag" ];then 
+          if [ "${TAG_MODE}" = "" ];then 
+            TAG_MODE="withRepoTag"
+          fi
+          if [ "${TAG_MODE}" = "withRepoTag" ];then 
             IMGTAG=${{ inputs.ref }}
           fi
 
