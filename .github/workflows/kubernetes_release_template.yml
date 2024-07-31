@@ -148,7 +148,7 @@ jobs:
           #make quick-release-images
           #make release-images KUBE_BUILD_CONFORMANCE=y
           export GOFLAGS="-p=2"
-          KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
+          KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64" make quick-release-images
           mkdir -p _output/release-images
 
           #make quick-release-images KUBE_BUILD_CONFORMANCE=y
