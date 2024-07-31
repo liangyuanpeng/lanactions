@@ -137,6 +137,8 @@ jobs:
           git tag `git describe`
           echo "begin make"
           
+          # WHAT=kube-apiserver KUBE_DOCKER_REGISTRY=ghcr.io/liangyuanpeng KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
+          # KUBE_DOCKER_REGISTRY=ghcr.io/liangyuanpeng KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
           #make quick-release-images
           #make release-images KUBE_BUILD_CONFORMANCE=y
           export GOFLAGS="-p=2"

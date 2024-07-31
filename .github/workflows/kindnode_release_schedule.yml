@@ -139,7 +139,7 @@ jobs:
         cd hack/release-latester
         export LATEST_COUNT=3
         if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
-          LATEST_COUNT=5
+          LATEST_COUNT=10
         fi
         go run main.go > refs.json
         cat refs.json
