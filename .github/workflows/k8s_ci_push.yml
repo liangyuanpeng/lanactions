@@ -81,6 +81,7 @@ jobs:
       repo: kubernetes/kubernetes
       ref: ${{ matrix.ref }}
       imgname: testnode
+      checkCommit: "true"
 
   k8sci:
     name: k8sci
