@@ -120,7 +120,7 @@ jobs:
           fi
 
       - name: checkoutactions
-        uses: actions/setup-go@v5
+        uses: actions/checkout@v4
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           repository: ${{ inputs.repo }}
