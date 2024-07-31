@@ -80,23 +80,23 @@ jobs:
         echo "ref=${list}" >> "$GITHUB_OUTPUT"
         # echo "::set-output name=ref::${list}"  
 
-  # buildk8s:
-  #   name: buildk8s
-  #   needs:
-  #   - getreleases
-  #   uses: ./.github/workflows/kubernetes_release_template.yml
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
-  #       # - master
-  #       # - release-1.30
-  #       # - release-1.29
-  #       # - release-1.28
-  #       # - release-1.27
-  #       # - release-1.26
-  #   with:
-  #     ref: ${{ matrix.ref }}
+  buildk8s:
+    name: buildk8s
+    needs:
+    - getreleases
+    uses: ./.github/workflows/kubernetes_release_template.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: ${{ fromJson(needs.getreleases.outputs.ref) }}
+        # - master
+        # - release-1.30
+        # - release-1.29
+        # - release-1.28
+        # - release-1.27
+        # - release-1.26
+    with:
+      ref: ${{ matrix.ref }}
 
   buildk8sdev:
     name: buildk8s-dev
