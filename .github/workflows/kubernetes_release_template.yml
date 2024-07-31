@@ -76,7 +76,7 @@ jobs:
 
           # IMGTAG=`git describe --tags`
           echo "check images for "$COMMITID
-          IMAGE_EXIST=`oras manifest fetch ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$COMMITID  | grep schemaVersion | wc -l `
+          IMAGE_EXIST=`oras manifest fetch ${IMAGE_PREFIX}/conformance-amd64:$COMMITID  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist kubeimgs"
             echo "exist=true" >> "$GITHUB_OUTPUT"
@@ -125,7 +125,7 @@ jobs:
 
           sudo apt install -y tree
 
-          # export KUBE_DOCKER_REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER
+          # export KUBE_DOCKER_REGISTRY=${IMAGE_PREFIX}
           export COMMITID=${{ steps.checkimgs.outputs.commitiD }}
 
           export IMGTAG=`git describe`
@@ -174,43 +174,48 @@ jobs:
           
           docker images
 
+          export IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER
+          if [ "${{ inputs.imgrepo}}" != "" ];then
+            IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
+          fi
+
           #TODO skopeo?
-          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
-          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
-          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-proxy-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG
+          docker tag registry.k8s.io/kube-scheduler-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG
+          docker tag registry.k8s.io/conformance-amd64:$IMGTAG ${IMAGE_PREFIX}/conformance-amd64:$IMGTAG
           
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG
-          docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG
+          docker push ${IMAGE_PREFIX}/conformance-amd64:$IMGTAG
 
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$COMMITID
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-apiserver:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-apiserver:$COMMITID
 
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$COMMITID
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-controller-manager:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-controller-manager:$COMMITID
 
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$COMMITID
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-scheduler:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-scheduler-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-scheduler:$COMMITID
 
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$COMMITID
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kube-proxy:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy-amd64:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/kube-proxy-amd64:$IMGTAG docker://${IMAGE_PREFIX}/kube-proxy:$COMMITID
 
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$COMMITID
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:${{ inputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance-amd64:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/conformance:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance-amd64:$COMMITID
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:${{ inputs.ref }}
+          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://${IMAGE_PREFIX}/conformance-amd64:$IMGTAG docker://${IMAGE_PREFIX}/conformance:$COMMITID
 
           docker images
           df -h
