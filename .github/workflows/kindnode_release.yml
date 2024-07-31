@@ -76,6 +76,7 @@ jobs:
       maketag: ${{ inputs.maketag }}
       kindVersion: ${{ inputs.kindVersion }}
       imgname: ${{ inputs.imgname }}
+      checkCommit: "false"
       # triggerIssueCommentId: ${{ inputs.triggerIssueCommentId }}
       # triggerDiscussionCommentId: ${{ inputs.triggerDiscussionCommentId }}
       # discussionId: ${{ inputs.discussionId }}
