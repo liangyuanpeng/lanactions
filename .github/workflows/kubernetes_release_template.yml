@@ -131,7 +131,7 @@ jobs:
           export IMGTAG=`git describe`
           echo "IMGTAG:"$IMGTAG
           echo "COMMITID:$COMMITID"
-          git tag `git describe`
+          #git tag `git describe`
           echo "begin make"
           
           # WHAT=kube-apiserver KUBE_DOCKER_REGISTRY=ghcr.io/liangyuanpeng KUBE_BUILD_CONFORMANCE=y KUBE_BUILD_PLATFORMS="linux/amd64 linux/arm64" make quick-release-images
