@@ -46,7 +46,42 @@ jobs:
           cp scripts/k8sci.sh .
           oras push -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }} ghcr.io/$GITHUB_REPOSITORY_OWNER/files:k8scish k8sci.sh artifacts config
 
+
+
+  getreleases:
+    name: getreleases
+    runs-on: ubuntu-24.04
+    outputs:
+      ref: ${{ steps.run.outputs.ref }}
+      refslength: ${{ steps.run.outputs.refslength }}
+    steps:
+    - name: checkoutactions
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5.0.2
+      with:
+        go-version-file: go.mod
+    - name: go mod tidy
+      run: |
+        cd hack/release-latester
+        go mod tidy 
+    - name: run
+      id: run
+      run: |
+        cd hack/release-latester
+        export LATEST_COUNT=3
+        go run main.go > refs.json
+        cat refs.json
+        list=$(cat refs.json | jq .refs | jq -c )
+        refslength=$(cat refs.json | jq '.refs | length' )
+        echo "list:"${list}
+        echo "refslength:"${refslength}
+        echo "refslength=${refslength}" >> "$GITHUB_OUTPUT"
+        echo "ref=${list}" >> "$GITHUB_OUTPUT"
+        # echo "::set-output name=ref::${list}"  
+
   update-k8sdepimgs:
+    needs:
+    - getreleases
     name: update-k8sdepimgs
     permissions:
       packages: write
@@ -55,12 +90,7 @@ jobs:
       max-parallel: 10
       fail-fast: false
       matrix:
-        branch:
-        #TODO 使用hack/ 自动化更新这个列表
-        - master
-        - release-1.30
-        - release-1.29
-        - release-1.28
+        branch: ${{ fromJson(needs.getreleases.outputs.ref) }}
     steps:
       - name: checkoutactions
         uses: actions/checkout@v4
