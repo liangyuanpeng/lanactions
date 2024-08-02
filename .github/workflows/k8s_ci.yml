@@ -423,9 +423,9 @@ jobs:
         # - xline
         # - etcd-big # 持久化的etcd
         storageMediaType: 
-        - protobuf
+        # - protobuf
         - json
-        - yaml
+        # - yaml
         # - TODO CBOR
         #TODO 添加参数控制,默认情况下只需要 protobuf
     runs-on: ubuntu-22.04
