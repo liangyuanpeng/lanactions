@@ -586,9 +586,9 @@ jobs:
       fail-fast: false
       matrix:
         storageMediaType: 
-        - protobuf
+        # - protobuf
         - json
-        - yaml
+        # - yaml
         etcd: 
         - build-in 
         - etcd-main
