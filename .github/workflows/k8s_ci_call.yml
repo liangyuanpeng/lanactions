@@ -118,10 +118,14 @@ jobs:
           - kind-e2e
           - ValidatingAdmissionPolicy
           - MutatingAdmissionPolicy
+        kindVersion: 
+          - ${{ inputs.kindversion }}
+          - main
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
+      # kindversion: ${{ inputs.kindversion }}
+      kindversion: ${{ matrix.kindversion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
       k8sCPCount: 3
