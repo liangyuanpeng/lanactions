@@ -216,6 +216,11 @@ jobs:
             IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
           fi
 
+          #TODO 根据branch解析获取对应分支的大版本,例如release-1.30获取为1.30
+          # kubeadm 部署时镜像版本需要如何规范,release-1.30这样的版本无效,将会使用v1.30.999
+          #$ git describe --tags
+          #v1.30.3-26-g935f5d5e432
+
           #TODO skopeo?
           docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG
           docker tag registry.k8s.io/kube-controller-manager-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-controller-manager-amd64:$IMGTAG
