@@ -132,6 +132,7 @@ jobs:
           sudo apt install -y tree
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
+          echo "inputs.kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
@@ -179,6 +180,7 @@ jobs:
           sudo apt install -y tree
           echo "inputs.maketag:"${{ inputs.maketag }}
           echo "inputs.repo:"${{ inputs.repo }}
+          echo "inputs.kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
