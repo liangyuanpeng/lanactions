@@ -118,10 +118,13 @@ jobs:
           - kind-e2e
           - ValidatingAdmissionPolicy
           - MutatingAdmissionPolicy
+        kindVersion: 
+          - ${{ inputs.kindVersion }}
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
+      # kindversion: ${{ inputs.kindversion }}
+      kindVersion: ${{ matrix.kindVersion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
       k8sCPCount: 3
@@ -785,10 +788,13 @@ jobs:
           - conformance
           # - sig-apps
           # - statefulset
+        kindVersion:
+          - ${{ inputs.kindVersion }}
+          - main
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
+      kindVersion: ${{ matrix.kindVersion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
       commitID: ${{ needs.getcommitid.outputs.commitID }}

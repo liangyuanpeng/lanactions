@@ -70,6 +70,7 @@ on:
 
 env:
   ACTION_CUSTOM: ${{ inputs.custom }}
+  GH_TOKEN: ${{ github.token }}
 
 jobs:
 

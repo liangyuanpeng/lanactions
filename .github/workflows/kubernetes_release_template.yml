@@ -41,6 +41,11 @@ on:
         required: false
         default: "false"
         type: string
+      tagMode:
+        description: 'withRepoTag,withCommitID'
+        required: false
+        default: "withCommitID"
+        type: string
       
 
 permissions:
@@ -77,7 +82,7 @@ jobs:
         run: |
           # kubernetes/kubernetes
 
-          echo "IMAGE_PREFIX:${IMAGE_PREFIX}"
+          
           echo "imgrepo:"${{ inputs.imgrepo}}
 
           export COMMITID=`gh api /repos/${{ inputs.repo }}/commits?sha=$REF | jq -r '.[0].sha'`
@@ -88,24 +93,36 @@ jobs:
             IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
           fi
 
+          echo "IMAGE_PREFIX:${IMAGE_PREFIX}"
+
+          export TAG_MODE=${{inputs.tagMode}}
+          export IMGTAG=${COMMITID}
+          if [ "${TAG_MODE}" = "" ];then 
+            TAG_MODE="withRepoTag"
+          fi
+          if [ "${TAG_MODE}" = "withRepoTag" ];then 
+            IMGTAG=${{ inputs.ref }}
+          fi
+
           # IMGTAG=`git describe --tags`
-          echo "check images for "$COMMITID
-          IMAGE_EXIST=`oras manifest fetch ${IMAGE_PREFIX}/conformance-amd64:$COMMITID  | grep schemaVersion | wc -l `
+          echo "check images for "${IMAGE_PREFIX}/conformance-amd64:${IMGTAG}
+          IMAGE_EXIST=`oras manifest fetch ${IMAGE_PREFIX}/conformance-amd64:${IMGTAG}  | grep schemaVersion | wc -l `
           if [ $IMAGE_EXIST -eq 1 ]; then
             echo "exist kubeimgs"
             echo "exist=true" >> "$GITHUB_OUTPUT"
           else 
+            echo "exist=false" >> "$GITHUB_OUTPUT"
 
-            if [ ${{ inputs.checkCommit }} = "true" ];then 
-              echo "exist=false" >> "$GITHUB_OUTPUT"
-            else 
-              echo "exist=true" >> "$GITHUB_OUTPUT"
-            fi
+            # if [ ${{ inputs.checkCommit }} = "true" ];then 
+            #   echo "exist=false" >> "$GITHUB_OUTPUT"
+            # else 
+            #   echo "exist=true" >> "$GITHUB_OUTPUT"
+            # fi
             
           fi
 
       - name: checkoutactions
-        uses: actions/setup-go@v5
+        uses: actions/checkout@v4
         if: steps.checkimgs.outputs.exist != 'true'
         with:
           repository: ${{ inputs.repo }}
@@ -198,6 +215,11 @@ jobs:
           if [ "${{ inputs.imgrepo}}" != "" ];then
             IMAGE_PREFIX=ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo}}
           fi
+
+          #TODO 根据branch解析获取对应分支的大版本,例如release-1.30获取为1.30
+          # kubeadm 部署时镜像版本需要如何规范,release-1.30这样的版本无效,将会使用v1.30.999
+          #$ git describe --tags
+          #v1.30.3-26-g935f5d5e432
 
           #TODO skopeo?
           docker tag registry.k8s.io/kube-apiserver-amd64:$IMGTAG ${IMAGE_PREFIX}/kube-apiserver-amd64:$IMGTAG

@@ -28,6 +28,10 @@ function util::deployk8s(){
     sudo ifconfig eth0:9 192.168.66.2 netmask 255.255.255.0 up
     sudo ifconfig eth0:9 up
 
+    wget -q https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64
+    chmod +x docker-compose-linux-x86_64
+    mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+
     # deploy jaeger 
     # oras pull ghcr.io/liangyuanpeng/files:docker-compose-jaeger
     # curl -o /usr/local/bin/docker-compose -fsSL https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-linux-$(uname -m)
