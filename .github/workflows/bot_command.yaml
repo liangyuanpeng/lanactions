@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'source ref of kubernetes '
+        description: 'source ref '
         required: false
         default: "main"
       repo:
-        description: 'repo of kubernetes'
+        description: 'repo'
         required: false
         default: ""
 
@@ -16,7 +16,7 @@ jobs:
   repush:
     name: repush
     permissions:
-      packages: write
+      packages: write-all
     runs-on: ubuntu-latest
     steps:
       - name: checkoutactions
