@@ -33,6 +33,6 @@ jobs:
           git config --global user.name "Lan Liang"
           COMMIT_MESSAGE=`git log --pretty=format:"%s" -1`
           git commit -s --amend -m $COMMIT_MESSAGE
-          git remote add push https://liangyuanpeng:$GH_TOKEN@github.com/${{ inputs.repo }}
+          git remote add upstream https://liangyuanpeng:$GH_TOKEN@github.com/${{ inputs.repo }}
           git branch -a
-          git push push -f ${{ inputs.ref }}:${{ inputs.ref }}
+          git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
