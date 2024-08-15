@@ -34,4 +34,5 @@ jobs:
           COMMIT_MESSAGE=`git log --pretty=format:"%s" -1`
           git commit -s --amend -m $COMMIT_MESSAGE
           git remote add push https://liangyuanpeng:$GH_TOKEN@github.com/${{ inputs.repo }}
-          git push push -f ${{ inputs.ref }}
+          git branch -a
+          git push push -f ${{ inputs.ref }}:${{ inputs.ref }}
