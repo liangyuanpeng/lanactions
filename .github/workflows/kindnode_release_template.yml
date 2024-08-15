@@ -226,6 +226,7 @@ jobs:
           oras pull ghcr.io/lank8scn/lanfiles:actiontoken
           ACTION_TOKEN=`cat actiontoken`
           oras login ghcr.io -ulank8scn -p$ACTION_TOKEN
+          docker login ghcr.io -ulank8scn -p$ACTION_TOKEN
 
       - name: checkexist
         id: checkexist
