@@ -20,6 +20,11 @@ on:
         required: false
         default: 0
         type: number
+      prCommitCount:
+        description: 'prCommitCount'
+        required: false
+        default: 0
+        type: number
 jobs:
 
   repush:
@@ -62,6 +67,7 @@ jobs:
       - name: run 
         run: |
           echo "prnum:"${{ inputs.prnum }}
+          echo "prCommitCount:"${{ inputs.prCommitCount }}
           #TODO 需要单独一个 gh token
           # git config --global user.email "gcslyp@gmail.com"
           # git config --global user.name "Lan Liang"
