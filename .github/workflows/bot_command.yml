@@ -69,11 +69,14 @@ jobs:
           echo "prnum:"${{ inputs.prnum }}
           echo "prCommitCount:"${{ inputs.prCommitCount }}
           #TODO 需要单独一个 gh token
-          # git config --global user.email "gcslyp@gmail.com"
-          # git config --global user.name "Lan Liang"
-          # PR_FIRST_COMMIT=`git log --format="%H" -2 | awk 'NR==2' | cut -d '|lan|' -f 2 `
-          # COMMIT_MESSAGE=`git log --pretty=format:"%s" -1`
-          # git commit -s --amend -m "${COMMIT_MESSAGE}"
+          git config --global user.email "gcslyp@gmail.com"
+          git config --global user.name "Lan Liang"
+          #PR_FIRST_COMMIT=`git log --format="%H" -2 | awk 'NR==2' | cut -d '|lan|' -f 2 `
+          COMMIT_MESSAGE=`git log --format="%H##lan##%s" -${{ inputs.prCommitCount }} | awk 'NR==${{ inputs.prCommitCount }}' | awk -F'##lan##' '{print $2}' `
+          git commit -s --amend -m "${COMMIT_MESSAGE}"
+
+          echo "COMMIT_MESSAGE:"${COMMIT_MESSAGE}
+
           # git remote add upstream https://liangyuanpeng:$GH_TOKEN@github.com/${{ inputs.repo }}
           # git branch -a
           # git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
