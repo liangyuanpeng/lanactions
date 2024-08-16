@@ -28,7 +28,7 @@ on:
 jobs:
 
   repush:
-    if: inputs.action == "repush"
+    if: inputs.action == 'repush'
     name: repush
     permissions: write-all
     runs-on: ubuntu-latest
@@ -52,7 +52,7 @@ jobs:
           git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
 
   squash-pr:
-    if: inputs.action == "squash-pr"
+    if: inputs.action == 'squash-pr'
     name: squash
     permissions: write-all
     runs-on: ubuntu-latest
