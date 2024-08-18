@@ -75,6 +75,7 @@ jobs:
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
 # TODO pk-e2e-kind-beta-features
+# TODO 使用不同的cri runtime, 例如 cri-o
 
 # TODO 传递 slack messageID 进来, 让 slack 命令支持 /rerun 命令.
 
