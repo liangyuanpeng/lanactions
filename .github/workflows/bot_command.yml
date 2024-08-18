@@ -75,10 +75,9 @@ jobs:
           COMMIT_MESSAGE=`git log --format="%H##lan##%s" -${{ inputs.prCommitCount }} | awk 'NR==${{ inputs.prCommitCount }}' | awk -F'##lan##' '{print $2}' `
           git commit -s --amend -m "${COMMIT_MESSAGE}"
 
+          oras pull ghcr.io/liangyuanpeng/lanfiles:actiontoken
           echo "COMMIT_MESSAGE:"${COMMIT_MESSAGE}
           ACTION_TOKEN=`cat actiontoken`
-
-          oras pull ghcr.io/liangyuanpeng/lanfiles:actiontoken
 
           # git remote add upstream https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
           # git branch -a
