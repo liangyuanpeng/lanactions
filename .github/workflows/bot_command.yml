@@ -81,7 +81,8 @@ jobs:
           #PR_FIRST_COMMIT=`git log --format="%H" -2 | awk 'NR==2' | cut -d '|lan|' -f 2 `
           COMMIT_MESSAGE=`git log --format="%H##lan##%s" -${{ inputs.prCommitCount }} | awk 'NR==${{ inputs.prCommitCount }}' | awk -F'##lan##' '{print $2}' `
           git reset --soft HEAD~${{ inputs.prCommitCount }}
-          git commit -s --amend -m "${COMMIT_MESSAGE}"
+          #git commit -s --amend -m "${COMMIT_MESSAGE}"
+          git commit -s -m "${COMMIT_MESSAGE}"
 
           oras pull ghcr.io/liangyuanpeng/lanfiles:actiontoken
           echo "COMMIT_MESSAGE:"${COMMIT_MESSAGE}
