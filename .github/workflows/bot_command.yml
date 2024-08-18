@@ -88,6 +88,7 @@ jobs:
           echo "COMMIT_MESSAGE:"${COMMIT_MESSAGE}
           ACTION_TOKEN=`cat actiontoken`
 
-          git remote add upstream https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
+          git remote add yp https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
           #git branch -a
-          git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
+          git remote -v
+          git push yp -f ${{ inputs.ref }}:${{ inputs.ref }}
