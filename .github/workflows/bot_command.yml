@@ -62,6 +62,7 @@ jobs:
 
           git remote add upstream https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
           git branch -a
+          git remote -v
 
           docker run -v $PWD:/tmp --rm ghcr.io/liangyuanpeng/ubuntu:tools-v1 -c 'cd /tmp && git config --global --add safe.directory /tmp && git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}'
 
