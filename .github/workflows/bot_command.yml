@@ -41,16 +41,19 @@ jobs:
         run: |
           oras login  ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
 
-      - name: checkoutactions
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.repo }}
-          fetch-depth: 0
-          ref: ${{ inputs.ref }}
+      # - name: checkoutactions
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ${{ inputs.repo }}
+      #     fetch-depth: 0
+      #     ref: ${{ inputs.ref }}
 
       - name: run 
         run: |
-          #TODO 需要单独一个 gh token
+
+          git clone https://github.com/${{ inputs.repo }} -b ${{ inputs.ref }} repowork
+          cd repowork
+
           git config --global user.email "gcslyp@gmail.com"
           git config --global user.name "Lan Liang"
           COMMIT_MESSAGE=`git log --pretty=format:"%s" -1`
