@@ -18,13 +18,13 @@ on:
       prnum:
         description: 'prnum'
         required: false
-        default: 0
-        type: number
+        default: "0"
+        # type: number
       prCommitCount:
         description: 'prCommitCount'
         required: false
-        default: 0
-        type: number
+        default: "0"
+        # type: number
 jobs:
 
   repush:
