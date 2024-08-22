@@ -40,7 +40,7 @@ jobs:
       - name: login with oras 
         run: |
           oras login  ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: checkoutactions
         uses: actions/checkout@v4
         with:
@@ -62,7 +62,10 @@ jobs:
 
           git remote add upstream https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
           git branch -a
-          git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
+
+          docker run -v $PWD:/tmp --rm ghcr.io/liangyuanpeng/ubuntu:tools-v1 -c 'cd /tmp && git config --global --add safe.directory /tmp && git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}'
+
+          #git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
 
   squash-pr:
     if: ${{ inputs.action == 'squash-pr' }}
@@ -107,4 +110,4 @@ jobs:
           #git branch -a
           git remote -v
           docker run -v $PWD:/tmp --rm ghcr.io/liangyuanpeng/ubuntu:tools-v1 -c 'cd /tmp && git config --global --add safe.directory /tmp && git push yp -f ${{ inputs.ref }}:${{ inputs.ref }}'
-          git push yp -f ${{ inputs.ref }}:${{ inputs.ref }}
+          #git push yp -f ${{ inputs.ref }}:${{ inputs.ref }}
