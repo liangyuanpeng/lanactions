@@ -121,6 +121,7 @@ jobs:
         ref: 
         - vap_dev
         - test_log
+        - split_healthz_scheduler
         repo:
         - liangyuanpeng/kubernetes
     with:

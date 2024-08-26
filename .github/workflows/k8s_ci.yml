@@ -92,6 +92,7 @@ jobs:
 # 3. 再进行一次k8s一致性测试
 # 4. 再扩容 etcd/xline 到 4节点
 # 5. 再进行一次k8s一致性测试
+#TODO 构建自己fork分支 例如 split_healthz_scheduler
 
 
   getcommitid:
