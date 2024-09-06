@@ -248,6 +248,18 @@ function util::runtests(){
           --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
 
+    if [ $TEST_WHAT = "CustomResourceFieldSelectors" ];then
+      ginkgo -v --race --trace --nodes=25                \
+          --focus="CustomResourceFieldSelectors"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+    fi
+
     if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
       ginkgo -v --race --trace --nodes=25                \
           --focus="MutatingAdmissionPolicy"     \

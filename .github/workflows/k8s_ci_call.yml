@@ -119,6 +119,7 @@ jobs:
           - kind-e2e
           - ValidatingAdmissionPolicy
           - MutatingAdmissionPolicy
+          - CustomResourceFieldSelectors
         kindVersion: 
           - ${{ inputs.kindVersion }}
     with:
