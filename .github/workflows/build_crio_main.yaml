@@ -51,6 +51,6 @@ jobs:
         uses: actions/checkout@v4
       - name: build 
         run: |
-          export CRIO_VERSION=main
+          export CRIO_VERSION=v1.31
           docker build --build-arg CRIO_VERSION=$CRIO_VERSION -t ghcr.io/liangyuanpeng/kindtest/node:v0.24.0-v1.31.0-crio-$CRIO_VERSION -f artifacts/Dockerfile
 
