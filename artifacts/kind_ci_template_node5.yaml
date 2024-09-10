@@ -3,7 +3,6 @@ apiVersion: kind.x-k8s.io/v1alpha4
 featureGates:
   "AllAlpha": true
   "AllBeta": true
-  "ValidatingAdmissionPolicy": true
   "DisableCloudProviders": true
   "DisableKubeletCloudCredentialProviders": true
   "EventedPLEG": false
