@@ -20,7 +20,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/karmada-io/karmada/pkg/sharedcli/klogflag"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
@@ -33,16 +32,19 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.25.0"
 	"go.opentelemetry.io/otel/trace"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
-	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/klog/v2"
 )
 
-func teststr(){
+func teststr() {
 	strs := []string{}
 	strs = append(strs, "--etcd-servers=http://kwok-kwok-etcd:2379")
 	strs = append(strs, "--featuragtes=a=true,b=true")
@@ -73,7 +75,63 @@ func main() {
 	// ghdemo()
 	// preditdemo()
 	// cancelghaction()
-	latestReleaseRef()
+	// latestReleaseRef()
+	cacheTransform()
+}
+
+func cacheTransform() {
+	config := "/home/runner/.kube/config"
+	restConfig, err := clientcmd.BuildConfigFromFlags("", config)
+	if err != nil {
+		panic(err)
+	}
+	clientSet, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		panic(err)
+	}
+	informerFactory := informers.NewSharedInformerFactory(clientSet, 0)
+	informer := informerFactory.Core().V1().Pods().Informer()
+	informer.SetTransform(StripUnusedFields)
+	// informerFactory.Core().V1().Pods().Lister().List(labels.Selector{})
+
+	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc:    addPod,
+		UpdateFunc: updatePod,
+		DeleteFunc: deletePod,
+	})
+	stopper := make(chan struct{})
+	informer.Run(stopper)
+	// time.Sleep(time.Minute)
+}
+
+func addPod(obj interface{}) {
+	log.Println("add.obj:", obj.(*v1.Pod).Annotations)
+}
+
+func updatePod(_, newObj interface{}) {
+	log.Println("update.newObj:", newObj.(*v1.Pod).Annotations)
+}
+
+func deletePod(obj interface{}) {
+}
+
+// StripUnusedFields is the transform function for shared informers,
+// it removes unused fields from objects before they are stored in the cache to save memory.
+func StripUnusedFields(obj interface{}) (interface{}, error) {
+	if tombstone, ok := obj.(cache.DeletedFinalStateUnknown); ok {
+		obj = tombstone.Obj
+	}
+
+	accessor, err := meta.Accessor(obj)
+	if err != nil {
+		// shouldn't happen
+		return obj, nil
+	}
+	// ManagedFields is large and we never use it
+	accessor.SetManagedFields(nil)
+	// accessor.SetAnnotations(nil)
+	// accessor.SetLabels(nil)
+	return obj, nil
 }
 
 type Vrefs struct {
@@ -82,11 +140,11 @@ type Vrefs struct {
 
 func latestReleaseRef() {
 
-	fss := cliflag.NamedFlagSets{}
+	// fss := cliflag.NamedFlagSets{}
 
 	// Set klog flags
-	logsFlagSet := fss.FlagSet("logs")
-	klogflag.Add(logsFlagSet)
+	// logsFlagSet := fss.FlagSet("logs")
+	// klogflag.Add(logsFlagSet)
 
 	ghtoken := os.Getenv("GITHUB_TOKEN")
 	ts := oauth2.StaticTokenSource(
