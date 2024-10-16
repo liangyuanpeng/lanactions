@@ -523,7 +523,8 @@ jobs:
           # distribution: 'graalvm' # See 'Options' for all available distributions
 
       - uses: actions/setup-java@v4
-        if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_JAVA == 'true'
+        # if: steps.genoutputs.outputs.GH_OUTPUT_SETUP_JAVA == 'true'
+        if: steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION != ''
         with:
           java-version: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVAVERSION }}
           distribution: ${{ steps.genoutputs.outputs.GH_OUTPUT_JAVA }}
