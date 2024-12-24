@@ -1,4 +1,4 @@
-FROM kindest/node:v1.31.0
+FROM kindest/node:v1.32.0
 
 ARG CRIO_VERSION
 ARG PROJECT_PATH=stable:/$CRIO_VERSION
