@@ -17,3 +17,6 @@ RUN echo "Installing Packages ..." \
     && sed -i 's/containerd/crio/g' /etc/crictl.yaml \
     && systemctl disable containerd \
     && systemctl enable crio
+
+#TODO 需要安装criu命令
+# && sed -i 's#ExecStart=/usr/bin/crio#ExecStart=/usr/bin/crio --enable-criu-support=true#g' /lib/systemd/system/crio.service \
