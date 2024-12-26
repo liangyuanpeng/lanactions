@@ -259,6 +259,7 @@ function util::runtests(){
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
+    # should create pod, add ipv6 and ipv4 ip to host ips
 
     if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
       ginkgo -v --race --trace --nodes=25                \

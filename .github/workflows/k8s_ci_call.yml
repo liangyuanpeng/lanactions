@@ -120,6 +120,7 @@ jobs:
           - ValidatingAdmissionPolicy
           - MutatingAdmissionPolicy
           - CustomResourceFieldSelectors
+          - cbor
         kindVersion: 
           - ${{ inputs.kindVersion }}
     with:

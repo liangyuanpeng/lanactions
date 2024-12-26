@@ -8,6 +8,7 @@ featureGates:
   "EventedPLEG": false
   "StorageVersionAPI": false
   "UnknownVersionInteroperabilityProxy": false # 必须要StorageVersionAPI开启
+  #CBORServingAndStorage=true
 networking:
   ipFamily: ${IPFAMILY}
   kubeProxyMode: ${PROXY_MODE}
