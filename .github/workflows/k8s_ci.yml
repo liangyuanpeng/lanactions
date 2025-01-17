@@ -94,6 +94,31 @@ jobs:
 # 5. 再进行一次k8s一致性测试
 #TODO 构建自己fork分支 例如 split_healthz_scheduler
 
+  testarm:
+    name: simpletest-arm
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04-arm
+          - ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: run
+      run: |
+        wget https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz
+        tar -xf linux-arm64.tgz
+        ./kind create cluster
+        kubectl get pod -A
+        kubectl get node 
+        kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system
+        echo "===========================finish waiting for kube-system pods==========================="
+        kubectl get pod -A
+        kubectl get node
+        # TODO 创建多集群
+        #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz | tar xvfz - -C "${PATH%%:*}/"
+
 
   getcommitid:
     name: getcommitid-${{ inputs.ref }}
@@ -429,6 +454,8 @@ jobs:
         # - yaml
         # - TODO CBOR
         #TODO 添加参数控制,默认情况下只需要 protobuf
+    #TODO 添加参数控制 runson? 或者使用 ubuntu-latest
+    # TODO 添加 ubuntu-24.04-arm ubuntu-22.04-arm
     runs-on: ubuntu-22.04
     env:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
