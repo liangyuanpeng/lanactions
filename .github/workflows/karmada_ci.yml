@@ -41,7 +41,7 @@ jobs:
     name: build-karmada
     permissions:
       packages: write
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       imgtag: ${{ steps.checkimgs.outputs.imgtag }}
     steps:
