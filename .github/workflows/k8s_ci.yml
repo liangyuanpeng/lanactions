@@ -383,7 +383,7 @@ jobs:
       - uses: actions/setup-go@v5.0.2
         if: steps.checkimgs.outputs.exist == 'false'
         with:
-          go-version: '1.22'
+          go-version: '1.23'
 
       - name: clean
         if: steps.checkimgs.outputs.exist == 'false'
@@ -415,14 +415,15 @@ jobs:
           make
           cd _output/bin
           bins=`ls .`
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG $bins
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG,${{ github.event.inputs.ref }} $bins
+          #TODO 设置分仓库的 kubebins, 例如  kubebins:kk-master  kubebins:liangyuanpeng-master 
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e ginkgo e2e.test e2e_node.test
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:${{ inputs.ref }}
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:${{ inputs.ref }}-e2e
 
           # if [ "ref: ${{ inputs.ref }}" = "master" ];then 
-          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest $bins
-          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest-e2e ginkgo e2e.test e2e_node.test
+          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest,master $bins
+          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:master-e2e,latest-e2e ginkgo e2e.test e2e_node.test
           # fi
 
   e2e:
