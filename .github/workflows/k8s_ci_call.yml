@@ -25,6 +25,7 @@ on:
     - cron: '0 17 * * 0,1,2,3,4,5,6'
   workflow_dispatch:
     inputs:
+    #TODO 也支持tag? alpha 版本(非正式版本) 都是发布tag 而不是 release branch
       ref:
         description: 'source ref of kubernetes '
         required: false
