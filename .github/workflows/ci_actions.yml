@@ -1,0 +1,181 @@
+name: ci_actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      triggerIssueId:
+        description: 'issueId'
+        required: false
+      customParam:
+        description: 'customParam'
+        required: false
+      ghevent:
+        description: 'ghevent'
+        required: false
+      ciname: 
+        description: 'ghevent'
+        required: false
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GHEVENT: ${{ github.event.inputs.ghevent }}
+      CINAME: build
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+    permissions:
+      packages: write
+      issues: write
+      pull-requests: write
+      actions: write
+
+    steps:
+    - name: Set up JDK
+      id: setup-java
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+    - uses: actions/setup-go@main
+      with:
+        go-version: '1.23'
+    - uses: oras-project/setup-oras@main
+      with:
+        version: 1.2.0
+
+    - name: build
+      run: |
+        oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+        oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+        chmod +x job.sh
+        ./job.sh
+
+#TODO 动态一个job
+  trivy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      packages: write
+      issues: write
+      pull-requests: write
+      actions: write
+    needs:
+    - build 
+    steps:
+    - name: Set up JDK
+      id: setup-java
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+    - uses: actions/setup-go@main
+      with:
+        go-version: '1.23'
+    - uses: oras-project/setup-oras@main
+      with:
+        version: 1.2.0
+
+    - name: trivy
+      env:
+        GHEVENT: ${{ github.event.inputs.ghevent }}
+        CINAME: trivy
+        GH_TOKEN: ${{ github.token }}
+        CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+      run: |
+        oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+        chmod +x job.sh
+        ./job.sh
+
+  ci:
+    runs-on: ${{ matrix.runasos }}
+    timeout-minutes: 120
+    env:
+      GHEVENT: ${{ github.event.inputs.ghevent }}
+      CINAME: ci
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+      JAVA_VERSION: ${{ matrix.java_version }}
+      CI_PROFILE: ${{ matrix.profile }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: 
+          - '17'
+          # - '21'
+        profile:
+          - default #mysql
+          - postgresql
+        runasos:
+          - ubuntu-latest
+          # - ubuntu-24.04-arm
+    permissions:
+      packages: write
+      issues: write
+      pull-requests: write
+      actions: write
+    steps:
+    - uses: oras-project/setup-oras@main
+      with:
+        version: 1.2.0
+    - uses: actions/setup-go@main
+      with:
+        go-version: '1.23'
+    - name: Set up JDK
+      id: setup-java
+      uses: actions/setup-java@v4
+      with:
+      #TODO inputs.java_version
+        java-version: ${{ matrix.java_version }}
+        distribution: 'temurin'
+        # cache: 'maven'
+    - name: ci
+      run: |
+        oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+        oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+        chmod +x job.sh
+        ./job.sh
+
+
+  watcher:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    if: always()
+    env:
+      GHEVENT: ${{ github.event.inputs.ghevent }}
+      CINAME: watcher
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+    needs:
+    # - prlabel 
+    - build
+    - ci
+    - trivy
+    permissions:
+      packages: write
+      issues: write
+      pull-requests: write
+      actions: write
+    steps:
+    - name: Set up JDK
+      id: setup-java
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+
+    - uses: actions/setup-go@main
+      with:
+        go-version: '1.23'
+
+    - uses: oras-project/setup-oras@main
+      with:
+        version: 1.2.0
+
+    - name: build
+      run: |
+        oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+        chmod +x job.sh
+        ./job.sh
