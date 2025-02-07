@@ -25,6 +25,7 @@ on:
     - cron: '0 17 * * 0,1,2,3,4,5,6'
   workflow_dispatch:
     inputs:
+    #TODO 也支持tag? alpha 版本(非正式版本) 都是发布tag 而不是 release branch
       ref:
         description: 'source ref of kubernetes '
         required: false
@@ -75,6 +76,7 @@ jobs:
 # pull-kubernetes-conformance-kind-ipv6-parallel
 # TODO 使用vagrant搭建虚拟机,然后用openeuler/anolisos 来跑测试?
 # TODO pk-e2e-kind-beta-features
+# TODO 使用不同的cri runtime, 例如 cri-o
 
 # TODO 传递 slack messageID 进来, 让 slack 命令支持 /rerun 命令.
 
@@ -118,10 +120,15 @@ jobs:
           - kind-e2e
           - ValidatingAdmissionPolicy
           - MutatingAdmissionPolicy
+          - CustomResourceFieldSelectors
+          - cbor
+        kindVersion: 
+          - ${{ inputs.kindVersion }}
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
+      # kindversion: ${{ inputs.kindversion }}
+      kindVersion: ${{ matrix.kindVersion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
       k8sCPCount: 3
@@ -785,10 +792,13 @@ jobs:
           - conformance
           # - sig-apps
           # - statefulset
+        kindVersion:
+          - ${{ inputs.kindVersion }}
+          - main
     with:
       repo: ${{ inputs.repo }}
       ref: ${{ inputs.ref }}
-      kindversion: ${{ inputs.kindversion }}
+      kindVersion: ${{ matrix.kindVersion }}
       hydrophone: ${{ inputs.hydrophone }}
       testname: ${{ matrix.tests }}
       commitID: ${{ needs.getcommitid.outputs.commitID }}

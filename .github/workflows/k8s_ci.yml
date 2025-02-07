@@ -92,6 +92,32 @@ jobs:
 # 3. 再进行一次k8s一致性测试
 # 4. 再扩容 etcd/xline 到 4节点
 # 5. 再进行一次k8s一致性测试
+#TODO 构建自己fork分支 例如 split_healthz_scheduler
+
+  testarm:
+    name: simpletest-arm
+    strategy:
+      max-parallel: 6
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04-arm
+          - ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: run
+      run: |
+        wget https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz
+        tar -xf linux-arm64.tgz
+        ./kind create cluster
+        kubectl get pod -A
+        kubectl get node 
+        kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system
+        echo "===========================finish waiting for kube-system pods==========================="
+        kubectl get pod -A
+        kubectl get node
+        # TODO 创建多集群
+        #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz | tar xvfz - -C "${PATH%%:*}/"
 
 
   getcommitid:
@@ -357,7 +383,7 @@ jobs:
       - uses: actions/setup-go@v5.0.2
         if: steps.checkimgs.outputs.exist == 'false'
         with:
-          go-version: '1.22'
+          go-version: '1.23'
 
       - name: clean
         if: steps.checkimgs.outputs.exist == 'false'
@@ -389,14 +415,15 @@ jobs:
           make
           cd _output/bin
           bins=`ls .`
-          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG $bins
+          oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG,${{ github.event.inputs.ref }} $bins
+          #TODO 设置分仓库的 kubebins, 例如  kubebins:kk-master  kubebins:liangyuanpeng-master 
           oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e ginkgo e2e.test e2e_node.test
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:${{ inputs.ref }}
           skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:$IMGTAG-e2e docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:${{ inputs.ref }}-e2e
 
           # if [ "ref: ${{ inputs.ref }}" = "master" ];then 
-          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest $bins
-          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest-e2e ginkgo e2e.test e2e_node.test
+          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:latest,master $bins
+          #   oras push ghcr.io/$GITHUB_REPOSITORY_OWNER/kubebins:master-e2e,latest-e2e ginkgo e2e.test e2e_node.test
           # fi
 
   e2e:
@@ -423,11 +450,13 @@ jobs:
         # - xline
         # - etcd-big # 持久化的etcd
         storageMediaType: 
-        - protobuf
+        # - protobuf
         - json
-        - yaml
+        # - yaml
         # - TODO CBOR
         #TODO 添加参数控制,默认情况下只需要 protobuf
+    #TODO 添加参数控制 runson? 或者使用 ubuntu-latest
+    # TODO 添加 ubuntu-24.04-arm ubuntu-22.04-arm
     runs-on: ubuntu-22.04
     env:
       K8S_CP_COUNT: ${{ inputs.k8sCPCount }}
@@ -586,9 +615,9 @@ jobs:
       fail-fast: false
       matrix:
         storageMediaType: 
-        - protobuf
+        # - protobuf
         - json
-        - yaml
+        # - yaml
         etcd: 
         - build-in 
         - etcd-main

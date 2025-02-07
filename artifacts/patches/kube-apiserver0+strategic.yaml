@@ -1,0 +1,12 @@
+spec:
+  containers:
+  - name: kube-apiserver
+    env:
+    - name: ENABLE_KUBE_WATCHLIST_INCONSISTENCY_DETECTOR
+      value: "true"
+    - name: KUBE_FEATURE_GATES
+      value: "true"
+    - name: "KUBE_FEATURE_ClientsAllowCBOR"
+      value: "true"
+    - name: "KUBE_FEATURE_ClientsPreferCBOR"
+      value: "true"

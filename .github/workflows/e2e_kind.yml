@@ -49,7 +49,7 @@ jobs:
         # - release-1.29
         # - release-1.28 
         kindversion:
-        - v0.23.0
+        - v0.24.0
         # - 296749aa2de8577f6865e4db1870d2566a28d14b
         - master
     outputs:

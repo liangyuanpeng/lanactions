@@ -1,0 +1,117 @@
+name: bot_command
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'source ref '
+        required: false
+        default: "main"
+      repo:
+        description: 'repo'
+        required: false
+        default: ""
+      action:
+        description: 'action'
+        required: true
+        default: ""
+      prnum:
+        description: 'prnum'
+        required: false
+        default: "0"
+        # type: number
+      prCommitCount:
+        description: 'prCommitCount'
+        required: false
+        default: "0"
+        # type: number
+jobs:
+
+  repush:
+    if: inputs.action == 'repush'
+    name: repush
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+      - name: login with oras 
+        run: |
+          oras login  ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+
+      # - name: checkoutactions
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ${{ inputs.repo }}
+      #     fetch-depth: 0
+      #     ref: ${{ inputs.ref }}
+
+      - name: run 
+        run: |
+
+          git clone https://github.com/${{ inputs.repo }} -b ${{ inputs.ref }} repowork
+          cd repowork
+
+          git config --global user.email "gcslyp@gmail.com"
+          git config --global user.name "Lan Liang"
+          COMMIT_MESSAGE=`git log --pretty=format:"%s" -1`
+          git commit -s --amend -m "${COMMIT_MESSAGE}"
+
+          oras pull ghcr.io/liangyuanpeng/lanfiles:actiontoken
+          echo "COMMIT_MESSAGE:"${COMMIT_MESSAGE}
+          ACTION_TOKEN=`cat actiontoken`
+
+          git remote add upstream https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
+          git branch -a
+          git remote -v
+
+          docker run -v $PWD:/tmp --rm ghcr.io/liangyuanpeng/ubuntu:tools-v1 -c 'cd /tmp && git config --global --add safe.directory /tmp && git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}'
+
+          #git push upstream -f ${{ inputs.ref }}:${{ inputs.ref }}
+
+  squash-pr:
+    if: ${{ inputs.action == 'squash-pr' }}
+    name: squash
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+      - name: login with oras 
+        run: |
+          oras login  ghcr.io -u$GITHUB_REPOSITORY_OWNER -p${{ secrets.GITHUB_TOKEN }}
+      - name: checkoutactions
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo }}
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+
+      - name: run 
+        run: |
+          git clone https://github.com/${{ inputs.repo }} -b ${{ inputs.ref }} repowork
+          cd repowork
+          #echo "prnum:"${{ inputs.prnum }}
+          echo "prCommitCount:"${{ inputs.prCommitCount }}
+          #TODO 需要单独一个 gh token
+          git config --global user.email "gcslyp@gmail.com"
+          git config --global user.name "Lan Liang"
+          #PR_FIRST_COMMIT=`git log --format="%H" -2 | awk 'NR==2' | cut -d '|lan|' -f 2 `
+          COMMIT_MESSAGE=`git log --format="%H##lan##%s" -${{ inputs.prCommitCount }} | awk 'NR==${{ inputs.prCommitCount }}' | awk -F'##lan##' '{print $2}' `
+          git reset --soft HEAD~${{ inputs.prCommitCount }}
+          #git commit -s --amend -m "${COMMIT_MESSAGE}"
+          git commit -s -m "${COMMIT_MESSAGE}"
+
+          oras pull ghcr.io/liangyuanpeng/lanfiles:actiontoken
+          echo "COMMIT_MESSAGE:"${COMMIT_MESSAGE}
+          ACTION_TOKEN=`cat actiontoken`
+
+          git remote add yp https://liangyuanpeng:${ACTION_TOKEN}@github.com/${{ inputs.repo }}
+          #git branch -a
+          git remote -v
+          docker run -v $PWD:/tmp --rm ghcr.io/liangyuanpeng/ubuntu:tools-v1 -c 'cd /tmp && git config --global --add safe.directory /tmp && git push yp -f ${{ inputs.ref }}:${{ inputs.ref }}'
+          #git push yp -f ${{ inputs.ref }}:${{ inputs.ref }}

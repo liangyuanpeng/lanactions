@@ -28,6 +28,10 @@ function util::deployk8s(){
     sudo ifconfig eth0:9 192.168.66.2 netmask 255.255.255.0 up
     sudo ifconfig eth0:9 up
 
+    wget -q https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64
+    chmod +x docker-compose-linux-x86_64
+    mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+
     # deploy jaeger 
     # oras pull ghcr.io/liangyuanpeng/files:docker-compose-jaeger
     # curl -o /usr/local/bin/docker-compose -fsSL https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-linux-$(uname -m)
@@ -243,6 +247,19 @@ function util::runtests(){
           --report-dir=${PWD}/_artifacts/testreport            \
           --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
     fi
+
+    if [ $TEST_WHAT = "CustomResourceFieldSelectors" ];then
+      ginkgo -v --race --trace --nodes=25                \
+          --focus="CustomResourceFieldSelectors"     \
+          /usr/local/bin/e2e.test                       \
+          --                                            \
+          --kubeconfig=${PWD}/_artifacts/config     \
+          --provider=local                              \
+          --dump-logs-on-failure=true                  \
+          --report-dir=${PWD}/_artifacts/testreport            \
+          --disable-log-dump=true | tee ${PWD}/_artifacts/testreport/ginkgo-e2e.log
+    fi
+    # should create pod, add ipv6 and ipv4 ip to host ips
 
     if [ $TEST_WHAT = "MutatingAdmissionPolicy" ];then
       ginkgo -v --race --trace --nodes=25                \
