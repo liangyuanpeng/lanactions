@@ -89,6 +89,7 @@ jobs:
         chmod +x job.sh
         ./job.sh
 
+  # TODO 动态化 matrix ?
   ci:
     runs-on: ${{ matrix.runasos }}
     timeout-minutes: 120
@@ -107,10 +108,10 @@ jobs:
           # - '21'
         profile:
           - default #mysql
-          - postgresql
+          # - postgresql
         runasos:
           - ubuntu-latest
-          # - ubuntu-24.04-arm
+          - ubuntu-24.04-arm
     permissions:
       packages: write
       issues: write
