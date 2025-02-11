@@ -142,8 +142,10 @@ jobs:
           - '17'
           # - '21'
         profile:
-          - default #mysql
+        # 应该放到 e2e 测试?
+          - default # sqlite3
           # - postgresql
+          # - mysql
         runasos:
           - ubuntu-latest
           - ubuntu-24.04-arm
