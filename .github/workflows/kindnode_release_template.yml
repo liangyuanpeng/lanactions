@@ -138,7 +138,7 @@ jobs:
             wget https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
             #mv kind-linux-amd64 kind
             chmod +x kind-linux-amd64
-            KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{print $2}'`
+            KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
           fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
@@ -192,7 +192,7 @@ jobs:
             wget https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
             #mv kind-linux-amd64 kind
             chmod +x kind-linux-amd64
-            KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{print $2}'`
+            KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
           fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
@@ -255,7 +255,7 @@ jobs:
           echo "inputs. kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
           if [ "${{ inputs.kindVersion }}" = "latest" ];then
-            KIND_VERSION=`kind version | grep 'kind v' | awk '{print $2}'`
+            KIND_VERSION=`kind version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
           fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             # gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
