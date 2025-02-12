@@ -65,6 +65,12 @@ jobs:
       ref: ${{ steps.gher.outputs.ref }}
       kindVersion: ${{ steps.gher.outputs.kindVersion }}
       tagslength: ${{ steps.gher.outputs.tagslength }}
+    # strategy:
+    #   max-parallel: 6
+    #   fail-fast: false
+    #   matrix:
+    #     kindVersion:
+    #     - ${{ inputs.kindVersion }}
     steps:
       - uses: oras-project/setup-oras@main
         with:
@@ -110,6 +116,7 @@ jobs:
         ref: ${{ fromJson(needs.gettags.outputs.ref) }}
         kindVersion:
         - ${{ needs.gettags.outputs.kindVersion }}
+        - latest
     with:
       ref: ${{ matrix.ref }}
       maketag: false
