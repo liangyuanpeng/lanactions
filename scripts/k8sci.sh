@@ -5,13 +5,13 @@ set -o nounset;
 
 function util::getbuild(){
   STEP_WHAT=${STEP_WHAT:-"none"}
-  KIND_VERSION=${KIND_VERSION:-"v0.23.0"}
+  KIND_VERSION=${KIND_VERSION:-"v0.26.0"}
   if [ $STEP_WHAT = "getbuild" ];then 
     if [ $KIND_VERSION = "latest" ];then 
       echo "download latest version of kind."
     else 
       wget -q https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-linux-amd64
-    chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
+      chmod +x kind-linux-amd64 &&  mv kind-linux-amd64 /usr/local/bin/kind
     fi
     
   fi
