@@ -177,13 +177,19 @@ jobs:
         ./job.sh
 
 
-  watcher:
+  alwaysjob:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     if: always()
+    strategy:
+      fail-fast: false
+      matrix:
+        CINAME:
+        - watcher 
+        - deployer
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
-      CINAME: watcher
+      CINAME: ${{ matrix.CINAME }}
       GH_TOKEN: ${{ github.token }}
       CURRENT_GHEVENT: ${{ toJSON(github.event) }}
     needs:
