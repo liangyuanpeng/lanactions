@@ -83,8 +83,8 @@ jobs:
           REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=amd64  make
           docker images
           docker push ghcr.io/$GITHUB_REPOSITORY_OWNER/etcd:main-0-linux-amd64
-          REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=arm64  make
-          docker images
+          #REGISTRY=ghcr.io/$GITHUB_REPOSITORY_OWNER ARCH=arm64  make
+          #docker images
 
   # push-image-etcd-windows:
   #   name: push-image-etcd-windows
