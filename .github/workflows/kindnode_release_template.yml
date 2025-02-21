@@ -134,6 +134,12 @@ jobs:
           echo "inputs.repo:"${{ inputs.repo }}
           echo "inputs.kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            wget https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+            #mv kind-linux-amd64 kind
+            chmod +x kind-linux-amd64
+            KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
+          fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
             cat kind.version
@@ -182,6 +188,12 @@ jobs:
           echo "inputs.repo:"${{ inputs.repo }}
           echo "inputs.kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            wget https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+            #mv kind-linux-amd64 kind
+            chmod +x kind-linux-amd64
+            KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
+          fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
             cat kind.version
@@ -192,6 +204,7 @@ jobs:
           if [ "${{ inputs.kindVersion }}" = "" ];then
             KIND_VERSION=`gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name'`
           fi
+          echo "KIND_VERSION:"$KIND_VERSION
           if [ "$REF" = "" ];then
               echo "ref=master" >> "$GITHUB_OUTPUT"
           else
@@ -207,9 +220,15 @@ jobs:
       - name: download kind
         run: |
           echo ${{ steps.genoutputs.outputs.kindversion }}
-          wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
-          chmod +x kind-linux-amd64
-          mv kind-linux-amd64 /usr/local/bin/kind
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            wget https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+            chmod +x kind-linux-amd64
+            mv kind-linux-amd64 /usr/local/bin/kind
+          else
+            wget -q https://github.com/kubernetes-sigs/kind/releases/download/${{ steps.genoutputs.outputs.kindversion }}/kind-linux-amd64
+            chmod +x kind-linux-amd64
+            mv kind-linux-amd64 /usr/local/bin/kind
+          fi
           kind --version
           kind build node-image -h
 
@@ -235,6 +254,9 @@ jobs:
         run: |
           echo "inputs. kindVersion:"${{ inputs.kindVersion }}
           export KIND_VERSION=${{ inputs.kindVersion }}
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            KIND_VERSION=`kind version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
+          fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
             # gh api repos/kubernetes-sigs/kind/tags --jq 'map(select(.name | contains("alpha") or contains("beta") | not)) | .[0].name' > kind.version
             # cat kind.version
@@ -370,7 +392,9 @@ jobs:
           cd ..
           git clone https://github.com/kubernetes-sigs/kind
           cd kind
-          git checkout ${{ steps.genoutputs.outputs.kindversion }}
+          if [ "${{ inputs.kindVersion }}" != "latest" ];then
+            git checkout ${{ steps.genoutputs.outputs.kindversion }}
+          fi
           pwd
           go version
 
@@ -430,17 +454,25 @@ jobs:
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-arm64:$KUBE_VERSION
           #      ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}-amd64:$KUBE_VERSION
           
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-          skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
+          skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
+          skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+          skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+          skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
+
+          if [ "${{ inputs.kindVersion }}" = "latest" ];then
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:main-${{ steps.genoutputs.outputs.ref }}
+          fi
 
           if [ ${{ github.repository }} = 'lank8scn/lanactions' ];then
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
-            skopeo copy --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$GIT_KUBE_VERSION
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$IMGTAG
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-${{ steps.genoutputs.outputs.ref }}
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$COMMIT_ID
+          
+            if [ "${{ inputs.kindVersion }}" = "latest" ];then
+              skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json  docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/liangyuanpeng/${{ inputs.imgrepo }}/${{ inputs.imgname }}:main-${{ steps.genoutputs.outputs.ref }}
+            fi
           fi
 
           # kind build node-image ../kubernetes
@@ -456,7 +488,7 @@ jobs:
           CHTIME=`date +"%Y%m%d%H"`
           if [[ ${{ steps.genoutputs.outputs.ref }} == "master" ]];then
             echo "this is master"
-            skopeo copy --dest-authfile $HOME/.docker/config.json docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
+            skopeo copy --multi-arch=all --dest-authfile $HOME/.docker/config.json docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:$KUBE_VERSION docker://ghcr.io/$GITHUB_REPOSITORY_OWNER/${{ inputs.imgrepo }}/${{ inputs.imgname }}:${{ steps.genoutputs.outputs.kindversion }}-$CHTIME
           fi
           
           #touch /tmp/result.txt

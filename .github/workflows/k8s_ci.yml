@@ -107,7 +107,7 @@ jobs:
     steps:
     - name: run
       run: |
-        wget https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz
+        wget -q https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz
         tar -xf linux-arm64.tgz
         ./kind create cluster
         kubectl get pod -A
@@ -115,7 +115,7 @@ jobs:
         kubectl wait --timeout=1m --for=condition=ready pods --namespace=kube-system
         echo "===========================finish waiting for kube-system pods==========================="
         kubectl get pod -A
-        kubectl get node
+        kubectl get node -A
         # TODO 创建多集群
         #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz | tar xvfz - -C "${PATH%%:*}/"
 
