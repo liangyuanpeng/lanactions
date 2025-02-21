@@ -5,7 +5,7 @@ set -o nounset;
 
 function util::getbuild(){
   STEP_WHAT=${STEP_WHAT:-"none"}
-  KIND_VERSION=${KIND_VERSION:-"v0.26.0"}
+  KIND_VERSION=${KIND_VERSION:-"v0.27.0"}
   if [ $STEP_WHAT = "getbuild" ];then 
     if [ $KIND_VERSION = "latest" ];then 
       echo "download latest version of kind."
