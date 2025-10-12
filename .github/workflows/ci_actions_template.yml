@@ -1,0 +1,57 @@
+name: ci_actions
+
+on:
+  workflow_call:
+    inputs:
+      triggerIssueId:
+        description: 'issueId'
+        required: false
+      customParam:
+        description: 'customParam'
+        required: false
+      ghevent:
+        description: 'ghevent'
+        required: false
+      ciname: 
+        description: 'ghevent'
+        required: false
+      jobname:
+        description: 'jobname'
+        required: false
+
+jobs:
+
+  ${{ inputs.jobname }}:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GHEVENT: ${{ github.event.inputs.ghevent }}
+      CINAME: build
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+    permissions:
+      packages: write
+      issues: write
+      pull-requests: write
+      actions: write
+
+    steps:
+    - name: Set up JDK
+      id: setup-java
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+    - uses: actions/setup-go@main
+      with:
+        go-version: '1.23'
+    - uses: oras-project/setup-oras@main
+      with:
+        version: 1.2.0
+
+    - name: build
+      run: |
+        oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+        oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+        chmod +x job.sh
+        ./job.sh

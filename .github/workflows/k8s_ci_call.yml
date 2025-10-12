@@ -732,6 +732,7 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-24.04
+          - ubuntu-24.04-arm
         goversion:
           - "go.mod"
           # - "1.22.1"
@@ -765,7 +766,7 @@ jobs:
           go-version-file: go.mod
       - name: run
         run: |
-          make test
+          KUBE_RACE="-race" make test
       - name: check artifacts
         if: always()
         run: |
