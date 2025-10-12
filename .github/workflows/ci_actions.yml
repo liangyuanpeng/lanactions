@@ -78,6 +78,7 @@ jobs:
       - name: Run job
         run: |
           echo "hello"
+          echo "ciname:"${CINAME}
           # oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
           # oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
           # chmod +x job.sh
