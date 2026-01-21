@@ -128,5 +128,9 @@ echo "matrix=$BASIC_JOBS" >> $GITHUB_OUTPUT
 echo "ci-matrix=$CI_MATRIX" >> $GITHUB_OUTPUT
 echo "always-jobs=$ALWAYS_JOBS" >> $GITHUB_OUTPUT
 
+echo "matrix=$BASIC_JOBS"
+echo "ci-matrix=$CI_MATRIX" 
+echo "always-jobs=$ALWAYS_JOBS"
+
 echo ""
 echo "✅ Configuration generated successfully!"
