@@ -75,7 +75,15 @@ jobs:
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
-
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # 安装必要的 Android SDK 组件 (使用空格分隔)
+          packages: "platforms;android-34 build-tools;34.0.0 platform-tools"
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Run job
         run: |
           echo "hello"
@@ -272,6 +280,15 @@ jobs:
         with:
           java-version: ${{ matrix.java_version }}
           distribution: "temurin"
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # 安装必要的 Android SDK 组件 (使用空格分隔)
+          packages: "platforms;android-34 build-tools;34.0.0 platform-tools"
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: ci
         run: |
           oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
