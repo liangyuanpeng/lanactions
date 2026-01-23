@@ -10,7 +10,7 @@
       "always_jobs": ["watcher"]
     },
     "standard": {
-      "basic_jobs": ["build-py","build-go", "e2e","main","build-hjzx","build-webrunner"],
+      "basic_jobs": ["build-huiben", "e2e","main","build-hjzx","build-webrunner"],
       "ci_matrix": {
         "java_version": ["17"],
         "profile": ["default"],
