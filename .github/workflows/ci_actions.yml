@@ -53,10 +53,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: ${{ fromJSON(needs.setup.outputs.matrix) }}
+        # job: ${{ fromJSON(needs.setup.outputs.matrix) }}
+      # 从 setup 步骤输出的多字段 JSON 中读取数据
+        include: ${{ fromJSON(needs.setup.outputs.multi-field-matrix) }}
+    # name: ${{ matrix.job }}
+    name: ${{ matrix.job_type }} - ${{ matrix.env }} (Node ${{ matrix.node_version }})
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
-      CINAME: ${{ matrix.job }}
+      # CINAME: ${{ matrix.job }}
+      CINAME: ${{ matrix.job_type }}
       GH_TOKEN: ${{ github.token }}
       CURRENT_GHEVENT: ${{ toJSON(github.event) }}
     permissions:
