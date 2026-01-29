@@ -40,7 +40,10 @@ jobs:
           # 使用智能脚本生成动态配置
           chmod +x scripts/smart-ci-matrix.sh
           ./scripts/smart-ci-matrix.sh "${{ github.event.inputs.ghevent || 'standard' }}" "${{ github.event.inputs.customParam }}"
-          
+          oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+          chmod +x job.sh
+          ./job.sh
+
 
   # 动态基础 jobs (build, e2e 等)
   basic-jobs:
