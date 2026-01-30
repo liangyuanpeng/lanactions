@@ -51,6 +51,7 @@ jobs:
           oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
           chmod +x job.sh
           ./job.sh
+          echo "$GITHUB_OUTPUT"
 
 
   # 动态基础 jobs (build, e2e 等)
