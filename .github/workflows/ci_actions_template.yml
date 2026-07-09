@@ -3,30 +3,37 @@ name: ci_actions
 on:
   workflow_call:
     inputs:
-      triggerIssueId:
+      trigger_issue_id:
         description: 'issueId'
         required: false
-      customParam:
+        type: string
+      custom_param:
         description: 'customParam'
         required: false
-      ghevent:
+        type: string
+      gh_event:
         description: 'ghevent'
         required: false
-      ciname: 
-        description: 'ghevent'
+        type: string
+      ci_name:
+        description: 'ci name'
         required: false
-      jobname:
-        description: 'jobname'
+        type: string
+        default: 'build'
+      job_name:
+        description: 'job name'
         required: false
+        type: string
+        default: 'build'
 
 jobs:
-
-  ${{ inputs.jobname }}:
+  ci_job:
+    name: ${{ inputs.job_name || 'build' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      GHEVENT: ${{ github.event.inputs.ghevent }}
-      CINAME: build
+      GHEVENT: ${{ inputs.gh_event }}
+      CINAME: ${{ inputs.ci_name || 'build' }}
       GH_TOKEN: ${{ github.token }}
       CURRENT_GHEVENT: ${{ toJSON(github.event) }}
     permissions:
