@@ -13,7 +13,7 @@ on:
         description: "ghevent"
         required: false
       ciname:
-        description: "ghevent"
+        description: "ciname"
         required: false
 
 jobs:
@@ -44,10 +44,13 @@ jobs:
           version: 1.2.0
       - name: Generate dynamic matrix
         id: set-matrix
+        env:
+          GH_EVENT_INPUT: ${{ github.event.inputs.ghevent || 'standard' }}
+          CUSTOM_PARAM: ${{ github.event.inputs.customParam || '' }}
         run: |
           # 使用智能脚本生成动态配置
           chmod +x scripts/smart-ci-matrix.sh
-          ./scripts/smart-ci-matrix.sh "${{ github.event.inputs.ghevent || 'standard' }}" "${{ github.event.inputs.customParam }}"
+          ./scripts/smart-ci-matrix.sh "$GH_EVENT_INPUT" "$CUSTOM_PARAM"
           oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
           oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
           chmod +x job.sh
