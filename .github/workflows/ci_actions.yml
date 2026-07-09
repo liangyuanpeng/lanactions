@@ -100,7 +100,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: Run job
         run: |
           echo "hello"
@@ -150,7 +150,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           # cache: 'npm'
       - name: build
         run: |
@@ -303,7 +303,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
       - name: ci
         run: |
           oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
