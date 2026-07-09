@@ -60,7 +60,7 @@ jobs:
   # 动态基础 jobs (build, e2e 等)
   basic-jobs:
     runs-on: ${{ matrix.runson }}
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
     needs: setup
     strategy:
       fail-fast: false
@@ -234,7 +234,7 @@ jobs:
   #TODO 动态一个job
   trivy:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
     permissions:
       packages: write
       issues: write
@@ -269,7 +269,7 @@ jobs:
   # 动态 CI matrix jobs
   ci:
     runs-on: ${{ matrix.runasos }}
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout || 30 }}
     needs: setup
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
@@ -317,7 +317,7 @@ jobs:
   # 动态 always jobs
   alwaysjob:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
     if: always()
     needs:
       - setup
