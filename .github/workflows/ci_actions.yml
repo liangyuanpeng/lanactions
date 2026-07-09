@@ -324,7 +324,7 @@ jobs:
       - basic-jobs
       - ci
       - trivy
-      - build
+      # - build
       - e2e
     strategy:
       fail-fast: false
