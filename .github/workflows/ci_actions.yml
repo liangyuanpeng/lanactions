@@ -355,8 +355,25 @@ jobs:
         with:
           version: 1.2.0
 
-      - name: Run always job
+      - name: Run job
         run: |
           oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
           chmod +x job.sh
           ./job.sh
+
+      - name: run failed
+        if: ${{ failure() }}
+        run: |
+          if [ -f always.sh ];then
+            chmod +x failed.sh 
+            ./failed.sh
+          fi
+
+      - name: run always
+        if: ${{ always() }}
+        run: |
+          echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
