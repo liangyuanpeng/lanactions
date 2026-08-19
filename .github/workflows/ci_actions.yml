@@ -89,6 +89,11 @@ jobs:
       actions: write
 
     steps:
+      - name: Configure Fast APT Mirror
+        uses: vegardit/fast-apt-mirror.sh@v1
+        with:
+          healthchecks: 20
+          speedtests: 10
       # - name: Set up JDK
       #   id: setup-java
       #   uses: actions/setup-java@v4
