@@ -42,8 +42,8 @@ jobs:
 
       - name: Install jq
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
+          sudo timeout 600 apt-get update
+          sudo timeout 600 apt-get install -y jq
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
