@@ -31,6 +31,11 @@ jobs:
       always-jobs: ${{ steps.set-matrix.outputs.always-jobs }}
       multi-field-matrix: ${{ steps.set-matrix.outputs.multi-field-matrix }}
     steps:
+      - name: Configure Fast APT Mirror
+        uses: vegardit/fast-apt-mirror.sh@v1
+        with:
+          healthchecks: 20
+          speedtests: 10
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # 需要完整历史来检测变更
