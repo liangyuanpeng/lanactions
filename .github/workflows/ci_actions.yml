@@ -20,7 +20,7 @@ jobs:
   # 动态生成 job 配置的 setup job
   setup:
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
+    timeout-minutes: 20
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
       CINAME: setup
