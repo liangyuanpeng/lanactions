@@ -298,6 +298,11 @@ jobs:
       pull-requests: write
       actions: write
     steps:
+      - name: Configure Fast APT Mirror
+        uses: vegardit/fast-apt-mirror.sh@v1
+        with:
+          healthchecks: 20
+          speedtests: 10
       - uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
