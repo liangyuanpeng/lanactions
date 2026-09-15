@@ -19,8 +19,8 @@
 
 name: build_command_latest
 on:
-  push:
-    branches:
+  # push:
+    # branches:
   schedule:
     - cron: '0 17 * * 0,1,2,3,4,5,6'
   workflow_call:

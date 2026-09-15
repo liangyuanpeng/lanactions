@@ -31,6 +31,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.25.0"
 	"go.opentelemetry.io/otel/trace"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -41,8 +42,98 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/retry"
 	"k8s.io/klog/v2"
 )
+
+func testjob(){
+config, err := clientcmd.BuildConfigFromFlags("", "/home/runner/.kube/config")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// 2. 创建客户端
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// 3. 定义 Job
+	job := &batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "demo-job",
+		},
+		Spec: batchv1.JobSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:    "busybox",
+							Image:   "busybox",
+							Command: []string{"sleep", "30"}, // 模拟任务
+						},
+					},
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
+			},
+		},
+	}
+
+	// 4. 创建 Job
+	fmt.Println("Creating Job...")
+	createdJob, err := clientset.BatchV1().Jobs("default").Create(context.TODO(), job, metav1.CreateOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Printf("Created Job %q\n", createdJob.Name)
+
+	// 5. 等待 Job 进入可更新状态（仅示例，生产环境需更健壮的等待逻辑）
+	time.Sleep(5 * time.Second)
+
+	// 6. 更新 Job 状态
+	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// 获取最新 Job 对象
+		latestJob, err := clientset.BatchV1().Jobs("default").Get(
+			context.TODO(),
+			"demo-job",
+			metav1.GetOptions{},
+		)
+		if err != nil {
+			clientset.BatchV1().Jobs("default").Delete(context.TODO(), "demo-job", metav1.DeleteOptions{})
+			return err
+		}
+
+		// 构造新的 Condition
+		completeCondition := batchv1.JobCondition{
+			Type:               batchv1.JobComplete, // 使用内置常量
+			Status:             corev1.ConditionTrue,
+			LastProbeTime:      metav1.Now(),
+			LastTransitionTime: metav1.Now(),
+			Reason:             "ManuallyUpdated",
+			Message:            "Set by client-go",
+		}
+
+		// 更新 Conditions
+		latestJob.Status.Conditions = append(latestJob.Status.Conditions, completeCondition)
+		latestJob.Status.Succeeded = 1 // 需同步更新成功计数
+
+		// 提交更新
+		_, err = clientset.BatchV1().Jobs("default").UpdateStatus(
+			context.TODO(),
+			latestJob,
+			metav1.UpdateOptions{},
+		)
+		
+		return err
+	})
+
+	if err != nil {
+		clientset.BatchV1().Jobs("default").Delete(context.TODO(), "demo-job", metav1.DeleteOptions{})
+		panic(fmt.Errorf("failed to update status: %v", err))
+	}
+	fmt.Println("Successfully updated Job status")
+	clientset.BatchV1().Jobs("default").Delete(context.TODO(), "demo-job", metav1.DeleteOptions{})
+}
 
 func teststr() {
 	strs := []string{}
@@ -76,7 +167,8 @@ func main() {
 	// preditdemo()
 	// cancelghaction()
 	// latestReleaseRef()
-	cacheTransform()
+	// cacheTransform()
+	testjob()
 }
 
 func cacheTransform() {

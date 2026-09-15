@@ -138,6 +138,7 @@ jobs:
             wget https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
             #mv kind-linux-amd64 kind
             chmod +x kind-linux-amd64
+            ./kind-linux-amd64 version
             KIND_VERSION=`./kind-linux-amd64 version | grep 'kind v' | awk '{gsub(/\+/,"-",$2); print $2}'`
           fi
           if [ "${{ inputs.kindVersion }}" = "stable" ];then
@@ -160,6 +161,7 @@ jobs:
           else
               echo "maketag=$MAKETAG" >> "$GITHUB_OUTPUT"
           fi
+          echo "kindVersion=$KIND_VERSION"
           echo "kindVersion=$KIND_VERSION" >> "$GITHUB_OUTPUT"
 
 #TODO 只需要多一个job,用于初始化信息 把 workflow run ID 存起来就可以了
