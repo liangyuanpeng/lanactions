@@ -45,9 +45,56 @@ jobs:
         run: |
           sudo timeout 600 apt-get update
           sudo timeout 600 apt-get install -y jq
-      - uses: oras-project/setup-oras@main
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
       - name: Generate dynamic matrix
         id: set-matrix
         env:
@@ -103,9 +150,56 @@ jobs:
       - uses: actions/setup-go@main
         # with:
         #   go-version: "1.23"
-      - uses: oras-project/setup-oras@main
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
       # - name: 🤖 Setup Android SDK
       #   uses: android-actions/setup-android@v3
       #   with:
@@ -279,9 +373,56 @@ jobs:
           distribution: "temurin"
       - uses: actions/setup-go@main
         
-      - uses: oras-project/setup-oras@main
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
 
       - name: trivy
         env:
@@ -320,9 +461,56 @@ jobs:
         with:
           healthchecks: 20
           speedtests: 10
-      - uses: oras-project/setup-oras@main
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
       - uses: actions/setup-go@main
         
       - name: Set up JDK
@@ -401,9 +589,56 @@ jobs:
       - uses: actions/setup-go@main
         
 
-      - uses: oras-project/setup-oras@main
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
         with:
           version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
 
       - name: Run job
         run: |
