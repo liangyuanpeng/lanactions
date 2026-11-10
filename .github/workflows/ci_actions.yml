@@ -234,6 +234,42 @@ jobs:
           chmod +x oras
           mv oras /usr/local/bin/oras
           oras version
+      # ---- （新增，验证用）动态缓存多个 bin：manifest 驱动 bundle cache ----
+      # 与上方原有 oras/mc 缓存并存，先验证再迁移。确认无误后：
+      # 移除原 Cache ORAS binary / Cache mc binary，并按需补充 Install missing bins。
+      # 增删 bin 只改 MANIFEST；key 由 os + arch + 全量版本指纹决定，任一版本变动 → 整包自动重建。
+      # 版本号请与 job.sh 实际安装的版本保持一致，否则缓存不会按预期失效。
+      - name: Compute bin cache spec
+        id: bins
+        run: |
+          set -euo pipefail
+          MANIFEST=$(printf 'oras=1.2.0\nmc=RELEASE.20240214\nkubectl=v1.30.0\nrustfs-cli=0.1.37\n')
+          printf '%s' "$MANIFEST" > /tmp/bin-manifest
+
+          PATHS=""
+          while IFS='=' read -r name _; do
+            [ -z "$name" ] && continue
+            PATHS="$PATHS"$'\n'"/usr/local/bin/$name"
+          done <<< "$MANIFEST"
+          PATHS="${PATHS#?}"
+
+          echo "paths<<BINS" >> "$GITHUB_OUTPUT"
+          echo "$PATHS" >> "$GITHUB_OUTPUT"
+          echo "BINS" >> "$GITHUB_OUTPUT"
+
+          KEY="bins-${{ runner.os }}-${{ runner.arch }}-$(printf '%s' "$MANIFEST" | sha256sum | cut -c1-16)"
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+          echo "--- bin manifest ---"
+          echo "$MANIFEST"
+
+      - name: Cache bins (bundle, additive)
+        id: cache-bins
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.bins.outputs.paths }}
+          key: ${{ steps.bins.outputs.key }}
+          restore-keys: |
+            bins-${{ runner.os }}-${{ runner.arch }}-
       # - name: 🤖 Setup Android SDK
       #   uses: android-actions/setup-android@v3
       #   with:
