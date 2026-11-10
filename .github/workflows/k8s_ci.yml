@@ -117,7 +117,7 @@ jobs:
         kubectl get pod -A
         kubectl get node -A
         # TODO 创建多集群
-        #curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz | tar xvfz - -C "${PATH%%:*}/"
+        curl -sSL https://kind.sigs.k8s.io/dl/latest/linux-arm64.tgz | tar xvfz - -C "${PATH%%:*}/"
 
 
   getcommitid:

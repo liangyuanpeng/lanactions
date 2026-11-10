@@ -1,0 +1,62 @@
+{
+  "profiles": {
+    "minimal": {
+      "basic_jobs": ["build"],
+      "ci_matrix": {
+        "java_version": ["17"],
+        "profile": ["default"],
+        "runasos": ["ubuntu-latest"]
+      },
+      "always_jobs": ["watcher"]
+    },
+    "standard": {
+      "basic_jobs": ["build-huiben", "e2e","main","build-hjzx","build-webrunner"],
+      "ci_matrix": {
+        "java_version": ["17"],
+        "profile": ["default"],
+        "runasos": ["ubuntu-latest", "ubuntu-24.04-arm"]
+      },
+      "always_jobs": ["watcher", "deployer"]
+    },
+    "full": {
+      "basic_jobs": ["build", "e2e", "integration"],
+      "ci_matrix": {
+        "java_version": ["17", "21"],
+        "profile": ["default", "postgresql", "mysql"],
+        "runasos": ["ubuntu-latest", "ubuntu-24.04-arm"]
+      },
+      "always_jobs": ["watcher", "deployer", "notifier"]
+    },
+    "security": {
+      "basic_jobs": ["build", "security-scan"],
+      "ci_matrix": {
+        "java_version": ["17"],
+        "profile": ["default"],
+        "runasos": ["ubuntu-latest"]
+      },
+      "always_jobs": ["security-report"]
+    }
+  },
+  "change_detection": {
+    "go_files": {
+      "patterns": ["*.go", "go.mod", "go.sum"],
+      "add_jobs": ["go-test"],
+      "enable_e2e": true
+    },
+    "java_files": {
+      "patterns": ["*.java", "*.xml", "pom.xml"],
+      "add_jobs": ["java-test"],
+      "enable_multi_java": true,
+      "enable_e2e": true
+    },
+    "config_files": {
+      "patterns": ["config/*", "*.yaml", "*.yml"],
+      "add_jobs": ["config-validation"]
+    },
+    "docker_files": {
+      "patterns": ["Dockerfile", "docker-compose*", "artifacts/*"],
+      "add_jobs": ["docker-build"],
+      "add_always_jobs": ["image-scan"]
+    }
+  }
+}

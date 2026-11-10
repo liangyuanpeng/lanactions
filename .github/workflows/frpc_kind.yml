@@ -327,6 +327,12 @@ jobs:
           docker-images: false
           swap-storage: false
 
+      - name: Setup Android
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          ndk-version: '27.3.13750724'
+
       - name: runinit
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

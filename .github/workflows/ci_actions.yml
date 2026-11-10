@@ -4,26 +4,136 @@ on:
   workflow_dispatch:
     inputs:
       triggerIssueId:
-        description: 'issueId'
+        description: "issueId"
         required: false
       customParam:
-        description: 'customParam'
+        description: "customParam"
         required: false
       ghevent:
-        description: 'ghevent'
+        description: "ghevent"
         required: false
-      ciname: 
-        description: 'ghevent'
+      ciname:
+        description: "ciname"
         required: false
 
 jobs:
-
-  build:
+  # 动态生成 job 配置的 setup job
+  setup:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 20
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
-      CINAME: build
+      CINAME: setup
+      GH_TOKEN: ${{ github.token }}
+      CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      ci-matrix: ${{ steps.set-matrix.outputs.ci-matrix }}
+      always-jobs: ${{ steps.set-matrix.outputs.always-jobs }}
+      multi-field-matrix: ${{ steps.set-matrix.outputs.multi-field-matrix }}
+    steps:
+      - name: Configure Fast APT Mirror
+        uses: vegardit/fast-apt-mirror.sh@v1
+        with:
+          healthchecks: 20
+          speedtests: 10
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 需要完整历史来检测变更
+
+      - name: Install jq
+        run: |
+          sudo timeout 600 apt-get update
+          sudo timeout 600 apt-get install -y jq
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Cache mc binary
+        id: cache-mc
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/mc
+          key: mc-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
+      - name: Generate dynamic matrix
+        id: set-matrix
+        env:
+          GH_EVENT_INPUT: ${{ github.event.inputs.ghevent || 'standard' }}
+          CUSTOM_PARAM: ${{ github.event.inputs.customParam || '' }}
+        run: |
+          # 使用智能脚本生成动态配置
+          chmod +x scripts/smart-ci-matrix.sh
+          ./scripts/smart-ci-matrix.sh "$GH_EVENT_INPUT" "$CUSTOM_PARAM"
+          oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+          oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+          chmod +x job.sh
+          ./job.sh
+          echo "$GITHUB_OUTPUT"
+
+  # 动态基础 jobs (build, e2e 等)
+  basic-jobs:
+    runs-on: ${{ matrix.runson }}
+    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        # job: ${{ fromJSON(needs.setup.outputs.matrix) }}
+        # 从 setup 步骤输出的多字段 JSON 中读取数据
+        include: ${{ fromJSON(needs.setup.outputs.multi-field-matrix ) }}
+    # name: ${{ matrix.job }}
+    name: ${{ matrix.job_type }}-${{ matrix.env }}-node${{ matrix.node_version }}-${{ matrix.runson }}
+    env:
+      GHEVENT: ${{ github.event.inputs.ghevent }}
+      # CINAME: ${{ matrix.job }}
+      CINAME: ${{ matrix.job_type }}
       GH_TOKEN: ${{ github.token }}
       CURRENT_GHEVENT: ${{ toJSON(github.event) }}
     permissions:
@@ -33,101 +143,514 @@ jobs:
       actions: write
 
     steps:
-    - name: Set up JDK
-      id: setup-java
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: 'temurin'
-    - uses: actions/setup-go@main
-      with:
-        go-version: '1.23'
-    - uses: oras-project/setup-oras@main
-      with:
-        version: 1.2.0
+      - name: Configure Fast APT Mirror
+        uses: vegardit/fast-apt-mirror.sh@v1
+        with:
+          healthchecks: 20
+          speedtests: 10
+      # - name: Set up JDK
+      #   id: setup-java
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     java-version: 21
+      #     distribution: "temurin"
+      - uses: actions/setup-go@main
+        # with:
+        #   go-version: "1.23"
+      # 动态解析 Go 缓存路径与版本，供下方缓存 step 使用。
+      # 注意：仓库由 job.sh 内部 git clone，setup-go 运行时 go.sum 尚不存在，
+      # 因此 setup-go 的 cache:true 无法生成基于依赖的 key，这里用显式 actions/cache 代替。
+      # 版本号不硬编码，key 用 go env GOVERSION 动态取值，跟随 runner 上实际安装的 Go（@main 会取最新稳定版）。
+      - name: Get Go env (cache paths)
+        id: go-env
+        run: |
+          echo "gocache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "gomodcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "goversion=$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
 
-    - name: build
-      run: |
-        oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
-        oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
-        chmod +x job.sh
-        ./job.sh
+      - name: Cache Go build & module cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.go-env.outputs.gocache }}
+            ${{ steps.go-env.outputs.gomodcache }}
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ steps.go-env.outputs.goversion }}-${{ matrix.job_type }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-go-${{ steps.go-env.outputs.goversion }}-
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
 
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      GHEVENT: ${{ github.event.inputs.ghevent }}
-      CINAME: e2e
-      GH_TOKEN: ${{ github.token }}
-      CURRENT_GHEVENT: ${{ toJSON(github.event) }}
-    permissions:
-      packages: write
-      issues: write
-      pull-requests: write
-      actions: write
+      - name: Cache mc binary
+        id: cache-mc
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/mc
+          key: mc-${{ runner.os }}-${{ runner.arch }}
 
-    steps:
-    - name: Set up JDK
-      id: setup-java
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: 'temurin'
-    - uses: actions/setup-go@main
-      with:
-        go-version: '1.23'
-    - uses: oras-project/setup-oras@main
-      with:
-        version: 1.2.0
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
 
-    - name: build
-      run: |
-        oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
-        oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
-        chmod +x job.sh
-        ./job.sh
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
+      # ---- （新增，验证用）动态缓存多个 bin：manifest 驱动 bundle cache ----
+      # 与上方原有 oras/mc 缓存并存，先验证再迁移。确认无误后：
+      # 移除原 Cache ORAS binary / Cache mc binary，并按需补充 Install missing bins。
+      # 增删 bin 只改 MANIFEST；key 由 os + arch + 全量版本指纹决定，任一版本变动 → 整包自动重建。
+      # 版本号请与 job.sh 实际安装的版本保持一致，否则缓存不会按预期失效。
+      - name: Compute bin cache spec
+        id: bins
+        run: |
+          set -euo pipefail
+          MANIFEST=$(printf 'oras=1.2.0\nmc=RELEASE.20240214\nkubectl=v1.30.0\nrustfs-cli=0.1.37\n')
+          printf '%s' "$MANIFEST" > /tmp/bin-manifest
 
-#TODO 动态一个job
+          PATHS=""
+          while IFS='=' read -r name _; do
+            [ -z "$name" ] && continue
+            PATHS="$PATHS"$'\n'"/usr/local/bin/$name"
+          done <<< "$MANIFEST"
+          PATHS="${PATHS#?}"
+
+          echo "paths<<BINS" >> "$GITHUB_OUTPUT"
+          echo "$PATHS" >> "$GITHUB_OUTPUT"
+          echo "BINS" >> "$GITHUB_OUTPUT"
+
+          KEY="bins-${{ runner.os }}-${{ runner.arch }}-$(printf '%s' "$MANIFEST" | sha256sum | cut -c1-16)"
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+          echo "--- bin manifest ---"
+          echo "$MANIFEST"
+
+      - name: Cache bins (bundle, additive)
+        id: cache-bins
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.bins.outputs.paths }}
+          key: ${{ steps.bins.outputs.key }}
+          restore-keys: |
+            bins-${{ runner.os }}-${{ runner.arch }}-
+      # - name: 🤖 Setup Android SDK
+      #   uses: android-actions/setup-android@v3
+      #   with:
+      #     # 安装必要的 Android SDK 组件 (使用空格分隔)
+      #     packages: "platforms;android-34 build-tools;34.0.0 platform-tools"
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run job
+        run: |
+          echo "hello"
+          echo "ciname:"${CINAME}
+          oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+          oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+          chmod +x job.sh
+          ./job.sh
+      - name: run failed
+        if: ${{ failure() }}
+        run: |
+          if [ -f always.sh ];then
+            chmod +x failed.sh 
+            ./failed.sh
+          fi
+
+      - name: run always
+        if: ${{ always() }}
+        run: |
+          echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
+
+
+  # build:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 120
+  #   env:
+  #     GHEVENT: ${{ github.event.inputs.ghevent }}
+  #     CINAME: build
+  #     GH_TOKEN: ${{ github.token }}
+  #     CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+  #   permissions:
+  #     packages: write
+  #     issues: write
+  #     pull-requests: write
+  #     actions: write
+
+  #   steps:
+  #     - name: Set up JDK
+  #       id: setup-java
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         java-version: 17
+  #         distribution: "temurin"
+  #     - uses: actions/setup-go@main
+  #       # with:
+  #         # go-version: "1.23"
+  #     # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+  #     # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+  #     # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+  #     - name: Cache ORAS binary
+  #       id: cache-oras
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /usr/local/bin/oras
+  #         key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+  #     - name: Setup ORAS (official action)
+  #       id: setup-oras
+  #       if: steps.cache-oras.outputs.cache-hit != 'true'
+  #       continue-on-error: true
+  #       uses: oras-project/setup-oras@main
+  #       with:
+  #         version: 1.2.0
+
+  #     - name: Fallback install ORAS (wget download)
+  #       if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+  #       run: |
+  #         set -e
+  #         ORAS_VERSION="1.2.0"
+  #         ARCH_NAME="$(uname -m)"
+  #         if [ "$ARCH_NAME" != "x86_64" ]; then
+  #           ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+  #         else
+  #           echo "begin download oras for linux-amd64"
+  #           ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+  #         fi
+  #         TMP_DIR="$(mktemp -d)"
+  #         cd "$TMP_DIR"
+  #         for attempt in 1 2 3; do
+  #           echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+  #           if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+  #             break
+  #           fi
+  #           if [ "$attempt" -lt 3 ]; then
+  #             echo "Download failed, retrying in 5s..."
+  #             sleep 5
+  #           fi
+  #         done
+  #         if [ ! -f "${ORAS_TARBALL}" ]; then
+  #           echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+  #           exit 1
+  #         fi
+  #         tar -xzf "${ORAS_TARBALL}"
+  #         chmod +x oras
+  #         mv oras /usr/local/bin/oras
+  #         oras version
+  #     # - name: Setup Android
+  #     #   uses: android-actions/setup-android@v3
+  #     #   with:
+  #     #     api-level: 34
+  #     #     ndk-version: '27.3.13750724'
+  #     - name: 🤖 Setup Android SDK
+  #       uses: android-actions/setup-android@v3
+  #       with:
+  #         # 安装必要的 Android SDK 组件 (使用空格分隔)
+  #         packages: "platforms;android-34 build-tools;34.0.0 platform-tools"
+  #     - name: 🟢 Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "22"
+  #         # cache: 'npm'
+  #     - name: build
+  #       run: |
+  #         oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+  #         oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+  #         chmod +x job.sh
+  #         ./job.sh
+
+  # tests:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 120
+  #   env:
+  #     GHEVENT: ${{ github.event.inputs.ghevent }}
+  #     CINAME: tests
+  #     GH_TOKEN: ${{ github.token }}
+  #     CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+  #   permissions:
+  #     packages: write
+  #     issues: write
+  #     pull-requests: write
+  #     actions: write
+
+  #   steps:
+  #     - name: Set up JDK
+  #       id: setup-java
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         java-version: 17
+  #         distribution: "temurin"
+  #     - uses: actions/setup-go@main
+  #       # with:
+  #         # go-version: "1.23"
+  #     # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+  #     # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+  #     # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+  #     - name: Cache ORAS binary
+  #       id: cache-oras
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /usr/local/bin/oras
+  #         key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+  #     - name: Setup ORAS (official action)
+  #       id: setup-oras
+  #       if: steps.cache-oras.outputs.cache-hit != 'true'
+  #       continue-on-error: true
+  #       uses: oras-project/setup-oras@main
+  #       with:
+  #         version: 1.2.0
+
+  #     - name: Fallback install ORAS (wget download)
+  #       if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+  #       run: |
+  #         set -e
+  #         ORAS_VERSION="1.2.0"
+  #         ARCH_NAME="$(uname -m)"
+  #         if [ "$ARCH_NAME" != "x86_64" ]; then
+  #           ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+  #         else
+  #           echo "begin download oras for linux-amd64"
+  #           ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+  #         fi
+  #         TMP_DIR="$(mktemp -d)"
+  #         cd "$TMP_DIR"
+  #         for attempt in 1 2 3; do
+  #           echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+  #           if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+  #             break
+  #           fi
+  #           if [ "$attempt" -lt 3 ]; then
+  #             echo "Download failed, retrying in 5s..."
+  #             sleep 5
+  #           fi
+  #         done
+  #         if [ ! -f "${ORAS_TARBALL}" ]; then
+  #           echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+  #           exit 1
+  #         fi
+  #         tar -xzf "${ORAS_TARBALL}"
+  #         chmod +x oras
+  #         mv oras /usr/local/bin/oras
+  #         oras version
+  #     - name: build
+  #       run: |
+  #         oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+  #         oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+  #         chmod +x job.sh
+  #         ./job.sh
+
+  # e2e:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 120
+  #   env:
+  #     GHEVENT: ${{ github.event.inputs.ghevent }}
+  #     CINAME: e2e
+  #     GH_TOKEN: ${{ github.token }}
+  #     CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+  #   permissions:
+  #     packages: write
+  #     issues: write
+  #     pull-requests: write
+  #     actions: write
+
+  #   steps:
+  #     - name: Set up JDK
+  #       id: setup-java
+  #       uses: actions/setup-java@v4
+  #       with:
+  #         java-version: 17
+  #         distribution: "temurin"
+  #     - uses: actions/setup-go@main
+  #       # with:
+  #         # go-version: "1.23"
+  #     # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+  #     # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+  #     # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+  #     - name: Cache ORAS binary
+  #       id: cache-oras
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: /usr/local/bin/oras
+  #         key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+  #     - name: Setup ORAS (official action)
+  #       id: setup-oras
+  #       if: steps.cache-oras.outputs.cache-hit != 'true'
+  #       continue-on-error: true
+  #       uses: oras-project/setup-oras@main
+  #       with:
+  #         version: 1.2.0
+
+  #     - name: Fallback install ORAS (wget download)
+  #       if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+  #       run: |
+  #         set -e
+  #         ORAS_VERSION="1.2.0"
+  #         ARCH_NAME="$(uname -m)"
+  #         if [ "$ARCH_NAME" != "x86_64" ]; then
+  #           ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+  #         else
+  #           echo "begin download oras for linux-amd64"
+  #           ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+  #         fi
+  #         TMP_DIR="$(mktemp -d)"
+  #         cd "$TMP_DIR"
+  #         for attempt in 1 2 3; do
+  #           echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+  #           if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+  #             break
+  #           fi
+  #           if [ "$attempt" -lt 3 ]; then
+  #             echo "Download failed, retrying in 5s..."
+  #             sleep 5
+  #           fi
+  #         done
+  #         if [ ! -f "${ORAS_TARBALL}" ]; then
+  #           echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+  #           exit 1
+  #         fi
+  #         tar -xzf "${ORAS_TARBALL}"
+  #         chmod +x oras
+  #         mv oras /usr/local/bin/oras
+  #         oras version
+
+  #     - name: build
+  #       run: |
+  #         oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+  #         oras pull ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+  #         chmod +x job.sh
+  #         ./job.sh
+
+  #TODO 动态一个job
   trivy:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
     permissions:
       packages: write
       issues: write
       pull-requests: write
       actions: write
     needs:
-    - build 
+      - basic-jobs
     steps:
-    - name: Set up JDK
-      id: setup-java
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: 'temurin'
-    - uses: actions/setup-go@main
-      with:
-        go-version: '1.23'
-    - uses: oras-project/setup-oras@main
-      with:
-        version: 1.2.0
+      - name: Set up JDK
+        id: setup-java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "temurin"
+      - uses: actions/setup-go@main
+        
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
 
-    - name: trivy
-      env:
-        GHEVENT: ${{ github.event.inputs.ghevent }}
-        CINAME: trivy
-        GH_TOKEN: ${{ github.token }}
-        CURRENT_GHEVENT: ${{ toJSON(github.event) }}
-      run: |
-        oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
-        chmod +x job.sh
-        ./job.sh
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
 
-  # TODO 动态化 matrix ?
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
+
+      - name: trivy
+        env:
+          GHEVENT: ${{ github.event.inputs.ghevent }}
+          CINAME: trivy
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_GHEVENT: ${{ toJSON(github.event) }}
+        run: |
+          oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+          chmod +x job.sh
+          ./job.sh
+
+  # 动态 CI matrix jobs
   ci:
     runs-on: ${{ matrix.runasos }}
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout || 30 }}
+    needs: setup
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
       CINAME: ci
@@ -137,90 +660,216 @@ jobs:
       CI_PROFILE: ${{ matrix.profile }}
     strategy:
       fail-fast: false
-      matrix:
-        java_version: 
-          - '17'
-          # - '21'
-        profile:
-        # 应该放到 e2e 测试?
-          - default # sqlite3
-          # - postgresql
-          # - mysql
-        runasos:
-          - ubuntu-latest
-          - ubuntu-24.04-arm
+      matrix: ${{ fromJSON(needs.setup.outputs.ci-matrix) }}
     permissions:
       packages: write
       issues: write
       pull-requests: write
       actions: write
     steps:
-    - uses: oras-project/setup-oras@main
-      with:
-        version: 1.2.0
-    - uses: actions/setup-go@main
-      with:
-        go-version: '1.23'
-    - name: Set up JDK
-      id: setup-java
-      uses: actions/setup-java@v4
-      with:
-      #TODO inputs.java_version
-        java-version: ${{ matrix.java_version }}
-        distribution: 'temurin'
-        # cache: 'maven'
-    - name: ci
-      run: |
-        oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
-        oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
-        chmod +x job.sh
-        ./job.sh
+      - name: Configure Fast APT Mirror
+        uses: vegardit/fast-apt-mirror.sh@v1
+        with:
+          healthchecks: 20
+          speedtests: 10
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
+      - uses: actions/setup-go@main
+        
+      - name: Set up JDK
+        id: setup-java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java_version }}
+          distribution: "temurin"
+      # - name: 🤖 Setup Android SDK
+      #   uses: android-actions/setup-android@v3
+      #   with:
+      #     # 安装必要的 Android SDK 组件 (使用空格分隔)
+      #     packages: "platforms;android-34 build-tools;34.0.0 platform-tools"
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: ci
+        run: |
+          oras login -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io
+          oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+          chmod +x job.sh
+          ./job.sh
+      - name: run failed
+        if: ${{ failure() }}
+        run: |
+          if [ -f always.sh ];then
+            chmod +x failed.sh 
+            ./failed.sh
+          fi
+
+      - name: run always
+        if: ${{ always() }}
+        run: |
+          echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
 
 
+  # 动态 always jobs
   alwaysjob:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: ${{ matrix.timeout_minutes || 120 }}
     if: always()
+    needs:
+      - setup
+      - basic-jobs
+      - ci
+      - trivy
+      # - build
+      # - e2e
     strategy:
       fail-fast: false
       matrix:
-        CINAME:
-        - watcher 
-        - deployer
+        CINAME: ${{ fromJSON(needs.setup.outputs.always-jobs) }}
     env:
       GHEVENT: ${{ github.event.inputs.ghevent }}
       CINAME: ${{ matrix.CINAME }}
       GH_TOKEN: ${{ github.token }}
       CURRENT_GHEVENT: ${{ toJSON(github.event) }}
-    needs:
-    # - prlabel 
-    - build
-    - ci
-    - e2e
-    - trivy
     permissions:
       packages: write
       issues: write
       pull-requests: write
       actions: write
     steps:
-    - name: Set up JDK
-      id: setup-java
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: 'temurin'
+      - name: Set up JDK
+        id: setup-java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "temurin"
 
-    - uses: actions/setup-go@main
-      with:
-        go-version: '1.23'
+      - uses: actions/setup-go@main
+        
 
-    - uses: oras-project/setup-oras@main
-      with:
-        version: 1.2.0
+      # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
+      # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
+      # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
+      - name: Cache ORAS binary
+        id: cache-oras
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/oras
+          key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
 
-    - name: build
-      run: |
-        oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
-        chmod +x job.sh
-        ./job.sh
+      - name: Setup ORAS (official action)
+        id: setup-oras
+        if: steps.cache-oras.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: oras-project/setup-oras@main
+        with:
+          version: 1.2.0
+
+      - name: Fallback install ORAS (wget download)
+        if: steps.cache-oras.outputs.cache-hit != 'true' && steps.setup-oras.outcome != 'success'
+        run: |
+          set -e
+          ORAS_VERSION="1.2.0"
+          ARCH_NAME="$(uname -m)"
+          if [ "$ARCH_NAME" != "x86_64" ]; then
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_arm64.tar.gz"
+          else
+            echo "begin download oras for linux-amd64"
+            ORAS_TARBALL="oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          fi
+          TMP_DIR="$(mktemp -d)"
+          cd "$TMP_DIR"
+          for attempt in 1 2 3; do
+            echo "Attempt ${attempt}: downloading ${ORAS_TARBALL}"
+            if wget --no-check-certificate -q "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/${ORAS_TARBALL}"; then
+              break
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Download failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          if [ ! -f "${ORAS_TARBALL}" ]; then
+            echo "ERROR: Failed to download ${ORAS_TARBALL} after 3 attempts"
+            exit 1
+          fi
+          tar -xzf "${ORAS_TARBALL}"
+          chmod +x oras
+          mv oras /usr/local/bin/oras
+          oras version
+
+      - name: Run job
+        run: |
+          oras pull -uliangyuanpeng -p${{ secrets.GITHUB_TOKEN }} ghcr.io/liangyuanpeng/lanfiles:jobs-ci
+          chmod +x job.sh
+          ./job.sh
+
+      - name: run failed
+        if: ${{ failure() }}
+        run: |
+          if [ -f always.sh ];then
+            chmod +x failed.sh 
+            ./failed.sh
+          fi
+
+      - name: run always
+        if: ${{ always() }}
+        run: |
+          echo "run always shell"
+          if [ -f always.sh ];then
+            chmod +x always.sh
+            ./always.sh
+          fi
