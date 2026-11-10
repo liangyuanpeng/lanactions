@@ -55,6 +55,13 @@ jobs:
           path: /usr/local/bin/oras
           key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
 
+      - name: Cache mc binary
+        id: cache-mc
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/mc
+          key: mc-${{ runner.os }}-${{ runner.arch }}
+
       - name: Setup ORAS (official action)
         id: setup-oras
         if: steps.cache-oras.outputs.cache-hit != 'true'
@@ -179,6 +186,13 @@ jobs:
         with:
           path: /usr/local/bin/oras
           key: oras-1.2.0-${{ runner.os }}-${{ runner.arch }}
+
+      - name: Cache mc binary
+        id: cache-mc
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/mc
+          key: mc-${{ runner.os }}-${{ runner.arch }}
 
       - name: Setup ORAS (official action)
         id: setup-oras
