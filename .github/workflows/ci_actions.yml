@@ -150,6 +150,26 @@ jobs:
       - uses: actions/setup-go@main
         # with:
         #   go-version: "1.23"
+      # 动态解析 Go 缓存路径与版本，供下方缓存 step 使用。
+      # 注意：仓库由 job.sh 内部 git clone，setup-go 运行时 go.sum 尚不存在，
+      # 因此 setup-go 的 cache:true 无法生成基于依赖的 key，这里用显式 actions/cache 代替。
+      # 版本号不硬编码，key 用 go env GOVERSION 动态取值，跟随 runner 上实际安装的 Go（@main 会取最新稳定版）。
+      - name: Get Go env (cache paths)
+        id: go-env
+        run: |
+          echo "gocache=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+          echo "gomodcache=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "goversion=$(go env GOVERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Go build & module cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.go-env.outputs.gocache }}
+            ${{ steps.go-env.outputs.gomodcache }}
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ steps.go-env.outputs.goversion }}-${{ matrix.job_type }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-go-${{ steps.go-env.outputs.goversion }}-
       # oras-project/setup-oras 官方 action 偶尔会因 GitHub 代理返回 504 而失败，
       # 这里用 continue-on-error 容错（失败不中断 CI），失败时回退到 wget 手动下载安装，
       # 并把二进制缓存到 GitHub Actions cache，避免后续重复下载。
